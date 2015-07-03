@@ -1,0 +1,31 @@
+{
+    "name": "danack/tier",
+    "description": "An example of how to implement an application using DI with tiers",
+    "keywords": ["DI", "Auryn", "application", "example"],
+
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dan Ackroyd",
+            "email": "Danack@basereality.com",
+            "homepage": "http://www.basereality.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Tier": "lib/"
+        }
+    },
+    "require-dev": {
+        "mockery/mockery": "0.9.1",
+        "nikic/fast-route": "~0.2.0",
+        "phpunit/phpunit": "3.7.*",
+        "rdlowrey/auryn": "v1.0.0-alpha as 0.14.5"
+    },
+    "require":{
+        "nikic/php-parser": "^0.9.3",
+        "danack/githubartaxservice": "^0.4.6",
+        "danack/jig": "^0.13.0"
+    },
+    "minimum-stability": "alpha"
+}
