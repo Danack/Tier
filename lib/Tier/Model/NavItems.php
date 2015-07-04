@@ -7,7 +7,10 @@ class NavItems implements \IteratorAggregate  {
 
     private $navItems = array();
 
+    
+
     public function __construct() {
+
         $this->navItems = [
             new NavItem('/', 'Home'),
             new NavItem('/dependency', 'Dependencies'),
