@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "30109c83b0e8a5e8bab7da9fca77ff9a",
+    "hash": "03ded54448a2e61ac7e3dd645d1521e9",
     "packages": [
         {
             "name": "amphp/amp",
@@ -240,7 +240,7 @@
         },
         {
             "name": "danack/danackhttp2",
-            "version": "1.2.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/HTTP2.git",
@@ -399,8 +399,51 @@
             "time": "2013-11-28 15:57:15"
         },
         {
+            "name": "nikic/fast-route",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nikic/FastRoute.git",
+                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/7dc9a43cb856debc22fe158a1144018e16f7a637",
+                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FastRoute\\": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Nikita Popov",
+                    "email": "nikic@php.net"
+                }
+            ],
+            "description": "Fast request router for PHP",
+            "keywords": [
+                "router",
+                "routing"
+            ],
+            "time": "2014-05-17 11:33:04"
+        },
+        {
             "name": "nikic/php-parser",
-            "version": "v0.9.5",
+            "version": "0.9.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
@@ -442,6 +485,114 @@
                 "php"
             ],
             "time": "2014-07-23 18:24:17"
+        },
+        {
+            "name": "rdlowrey/arya",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rdlowrey/Arya.git",
+                "reference": "4250664c6d4cf905d6d7c322a9f618a01375dac8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rdlowrey/Arya/zipball/4250664c6d4cf905d6d7c322a9f618a01375dac8",
+                "reference": "4250664c6d4cf905d6d7c322a9f618a01375dac8",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/fast-route": "~0.2.0",
+                "php": ">=5.4.0",
+                "rdlowrey/auryn": "~0.14.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7",
+                "rdlowrey/artax": "~0.6.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Arya\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com",
+                    "role": "Creator / Lead Developer"
+                }
+            ],
+            "description": "A microframework for PHP 5.4+",
+            "homepage": "https://github.com/rdlowrey/Arya",
+            "keywords": [
+                "dependency-injection",
+                "microframework",
+                "routing"
+            ],
+            "time": "2015-01-12 15:58:13"
+        },
+        {
+            "name": "rdlowrey/auryn",
+            "version": "v1.0.0-alpha",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rdlowrey/Auryn.git",
+                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rdlowrey/Auryn/zipball/b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
+                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "athletic/athletic": "~0.1",
+                "phpunit/phpunit": "~4.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Auryn\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dan Ackroyd",
+                    "email": "Danack@basereality.com",
+                    "homepage": "http://www.basereality.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com",
+                    "role": "Creator / Main Developer"
+                },
+                {
+                    "name": "Levi Morrison",
+                    "email": "levim@php.net",
+                    "homepage": "http://morrisonlevi.github.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Auryn is a dependency injector for bootstrapping object-oriented PHP applications.",
+            "homepage": "https://github.com/rdlowrey/Auryn",
+            "keywords": [
+                "dependency injection",
+                "dic",
+                "ioc"
+            ],
+            "time": "2015-05-27 12:47:19"
         },
         {
             "name": "rdlowrey/nbsock",
@@ -564,51 +715,8 @@
             "time": "2014-05-02 12:16:45"
         },
         {
-            "name": "nikic/fast-route",
-            "version": "v0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/FastRoute.git",
-                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/7dc9a43cb856debc22fe158a1144018e16f7a637",
-                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "FastRoute\\": "src/"
-                },
-                "files": [
-                    "src/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Popov",
-                    "email": "nikic@php.net"
-                }
-            ],
-            "description": "Fast request router for PHP",
-            "keywords": [
-                "router",
-                "routing"
-            ],
-            "time": "2014-05-17 11:33:04"
-        },
-        {
             "name": "phpunit/php-code-coverage",
-            "version": "1.2.18",
+            "version": "1.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
@@ -669,16 +777,16 @@
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "1.4.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "a923bb15680d0089e2316f7a4af8f437046e96bb"
+                "reference": "6150bf2c35d3fc379e50c7602b75caceaa39dbf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/a923bb15680d0089e2316f7a4af8f437046e96bb",
-                "reference": "a923bb15680d0089e2316f7a4af8f437046e96bb",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/6150bf2c35d3fc379e50c7602b75caceaa39dbf0",
+                "reference": "6150bf2c35d3fc379e50c7602b75caceaa39dbf0",
                 "shasum": ""
             },
             "require": {
@@ -712,7 +820,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2015-04-02 05:19:05"
+            "time": "2015-06-21 13:08:43"
         },
         {
             "name": "phpunit/php-text-template",
@@ -848,7 +956,7 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "3.7.38",
+            "version": "3.7.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
@@ -921,26 +1029,34 @@
         },
         {
             "name": "phpunit/phpunit-mock-objects",
-            "version": "1.2.3",
+            "version": "1.2.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit-mock-objects.git",
-                "reference": "5794e3c5c5ba0fb037b11d8151add2a07fa82875"
+                "reference": "c39c4511c3b007539eb170c32cbc2af49a07351a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/5794e3c5c5ba0fb037b11d8151add2a07fa82875",
-                "reference": "5794e3c5c5ba0fb037b11d8151add2a07fa82875",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit-mock-objects/zipball/c39c4511c3b007539eb170c32cbc2af49a07351a",
+                "reference": "c39c4511c3b007539eb170c32cbc2af49a07351a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3",
                 "phpunit/php-text-template": ">=1.1.1@stable"
             },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*@dev"
+            },
             "suggest": {
                 "ext-soap": "*"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.2.x-dev"
+                }
+            },
             "autoload": {
                 "classmap": [
                     "PHPUnit/"
@@ -966,91 +1082,32 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2013-01-13 10:24:48"
-        },
-        {
-            "name": "rdlowrey/auryn",
-            "version": "v1.0.0-alpha",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rdlowrey/Auryn.git",
-                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/Auryn/zipball/b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
-                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "athletic/athletic": "~0.1",
-                "phpunit/phpunit": "~4.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Auryn\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dan Ackroyd",
-                    "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Main Developer"
-                },
-                {
-                    "name": "Levi Morrison",
-                    "email": "levim@php.net",
-                    "homepage": "http://morrisonlevi.github.com/",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Auryn is a dependency injector for bootstrapping object-oriented PHP applications.",
-            "homepage": "https://github.com/rdlowrey/Auryn",
-            "keywords": [
-                "dependency injection",
-                "dic",
-                "ioc"
-            ],
-            "time": "2015-05-27 12:47:19"
+            "time": "2014-02-16 12:43:56"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.7.1",
+            "version": "2.8.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "9808e75c609a14f6db02f70fccf4ca4aab53c160"
+                "reference": "000e7fc2653335cd42c6d21405dac1c74224a387"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/9808e75c609a14f6db02f70fccf4ca4aab53c160",
-                "reference": "9808e75c609a14f6db02f70fccf4ca4aab53c160",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/000e7fc2653335cd42c6d21405dac1c74224a387",
+                "reference": "000e7fc2653335cd42c6d21405dac1c74224a387",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.9"
             },
             "require-dev": {
-                "symfony/phpunit-bridge": "~2.7"
+                "symfony/phpunit-bridge": "~2.7|~3.0.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.7-dev"
+                    "dev-master": "2.8-dev"
                 }
             },
             "autoload": {
@@ -1074,7 +1131,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2015-06-10 15:30:22"
+            "time": "2015-07-01 14:16:54"
         }
     ],
     "aliases": [
@@ -1085,9 +1142,9 @@
             "package": "rdlowrey/auryn"
         }
     ],
-    "minimum-stability": "alpha",
+    "minimum-stability": "dev",
     "stability-flags": {
-        "rdlowrey/auryn": 15
+        "rdlowrey/arya": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

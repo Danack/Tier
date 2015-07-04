@@ -2,7 +2,9 @@
 
 namespace Tier\Controller;
 
-use Tier\Response\JsonResponse;
+//use Tier\Response\JsonResponse;
+
+use Arya\JsonBody;
 
 class ApiExample {
     public function call()
@@ -14,7 +16,7 @@ class ApiExample {
         $data['bar'] = '456';
         $data['instruction'] = 'Please press back on your browser to return to the previous page.';
 
-        return new JsonResponse($data);
+        return new JsonBody($data, JSON_PRETTY_PRINT);
     }
 }
 

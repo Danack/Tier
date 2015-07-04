@@ -5,6 +5,6 @@
 
     <h3>{$errorInfo->title}</h3>
     <p>
-        Oops something went wrong getting the commit list: {$errorInfo->description}
+        Oops something went wrong getting info from Github: {$errorInfo->description}
     </p>
 {/block}

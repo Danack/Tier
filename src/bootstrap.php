@@ -4,18 +4,27 @@
 $autoloader = require_once realpath(__DIR__).'/../vendor/autoload.php';
 $autoloader->add('Jig', [realpath(__DIR__).'/../var/compile/']);
 
+use Amp\Artax\Client as ArtaxClient;
+use ArtaxServiceBuilder\ResponseCache;
+use Arya\Request;
+use Arya\Response;
 use Auryn\Injector;
 use Jig\JigConfig;
 use Jig\Jig;
-use Tier\Response\StandardHTTPResponse;
-use Tier\Response\TextResponse;
+use Tier\ResponseBody\HtmlBody;
 use Jig\JigBase;
 use Tier\Tier;
 use Tier\InjectionParams;
 use Tier\Data\RouteList;
-use Amp\Artax\Client as ArtaxClient;
-use ArtaxServiceBuilder\ResponseCache;
 use GithubService\GithubArtaxService\GithubService;
+use Tier\Data\ErrorInfo;
+
+
+function generateRequest() {
+    $_input = empty($_SERVER['CONTENT-LENGTH']) ? NULL : fopen('php://input', 'r');
+
+    return new Request($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
+}
 
 /**
  * Parse errors cannot be handled inside the same file where they originate.
@@ -43,6 +52,8 @@ register_shutdown_function(function() {
         header_remove();
         header("HTTP/1.0 500 Internal Server Error");
 
+        define('DEBUG', true);
+        
         if (DEBUG) {
             extract($lastError);
             $msg = sprintf("Fatal error: %s in %s on line %d", $message, $file, $line);
@@ -56,11 +67,59 @@ register_shutdown_function(function() {
     }
 });
 
+function controllerAsFunction(GithubService $githubService)
+{
+    try {
+        $repoCommitsCommand = $githubService->listRepoCommits(null, 'danack', 'imagick-demos');
+        $repoCommitsCommand->setPerPage(10);
+        $commits = $repoCommitsCommand->execute();
+
+        return getTemplateCallable('pages/commits', ['GithubService\Model\Commits' => $commits]);   
+    }
+    catch (\Exception $e) {
+        $errorInfo = new ErrorInfo(
+            "Error getting commits",
+            $e->getMessage()
+        );
+
+        return getTemplateCallable('pages/error', ['Tier\Data\ErrorInfo' => $errorInfo]);
+    }
+}
+
 
 function createGithubArtaxService(ArtaxClient $client, \Amp\Reactor $reactor, ResponseCache $cache) {
-
     return new GithubService($client, $reactor, $cache, "Danack/Tier");
 }
+
+
+function getEnvWithDefault($env, $default)
+{
+    $value = getenv($env);
+    if ($value === false) {
+        return $default;
+    }
+    return $value;
+}
+
+function createPDOSQLConfig() {    
+    return new \Tier\Data\PDOSQLConfig(
+        getEnvWithDefault('pdo.dsn', null),
+        getEnvWithDefault('pdo.user', null),
+        getEnvWithDefault('pdo.password', null)
+    );
+}
+
+function createPDO(\Tier\Data\PDOSQLConfig $pdoSQLConfig)
+{
+    $instance = new PDO(
+        $pdoSQLConfig->dsn,
+        $pdoSQLConfig->user,
+        $pdoSQLConfig->password
+    );
+    
+    return $instance;
+}
+
 
 
 
@@ -80,11 +139,14 @@ function bootstrapInjector() {
     $injector->share('Jig\JigRender');
     $injector->share('Jig\Jig');
     $injector->share('Jig\JigConverter');
-    
+
+    $injector->delegate('Tier\Data\PDOSQLConfig', 'createPDOSQLConfig');
+    $injector->share('Tier\Data\PDOSQLConfig');
+
+    $injector->delegate('\PDO', 'createPDO');
+    $injector->share('\PDO');
+
     $injector->delegate('Amp\Reactor', 'Amp\getReactor');
-
-    
-
     $injector->share('Amp\Reactor');
 
     $injector->alias(
@@ -97,30 +159,16 @@ function bootstrapInjector() {
         'createGithubArtaxService'
     );
 
-      
-    
     $injector->share($injector); //yolo service locator
 
     return $injector;
 }
 
-
-
-
-////$reactor = \Amp\getReactor();
-////$cache = new NullResponseCache();
-//$client = new ArtaxClient($reactor);
-////$client->setOption(ArtaxClient::OP_MS_CONNECT_TIMEOUT, 5000);
-////$client->setOption(ArtaxClient::OP_MS_KEEP_ALIVE_TIMEOUT, 1000);
-////$githubAPI = new GithubArtaxService($client, $reactor, $cache, "Danack/test");
-
-
-
 function createTemplateResponse(JigBase $template)
 {
     $text = $template->render();
 
-    return new TextResponse($text);
+    return new HtmlBody($text);
 }
 
 function getTemplateCallable($templateName, array $sharedObjects = [])
@@ -140,13 +188,12 @@ function getTemplateCallable($templateName, array $sharedObjects = [])
 }
 
 
-function getRouteCallable(RouteList $routeList) {
+function getRouteCallable(RouteList $routeList, Response $response) {
 
     $fn = function (FastRoute\RouteCollector $r) use ($routeList) {
         routesFunction($routeList, $r);
     };
-    
-    
+
     $dispatcher = FastRoute\simpleDispatcher($fn);
 
     $httpMethod = 'GET'; //yay hard coding.
@@ -166,34 +213,36 @@ function getRouteCallable(RouteList $routeList) {
 
     switch ($routeInfo[0]) {
         case FastRoute\Dispatcher::NOT_FOUND: {
-            return new StandardHTTPResponse(404, $uri, "Not found");
+            $response->setStatus(404);
+            return getTemplateCallable('error/error404');
         }
 
         case FastRoute\Dispatcher::METHOD_NOT_ALLOWED: {
+            // TODO - this is meant to set a header saying which methods
             $allowedMethods = $routeInfo[1];
-            // ... 405 Method Not Allowed
-            return new StandardHTTPResponse(405, $uri, "Not allowed");
+            $response->setStatus(405);
+            return getTemplateCallable('error/error405');
         }
 
         case FastRoute\Dispatcher::FOUND: {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
             $params = InjectionParams::fromParams($vars);
-            
+
             return new Tier($handler, $params);
         }
-            
+
         default: {
             //Not supported
-            return new StandardHTTPResponse(404, $uri, "Not found");
+            // TODO - this is meant to set a header saying which methods
+            $response->setStatus(404);
+            return getTemplateCallable('error/error404');
             break;
         }
     }
 }
 
-
 function routesFunction(RouteList $routeList, FastRoute\RouteCollector $r) {
-
     foreach ($routeList->getRoutes() as $route) {
         $r->addRoute(
             $route->method,
@@ -236,3 +285,56 @@ function getLastModifiedTime($timestamp) {
 function getFileLastModifiedTime($fileNameToServe) {
     return getLastModifiedTime(filemtime($fileNameToServe));
 }
+
+
+function sendErrorResponse(Request $request, $body, $errorCode)
+{
+    $response = new Response();
+    $response->setBody($body);
+    $response->setStatus($errorCode);
+
+    sendResponse($request, $response);
+}
+
+
+
+function sendResponse(Request $request, Response $response, $autoAddReason = true)
+{
+    $statusCode = $response->getStatus();
+    $reason = $response->getReasonPhrase();
+    if ($autoAddReason && empty($reason)) {
+        $reasonConstant = "Arya\\Reason::HTTP_{$statusCode}";
+        $reason = defined($reasonConstant) ? constant($reasonConstant) : '';
+        $response->setReasonPhrase($reason);
+    }
+
+    $statusLine = sprintf("HTTP/%s %s", $request['SERVER_PROTOCOL'], $statusCode);
+    if (isset($reason[0])) {
+        $statusLine .= " {$reason}";
+    }
+
+    header($statusLine);
+
+    foreach ($response->getAllHeaderLines() as $headerLine) {
+        header($headerLine, $replace = FALSE);
+    }
+
+    flush(); // Force header output
+
+    $body = $response->getBody();
+
+    if (method_exists($body, '__toString')) {
+        echo $body->__toString();
+    }
+    else if (is_string($body)) {
+        echo $body;
+    } 
+    elseif (is_callable($body)) {
+        $this->outputCallableBody($body);
+    }
+    else {
+        //this is bad.
+    }
+}
+
+

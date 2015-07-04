@@ -11,8 +11,11 @@ class NavItems implements \IteratorAggregate  {
         $this->navItems = [
             new NavItem('/', 'Home'),
             new NavItem('/dependency', 'Dependencies'),
+            new NavItem('/routeParams', 'Route params'),
             new NavItem("/internalRedirect", 'Internal redirects'),
             new NavItem("/apiExample", 'Direct response'),
+            new NavItem("/functions", 'Function as a controller'),
+            new NavItem("/usesDB", 'Controller using DB'),
         ];
     }
 

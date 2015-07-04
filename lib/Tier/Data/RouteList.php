@@ -19,6 +19,13 @@ class RouteList
         $fn('GET', "/dependency", ['Tier\Controller\GithubAPI', 'display']);
         $fn('GET', "/internalRedirect", ['Tier\Controller\InternalRedirect', 'firstCall']);
         $fn('GET', "/apiExample", ['Tier\Controller\ApiExample', 'call']);
+        
+        $fn('GET', "/functions", 'controllerAsFunction');
+        $fn('GET', "/routeParams/{username}", ['Tier\Controller\RouteParams', 'displayName']);
+        $fn('GET', "/routeParams", ['Tier\Controller\RouteParams', 'display']);
+        
+        
+        $fn('GET', "/usesDB", ['Tier\Controller\UsesDatabase', 'display']);
     }
 
     /**

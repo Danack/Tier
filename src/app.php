@@ -1,29 +1,37 @@
 <?php
 
 use Tier\Tier;
-use Tier\Response\Response;
-use Tier\Response\TextResponse;
 
+use Arya\Response;
+use Arya\Body as ResponseBody;
+use Auryn\InjectorException;
+
+use Tier\ResponseBody\ExceptionHtmlBody;
 
 require_once "../src/bootstrap.php";
 
 $injector = bootstrapInjector();
 
-$callable = 'getRouteCallable';
+$request = generateRequest();
+$injector->share($request);
 
+$response = new Response;
+$injector->share($response);
+
+$callable = 'getRouteCallable';
 
 $obj = $injector->make('GithubService\GithubArtaxService\GithubService');
 
 
-
 try {
     $count = 0;
-    
+    $responseBody = null;
+
     do {
         $result = $injector->execute($callable);
     
-        if ($result instanceof Response) {
-            $result->send();
+        if ($result instanceof ResponseBody) {
+            $responseBody = $result;
             break;
         }
         else if ($result instanceof Tier) {
@@ -39,13 +47,26 @@ try {
         
         $count++;
     } while ($count < 10);
+    
+    if ($responseBody) {
+        $response->setBody($responseBody);
+        sendResponse($request, $response);
+    }
+}
+catch (InjectorException $ie) {
+    $body = new ExceptionHtmlBody($je);
+    sendErrorResponse($request, $body, 500);
 }
 catch(Jig\JigException $je) {
-    echo "Error rendering template: ".$je->getMessage()."<br/>";
-    echo nl2br($je->getTraceAsString());    
+    $body = new ExceptionHtmlBody($je);
+    sendErrorResponse($request, $body, 500);
 }
 catch(\Exception $e) {
-    echo "Unexpected exception: " .$e->getMessage()."<br/>";
-    echo nl2br($e->getTraceAsString());
+    $body = new ExceptionHtmlBody($e);
+    sendErrorResponse($request, $body, 500);
 }
 
+
+
+        
+        
