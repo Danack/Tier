@@ -12,12 +12,12 @@ class InjectionParams
     public $params;
     public $delegates;
 
-    public function __construct(array $shares = [], array $aliases = [], array $params = [], array $delegates = [])
+    public function __construct(array $shares = [], array $aliases = [], array $delegates = [],  array $params = [])
     {
         $this->shares = $shares;
         $this->aliases = $aliases;
-        $this->params = $params;
         $this->delegates = $delegates;
+        $this->params = $params;
     }
 
     /**

@@ -1,72 +1,35 @@
 <?php
 
-use Tier\Tier;
-
-use Arya\Response;
-use Arya\Body as ResponseBody;
+use Arya\Request;
 use Auryn\InjectorException;
-
+use Jig\JigException;
+use Tier\Tier;
+use Tier\TierApp;
 use Tier\ResponseBody\ExceptionHtmlBody;
 
-require_once "../src/bootstrap.php";
-
-$injector = bootstrapInjector();
-
-$request = generateRequest();
-$injector->share($request);
-
-$response = new Response;
-$injector->share($response);
-
-$callable = 'getRouteCallable';
-
-$obj = $injector->make('GithubService\GithubArtaxService\GithubService');
-
+$autoloader = require_once realpath(__DIR__).'/../vendor/autoload.php';
+$autoloader->add('Jig', [realpath(__DIR__).'/../var/compile/']);
+$injectionParams = require_once "injectionParams.php";
+require_once "appFunctions.php";
+require_once "../lib/Tier/tierFunctions.php";
 
 try {
-    $count = 0;
-    $responseBody = null;
-
-    do {
-        $result = $injector->execute($callable);
-    
-        if ($result instanceof ResponseBody) {
-            $responseBody = $result;
-            break;
-        }
-        else if ($result instanceof Tier) {
-            addInjectionParams($injector, $result);
-            $callable = $result->getCallable();
-        }
-        else if ($result === null) {
-            throw new \Exception("Return value of tier must be either a response or a tier, null given.");
-        }
-        else {
-            throw new \Exception("Return value of tier must be either a response or a tier, instead ".get_class($result).' returned.');
-        }
-        
-        $count++;
-    } while ($count < 10);
-    
-    if ($responseBody) {
-        $response->setBody($responseBody);
-        sendResponse($request, $response);
-    }
+    $_input = empty($_SERVER['CONTENT-LENGTH']) ? NULL : fopen('php://input', 'r');
+    $request = new Request($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
+    $tier = new Tier('getRouteCallable', $injectionParams);
+    $app = new TierApp($tier);
+    $app->execute($request);
 }
 catch (InjectorException $ie) {
-    $body = new ExceptionHtmlBody($je);
-    sendErrorResponse($request, $body, 500);
+    // TODO - add custom notifications.
+    $body = new ExceptionHtmlBody($ie);
+    \Tier\sendErrorResponse($request, $body, 500);
 }
-catch(Jig\JigException $je) {
+catch (JigException $je) {
     $body = new ExceptionHtmlBody($je);
-    sendErrorResponse($request, $body, 500);
+    \Tier\sendErrorResponse($request, $body, 500);
 }
-catch(\Exception $e) {
+catch (\Exception $e) {
     $body = new ExceptionHtmlBody($e);
-    sendErrorResponse($request, $body, 500);
+    \Tier\sendErrorResponse($request, $body, 500);
 }
-
-
-
-        
-        
