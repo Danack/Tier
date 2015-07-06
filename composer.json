@@ -22,10 +22,11 @@
     },
     "require":{
         "danack/githubartaxservice": "^0.4.6",
-        "danack/jig": "^0.13.0",
+        "danack/jig": "~0.13.0",
         "nikic/fast-route": "~0.2.0",
         "rdlowrey/auryn": "v1.0.0-alpha as 0.14.5",
         "rdlowrey/Arya": "dev-master"
     },
+    "prefer-stable": true,
     "minimum-stability": "dev"
 }
