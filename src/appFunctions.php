@@ -13,6 +13,69 @@ use Tier\Data\RouteList;
 use GithubService\GithubArtaxService\GithubService;
 use Tier\Data\ErrorInfo;
 
+
+/**
+ * Read config settings from environment with a default value.
+ * @param $env
+ * @param $default
+ * @return string
+ */
+function getEnvWithDefault($env, $default)
+{
+    $value = getenv($env);
+    if ($value === false) {
+        return $default;
+    }
+    return $value;
+}
+
+
+/**
+ * @return \Tier\Data\PDOSQLConfig
+ */
+function createPDOSQLConfig() {    
+    return new \Tier\Data\PDOSQLConfig(
+        getEnvWithDefault('pdo.dsn', null),
+        getEnvWithDefault('pdo.user', null),
+        getEnvWithDefault('pdo.password', null)
+    );
+}
+
+/**
+ * @param \Tier\Data\PDOSQLConfig $pdoSQLConfig
+ * @return PDO
+ */
+function createPDO(\Tier\Data\PDOSQLConfig $pdoSQLConfig)
+{
+    $instance = new PDO(
+        $pdoSQLConfig->dsn,
+        $pdoSQLConfig->user,
+        $pdoSQLConfig->password
+    );
+    
+    return $instance;
+}
+
+/**
+ * @return JigConfig
+ */
+function createJigConfig()
+{
+    $jigConfig = new JigConfig(
+        __DIR__."/../templates/",
+        __DIR__."/../var/compile/",
+        'tpl',
+        getEnvWithDefault('jig.compile', \Jig\Jig::COMPILE_ALWAYS)
+    );
+
+    return $jigConfig;
+}
+
+/**
+ * An example to show that 'just' a function can be the end point of a route.
+ * @param GithubService $githubService
+ * @return Tier
+ */
 function controllerAsFunction(GithubService $githubService)
 {
     try {
@@ -33,79 +96,40 @@ function controllerAsFunction(GithubService $githubService)
 }
 
 
-function createGithubArtaxService(ArtaxClient $client, \Amp\Reactor $reactor, ResponseCache $cache) {
+/**
+ * @param ArtaxClient $client
+ * @param \Amp\Reactor $reactor
+ * @param ResponseCache $cache
+ * @return GithubService
+ */
+function createGithubArtaxService(ArtaxClient $client, \Amp\Reactor $reactor, ResponseCache $cache)
+{
     return new GithubService($client, $reactor, $cache, "Danack/Tier");
 }
 
-
-function getEnvWithDefault($env, $default)
-{
-    $value = getenv($env);
-    if ($value === false) {
-        return $default;
+/**
+ * Helper function to bind the route list to FastRoute
+ * @param RouteList $routeList
+ * @param \FastRoute\RouteCollector $r
+ */
+function routesFunction(RouteList $routeList, FastRoute\RouteCollector $r) {
+    foreach ($routeList->getRoutes() as $route) {
+        $r->addRoute(
+            $route->method,
+            $route->path,
+            $route->callable
+        );
     }
-    return $value;
-}
-
-function createPDOSQLConfig() {    
-    return new \Tier\Data\PDOSQLConfig(
-        getEnvWithDefault('pdo.dsn', null),
-        getEnvWithDefault('pdo.user', null),
-        getEnvWithDefault('pdo.password', null)
-    );
-}
-
-function createPDO(\Tier\Data\PDOSQLConfig $pdoSQLConfig)
-{
-    $instance = new PDO(
-        $pdoSQLConfig->dsn,
-        $pdoSQLConfig->user,
-        $pdoSQLConfig->password
-    );
-    
-    return $instance;
-}
+};
 
 
-function createJigConfig()
-{
-    $jigConfig = new JigConfig(
-        __DIR__."/../templates/",
-        __DIR__."/../var/compile/",
-        'tpl',
-        \Jig\Jig::COMPILE_ALWAYS
-        //Jig::COMPILE_CHECK_MTIME
-    );
-
-    return $jigConfig;
-}
-
-
-function createTemplateResponse(JigBase $template)
-{
-    $text = $template->render();
-
-    return new HtmlBody($text);
-}
-
-function getTemplateCallable($templateName, array $sharedObjects = [])
-{
-    $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
-        $className = $jigRender->getTemplateCompiledClassname($templateName);
-        $jigRender->checkTemplateCompiled($templateName);
-
-        $alias = [];
-        $alias['Jig\JigBase'] = $className;
-        $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
-
-        return new Tier('createTemplateResponse', $injectionParams);
-    };
-
-    return new Tier($fn);
-}
-
-
-function getRouteCallable(RouteList $routeList, Response $response) {
+/**
+ * The callable that routes a request.
+ * @param RouteList $routeList
+ * @param Response $response
+ * @return Tier
+ */
+function routeRequest(RouteList $routeList, Response $response) {
 
     $fn = function (FastRoute\RouteCollector $r) use ($routeList) {
         routesFunction($routeList, $r);
@@ -159,21 +183,56 @@ function getRouteCallable(RouteList $routeList, Response $response) {
     }
 }
 
-function routesFunction(RouteList $routeList, FastRoute\RouteCollector $r) {
-    foreach ($routeList->getRoutes() as $route) {
-        $r->addRoute(
-            $route->method,
-            $route->path,
-            $route->callable
-        );
-    }
-};
+/**
+ * @param JigBase $template
+ * @return HtmlBody
+ * @throws Exception
+ * @throws \Jig\JigException
+ */
+function createHtmlBody(JigBase $template)
+{
+    $text = $template->render();
+
+    return new HtmlBody($text);
+}
 
 
+/**
+ * Helper function to allow template rendering to be easier.
+ * @param $templateName
+ * @param array $sharedObjects
+ * @return Tier
+ */
+function getTemplateCallable($templateName, array $sharedObjects = [])
+{
+    $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
+        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $jigRender->checkTemplateCompiled($templateName);
+
+        $alias = [];
+        $alias['Jig\JigBase'] = $className;
+        $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
+
+        return new Tier('createHtmlBody', $injectionParams);
+    };
+
+    return new Tier($fn);
+}
+
+/**
+ * Format a time to an rfc2616 timestamp
+ * @param $timestamp
+ * @return string
+ */
 function getLastModifiedTime($timestamp) {
     return gmdate('D, d M Y H:i:s', $timestamp). ' UTC';
 }
 
+/**
+ * Get the rfc2616 timestamp of a file
+ * @param $fileNameToServe
+ * @return string
+ */
 function getFileLastModifiedTime($fileNameToServe) {
     return getLastModifiedTime(filemtime($fileNameToServe));
 }

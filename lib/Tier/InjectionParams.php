@@ -25,7 +25,7 @@ class InjectionParams
      */
     public static function fromParams(array $vars)
     {
-        return new static([], [], $vars, []);
+        return new static([], [], [], $vars);
     }
 
     public function alias($original, $alias)

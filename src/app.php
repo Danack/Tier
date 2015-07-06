@@ -8,16 +8,32 @@ use Tier\TierApp;
 use Tier\ResponseBody\ExceptionHtmlBody;
 
 $autoloader = require_once realpath(__DIR__).'/../vendor/autoload.php';
-$autoloader->add('Jig', [realpath(__DIR__).'/../var/compile/']);
-$injectionParams = require_once "injectionParams.php";
-require_once "appFunctions.php";
+
+// Contains helper functions for the 'framework'.
 require_once "../lib/Tier/tierFunctions.php";
+
+// We need to add the path Jig templates are compiled into to 
+// allow them to be autoloaded
+$autoloader->add('Jig', [realpath(__DIR__).'/../var/compile/']);
+
+// Read application config params
+$injectionParams = require_once "injectionParams.php";
+
+// Contains helper functions for the application.
+require_once "appFunctions.php";
+
 
 try {
     $_input = empty($_SERVER['CONTENT-LENGTH']) ? NULL : fopen('php://input', 'r');
     $request = new Request($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
-    $tier = new Tier('getRouteCallable', $injectionParams);
+
+    // Create the first Tier that needs to be run.
+    $tier = new Tier('routeRequest', $injectionParams);
+
+    // Create the Tier application
     $app = new TierApp($tier);
+
+    // Run it
     $app->execute($request);
 }
 catch (InjectorException $ie) {

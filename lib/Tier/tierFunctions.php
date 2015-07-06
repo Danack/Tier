@@ -5,7 +5,11 @@ namespace Tier;
 use ArtaxServiceBuilder\ResponseCache;
 use Arya\Request;
 use Arya\Response;
+use Auryn\Injector;
 
+/**
+ * 
+ */
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
     if (error_reporting() == 0) {
         return true;
@@ -65,6 +69,11 @@ register_shutdown_function(function() {
     }
 });
 
+/**
+ * @param Request $request
+ * @param $body
+ * @param $errorCode
+ */
 function sendErrorResponse(Request $request, $body, $errorCode)
 {
     $response = new Response();
@@ -74,6 +83,11 @@ function sendErrorResponse(Request $request, $body, $errorCode)
     sendResponse($request, $response);
 }
 
+/**
+ * @param Request $request
+ * @param Response $response
+ * @param bool $autoAddReason
+ */
 function sendResponse(Request $request, Response $response, $autoAddReason = true)
 {
     $statusCode = $response->getStatus();
@@ -111,6 +125,61 @@ function sendResponse(Request $request, Response $response, $autoAddReason = tru
     else {
         //this is bad.
     }
+}
+
+/**
+ * @param Injector $injector
+ * @param Tier $tier
+ * @throws \Auryn\InjectorException
+ */
+function addInjectionParams(Injector $injector, Tier $tier)
+{
+    $injectionParams = $tier->getInjectionParams();
+
+    if (!$injectionParams) {
+        return;
+    }
+        
+    foreach ($injectionParams->getAliases() as $original => $alias) {
+        $injector->alias($original, $alias);
+    }
+    
+    foreach ($injectionParams->getShares() as $share) {
+        $injector->share($share);
+    }
+    
+    foreach ($injectionParams->getParams() as $paramName => $value) {
+        $injector->defineParam($paramName, $value);
+    }
+    
+    foreach ($injectionParams->getDelegates() as $className => $callable) {        
+        $injector->delegate($className, $callable);
+    }
+}
+
+/**
+ * @param $result
+ * @throws TierException
+ */
+function throwWrongTypeException($result) {
+
+    if ($result === null) {
+        throw new TierException("Return value of tier must be either a response or a tier, null given.");
+    }
+
+    if (is_object($result)) {
+        $detail = "object of type '".get_class($result)."' returned.";
+    }
+    else {
+        $detail = "variable of type '".gettype($result)."' returned.";
+    }
+
+    $message = sprintf(
+        "Return value of tier must be either a response or a tier, instead %s returned.'",
+        $detail
+    );
+
+    throw new TierException($message);
 }
 
 

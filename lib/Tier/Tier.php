@@ -60,7 +60,7 @@ class Tier
     }
 
     /**
-     * @return mixed
+     * @return InjectionParams
      */
     public function getInjectionParams()
     {

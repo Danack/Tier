@@ -9,51 +9,7 @@ use Arya\Response;
 use Arya\Body as ResponseBody;
 
 
-function addInjectionParams(Injector $injector, Tier $tier)
-{
-    $injectionParams = $tier->getInjectionParams();
 
-    if (!$injectionParams) {
-        return;
-    }
-        
-    foreach ($injectionParams->getAliases() as $original => $alias) {
-        $injector->alias($original, $alias);
-    }
-    
-    foreach ($injectionParams->getShares() as $share) {
-        $injector->share($share);
-    }
-    
-    foreach ($injectionParams->getParams() as $paramName => $value) {
-        $injector->defineParam($paramName, $value);
-    }
-    
-    foreach ($injectionParams->getDelegates() as $className => $callable) {
-        $injector->delegate($className, $callable);
-    }
-}
-
-function throwWrongTypeException($result) {
-
-    if ($result === null) {
-        throw new TierException("Return value of tier must be either a response or a tier, null given.");
-    }
-
-    if (is_object($result)) {
-        $detail = "object of type ".get_class($result)." returned.";
-    }
-    else {
-        $detail = "Variable of type ".gettype($result)."  returned.";
-    }
-
-    $message = sprintf(
-        "Return value of tier must be either a response or a tier, instead '%s' returned.'",
-        $detail
-    );
-
-    throw new TierException($message);
-}
 
 
 
@@ -70,15 +26,16 @@ class TierApp {
     {
         $this->initialTier = $tier;
     }
-    
-    
+
     public function execute(Request $request)
     {
+        // Create and share these as they need to be the same
+        // across the application
         $injector = new Injector();
-        $injector->share($injector); //yolo
         $response = new Response;
         $injector->share($request);
         $injector->share($response);
+        $injector->share($injector); //yolo
 
         $tier = $this->initialTier;
 
@@ -86,32 +43,36 @@ class TierApp {
         $responseBody = null;
 
         while (true) {
+            //Check we haven't got caught in a redirect loop
             $count++;
             if ($count > $this->MAX_INTERNAL_EXECUTES) {
                 throw new TierException("Too many internal executes");
             }
 
+            // Setup the information created by the previous Tier
             addInjectionParams($injector, $tier);
-
+            
+            // If the next Tier has a setup function, call it
             $setupCallable = $tier->getSetupCallable();
-
             if ($setupCallable) {
                 $injector->execute($setupCallable);
             }
 
-            $callable = $tier->getTierCallable();
-            $result = $injector->execute($callable);
-
+            // Call this Tier's callable
+            $result = $injector->execute($tier->getTierCallable());
+            
+            // If it's a responseBody send it
             if ($result instanceof ResponseBody) {
                 $responseBody = $result;
                 $response->setBody($responseBody);
                 sendResponse($request, $response);
                 return;
-                break;
             }
+            // If it's a new Tier to run, setup the next loop.
             else if ($result instanceof Tier) {
                 $tier = $result;
             }
+            // Otherwise it's an error
             else {
                 throwWrongTypeException($result);
             }
