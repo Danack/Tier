@@ -4,400 +4,8 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6d905cf3163e556e2b24e5f110fb1814",
+    "hash": "fa0542718b4976a46405663219823246",
     "packages": [
-        {
-            "name": "amphp/amp",
-            "version": "v0.15.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/amp.git",
-                "reference": "5a39ec6730c8af07f24a4dd153a5e0455323e254"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/amp/zipball/5a39ec6730c8af07f24a4dd153a5e0455323e254",
-                "reference": "5a39ec6730c8af07f24a4dd153a5e0455323e254",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "suggest": {
-                "pecl/libevent": "Extension for libevent backends (high performance use cases).",
-                "php-uv": "Extension for libuv backends (high performance use cases)."
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Amp\\": "lib/"
-                },
-                "files": [
-                    "lib/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@php.net",
-                    "role": "Creator / Lead Developer"
-                }
-            ],
-            "description": "A non-blocking concurrency framework for PHP applications",
-            "homepage": "https://github.com/amphp/amp",
-            "keywords": [
-                "async",
-                "concurrency",
-                "future",
-                "libevent",
-                "libuv",
-                "non-blocking",
-                "promise"
-            ],
-            "time": "2015-01-22 01:16:07"
-        },
-        {
-            "name": "amphp/artax",
-            "version": "v1.0.0-rc6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/artax.git",
-                "reference": "3e4c07759064c39ca7a8f9c1b4c9742e9b5143fe"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/artax/zipball/3e4c07759064c39ca7a8f9c1b4c9742e9b5143fe",
-                "reference": "3e4c07759064c39ca7a8f9c1b4c9742e9b5143fe",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "~0.15.0",
-                "php": ">=5.4.0",
-                "rdlowrey/nbsock": "~0.5.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Amp\\Artax\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Lead Developer"
-                }
-            ],
-            "description": "Asynchronous parallel HTTP/1.1 client built on the Amp concurrency framework",
-            "homepage": "https://github.com/amphp/artax",
-            "keywords": [
-                "async",
-                "client",
-                "http",
-                "non-blocking",
-                "parallel",
-                "rest"
-            ],
-            "time": "2015-01-05 19:28:04"
-        },
-        {
-            "name": "amphp/dns",
-            "version": "v0.4.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/amphp/dns.git",
-                "reference": "46d1981ff5be827a8407c3f685635dc1926ea4e3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/amphp/dns/zipball/46d1981ff5be827a8407c3f685635dc1926ea4e3",
-                "reference": "46d1981ff5be827a8407c3f685635dc1926ea4e3",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "~0.15.0",
-                "daverandom/libdns": "~0.2",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "mockery/mockery": ">=0.9.1",
-                "phpunit/phpunit": "~4.1.0",
-                "predis/predis": "~0.8.6",
-                "rdlowrey/auryn": ">=0.13.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Amp\\Dns\\": "lib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Wright",
-                    "email": "addr@daverandom.com",
-                    "role": "Creator / Lead Developer"
-                }
-            ],
-            "description": "Asynchronous DNS resolution built on the Amp concurrency framework",
-            "homepage": "https://github.com/amphp/dns",
-            "keywords": [
-                "amp",
-                "async",
-                "client",
-                "dns",
-                "resolve"
-            ],
-            "time": "2015-02-17 20:34:12"
-        },
-        {
-            "name": "danack/artaxservicebuilder",
-            "version": "0.3.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/ArtaxServiceBuilder.git",
-                "reference": "2db70251d131e4b947746829759182dd570c328f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/ArtaxServiceBuilder/zipball/2db70251d131e4b947746829759182dd570c328f",
-                "reference": "2db70251d131e4b947746829759182dd570c328f",
-                "shasum": ""
-            },
-            "require": {
-                "danack/danack-code": "~2.4.4"
-            },
-            "require-dev": {
-                "danack/auryn": "~0.9.5",
-                "danack/danackhttp2": "~1.2.0",
-                "fzaninotto/faker": "*",
-                "mockery/mockery": "0.9.1",
-                "phpunit/phpunit": "4.1.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "ArtaxServiceBuilder": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "time": "2015-01-22 18:31:19"
-        },
-        {
-            "name": "danack/danack-code",
-            "version": "2.4.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/DanackCode.git",
-                "reference": "d14f469e7042a6397214037c20ee92246b1c109a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/DanackCode/zipball/d14f469e7042a6397214037c20ee92246b1c109a",
-                "reference": "d14f469e7042a6397214037c20ee92246b1c109a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.23"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Danack\\Code\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "provides facilities to generate arbitrary code using an object oriented interface",
-            "keywords": [
-                "code",
-                "zf2"
-            ],
-            "time": "2014-09-15 22:26:39"
-        },
-        {
-            "name": "danack/danackhttp2",
-            "version": "1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/HTTP2.git",
-                "reference": "616eadd3acc058eb56e7a1076a94d74d2484024e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/HTTP2/zipball/616eadd3acc058eb56e7a1076a94d74d2484024e",
-                "reference": "616eadd3acc058eb56e7a1076a94d74d2484024e",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "HTTP2": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "./"
-            ],
-            "license": [
-                "New BSD License"
-            ],
-            "authors": [
-                {
-                    "name": "Dan Ackroyd",
-                    "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A fork of HTTP for PHP5 and autoloading",
-            "time": "2014-07-13 21:04:06"
-        },
-        {
-            "name": "danack/githubartaxservice",
-            "version": "0.4.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/GithubArtaxService.git",
-                "reference": "8ef53a9d9d7e312877938774c9c8c4c5a8d64c9f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/GithubArtaxService/zipball/8ef53a9d9d7e312877938774c9c8c4c5a8d64c9f",
-                "reference": "8ef53a9d9d7e312877938774c9c8c4c5a8d64c9f",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/artax": "1.0.0-rc6",
-                "danack/artaxservicebuilder": "0.3.2",
-                "danack/danack-code": ">=2.4.5",
-                "danack/danackhttp2": ">=1.2.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.1.3",
-                "rdlowrey/auryn": "^0.14.2"
-            },
-            "bin": [
-                "bin/generateGithubArtaxService.php"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "GithubService": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "time": "2015-03-23 13:00:40"
-        },
-        {
-            "name": "danack/jig",
-            "version": "0.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Danack/Jig.git",
-                "reference": "7c05d1a2c7474408b17b25689ec64829eb0d8f43"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Danack/Jig/zipball/7c05d1a2c7474408b17b25689ec64829eb0d8f43",
-                "reference": "7c05d1a2c7474408b17b25689ec64829eb0d8f43",
-                "shasum": ""
-            },
-            "require": {
-                "nikic/php-parser": "^0.9.3"
-            },
-            "require-dev": {
-                "mockery/mockery": "0.9.1",
-                "nikic/fast-route": "~0.2.0",
-                "phpunit/phpunit": "3.7.*",
-                "rdlowrey/auryn": "v1.0.0-alpha",
-                "squizlabs/php_codesniffer": "^2.0.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Jig": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Dan Ackroyd",
-                    "email": "Danack@basereality.com",
-                    "homepage": "http://www.basereality.com"
-                }
-            ],
-            "description": "Lightweight, fast, flexible PHP templating system that uses real dependency injection.",
-            "keywords": [
-                "jig",
-                "library",
-                "template",
-                "view"
-            ],
-            "time": "2015-07-03 13:11:00"
-        },
-        {
-            "name": "daverandom/libdns",
-            "version": "v0.2.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/DaveRandom/LibDNS.git",
-                "reference": "f94f92f3fa8b2776ff2593c87d93d87480efeb73"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/DaveRandom/LibDNS/zipball/f94f92f3fa8b2776ff2593c87d93d87480efeb73",
-                "reference": "f94f92f3fa8b2776ff2593c87d93d87480efeb73",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "LibDNS": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "DNS protocol implementation written in pure PHP",
-            "keywords": [
-                "dns"
-            ],
-            "time": "2013-11-28 15:57:15"
-        },
         {
             "name": "nikic/fast-route",
             "version": "v0.2.0",
@@ -442,62 +50,17 @@
             "time": "2014-05-17 11:33:04"
         },
         {
-            "name": "nikic/php-parser",
-            "version": "v0.9.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "ef70767475434bdb3615b43c327e2cae17ef12eb"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/ef70767475434bdb3615b43c327e2cae17ef12eb",
-                "reference": "ef70767475434bdb3615b43c327e2cae17ef12eb",
-                "shasum": ""
-            },
-            "require": {
-                "ext-tokenizer": "*",
-                "php": ">=5.2"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.9-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "PHPParser": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Popov"
-                }
-            ],
-            "description": "A PHP parser written in PHP",
-            "keywords": [
-                "parser",
-                "php"
-            ],
-            "time": "2014-07-23 18:24:17"
-        },
-        {
             "name": "rdlowrey/arya",
             "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rdlowrey/Arya.git",
-                "reference": "4250664c6d4cf905d6d7c322a9f618a01375dac8"
+                "reference": "7a110ded0c4c247c12855ad30427a1f5f7008349"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/Arya/zipball/4250664c6d4cf905d6d7c322a9f618a01375dac8",
-                "reference": "4250664c6d4cf905d6d7c322a9f618a01375dac8",
+                "url": "https://api.github.com/repos/rdlowrey/Arya/zipball/7a110ded0c4c247c12855ad30427a1f5f7008349",
+                "reference": "7a110ded0c4c247c12855ad30427a1f5f7008349",
                 "shasum": ""
             },
             "require": {
@@ -533,20 +96,20 @@
                 "microframework",
                 "routing"
             ],
-            "time": "2015-01-12 15:58:13"
+            "time": "2015-07-29 12:25:01"
         },
         {
             "name": "rdlowrey/auryn",
-            "version": "v1.0.0-alpha",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/rdlowrey/Auryn.git",
-                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba"
+                "url": "https://github.com/rdlowrey/auryn.git",
+                "reference": "70744560af9fea36f5c7f930b8cadc4586ff1944"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/Auryn/zipball/b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
-                "reference": "b57a5046cfcefb0cde7fc86f9915e54aa7196cba",
+                "url": "https://api.github.com/repos/rdlowrey/auryn/zipball/70744560af9fea36f5c7f930b8cadc4586ff1944",
+                "reference": "70744560af9fea36f5c7f930b8cadc4586ff1944",
                 "shasum": ""
             },
             "require": {
@@ -554,7 +117,8 @@
             },
             "require-dev": {
                 "athletic/athletic": "~0.1",
-                "phpunit/phpunit": "~4.5"
+                "fabpot/php-cs-fixer": "~1.9",
+                "phpunit/phpunit": "^4.7"
             },
             "type": "library",
             "autoload": {
@@ -574,77 +138,26 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Main Developer"
-                },
-                {
                     "name": "Levi Morrison",
                     "email": "levim@php.net",
                     "homepage": "http://morrisonlevi.github.com/",
                     "role": "Developer"
+                },
+                {
+                    "name": "Daniel Lowrey",
+                    "email": "rdlowrey@gmail.com",
+                    "homepage": "https://github.com/rdlowrey",
+                    "role": "Creator / Main Developer"
                 }
             ],
             "description": "Auryn is a dependency injector for bootstrapping object-oriented PHP applications.",
-            "homepage": "https://github.com/rdlowrey/Auryn",
+            "homepage": "https://github.com/rdlowrey/auryn",
             "keywords": [
                 "dependency injection",
                 "dic",
                 "ioc"
             ],
-            "time": "2015-05-27 12:47:19"
-        },
-        {
-            "name": "rdlowrey/nbsock",
-            "version": "v0.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rdlowrey/nbsock.git",
-                "reference": "ac6e021f32e7960a17530cdf16cb98c932497695"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/nbsock/zipball/ac6e021f32e7960a17530cdf16cb98c932497695",
-                "reference": "ac6e021f32e7960a17530cdf16cb98c932497695",
-                "shasum": ""
-            },
-            "require": {
-                "amphp/amp": "~0.15.0",
-                "amphp/dns": "~0.4.0",
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Nbsock\\": "lib/"
-                },
-                "files": [
-                    "lib/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Lead Developer"
-                }
-            ],
-            "description": "Non-blocking socket connection/encryption using the Amp concurrency framework",
-            "homepage": "https://github.com/rdlowrey/nbsock",
-            "keywords": [
-                "amp",
-                "async",
-                "encryption",
-                "non-blocking",
-                "sockets",
-                "tcp",
-                "tls"
-            ],
-            "time": "2014-12-08 17:19:17"
+            "time": "2015-08-12 02:24:20"
         }
     ],
     "packages-dev": [
@@ -777,16 +290,16 @@
         },
         {
             "name": "phpunit/php-file-iterator",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-file-iterator.git",
-                "reference": "a923bb15680d0089e2316f7a4af8f437046e96bb"
+                "reference": "6150bf2c35d3fc379e50c7602b75caceaa39dbf0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/a923bb15680d0089e2316f7a4af8f437046e96bb",
-                "reference": "a923bb15680d0089e2316f7a4af8f437046e96bb",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-file-iterator/zipball/6150bf2c35d3fc379e50c7602b75caceaa39dbf0",
+                "reference": "6150bf2c35d3fc379e50c7602b75caceaa39dbf0",
                 "shasum": ""
             },
             "require": {
@@ -820,7 +333,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2015-04-02 05:19:05"
+            "time": "2015-06-21 13:08:43"
         },
         {
             "name": "phpunit/php-text-template",
@@ -865,16 +378,16 @@
         },
         {
             "name": "phpunit/php-timer",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-timer.git",
-                "reference": "83fe1bdc5d47658b727595c14da140da92b3d66d"
+                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/83fe1bdc5d47658b727595c14da140da92b3d66d",
-                "reference": "83fe1bdc5d47658b727595c14da140da92b3d66d",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-timer/zipball/3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
+                "reference": "3e82f4e9fc92665fafd9157568e4dcb01d014e5b",
                 "shasum": ""
             },
             "require": {
@@ -902,7 +415,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2015-06-13 07:35:30"
+            "time": "2015-06-21 08:01:12"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -1078,16 +591,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.7.1",
+            "version": "v2.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "9808e75c609a14f6db02f70fccf4ca4aab53c160"
+                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/9808e75c609a14f6db02f70fccf4ca4aab53c160",
-                "reference": "9808e75c609a14f6db02f70fccf4ca4aab53c160",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/71340e996171474a53f3d29111d046be4ad8a0ff",
+                "reference": "71340e996171474a53f3d29111d046be4ad8a0ff",
                 "shasum": ""
             },
             "require": {
@@ -1123,22 +636,22 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2015-06-10 15:30:22"
+            "time": "2015-07-28 14:07:07"
         }
     ],
     "aliases": [
         {
-            "alias": "0.14.5",
-            "alias_normalized": "0.14.5.0",
-            "version": "1.0.0.0-alpha",
+            "alias": "0.14.0",
+            "alias_normalized": "0.14.0.0",
+            "version": "1.0.2.0",
             "package": "rdlowrey/auryn"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {
         "rdlowrey/arya": 20
     },
-    "prefer-stable": true,
+    "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": []

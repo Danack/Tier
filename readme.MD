@@ -8,7 +8,7 @@ The whole of the dispatch of the 'app' is inside /src/app.php and some bootstrap
 
 # How to run
 
-In the /public directory run with the built-in webserver:
+In the /example/public directory run with the built-in webserver:
 
 php -S 0.0.0.0:8080 index.php
 
