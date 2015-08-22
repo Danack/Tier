@@ -3,9 +3,10 @@
 namespace Tier;
 
 use Auryn\Injector;
-use Arya\Request;
-use Arya\Response;
-use Arya\Body as ResponseBody;
+use Room11\HTTP\Request;
+use Room11\HTTP\Response\Response;
+use Room11\HTTP\Body;
+
 
 class TierApp
 {
@@ -93,9 +94,8 @@ class TierApp
             $result = $injector->execute($tier->getTierCallable());
 
             // If it's a responseBody send it
-            if ($result instanceof ResponseBody) {
+            if ($result instanceof Body) {                
                 $response->setBody($result);
-                
                 sendResponse($request, $response);
                 break;
             } // If it's a new Tier to run, setup the next loop.

@@ -5,7 +5,7 @@ namespace Tier\JigBridge;
 use Jig\Jig;
 use Tier\InjectionParams;
 use Tier\Tier;
-use Tier\ResponseBody\HtmlBody;
+use Room11\HTTP\Body\HtmlBody;
 
 function createHtmlBody(\Jig\JigBase $template)
 {
@@ -33,7 +33,7 @@ class TierJig
         $this->jig->checkTemplateCompiled($templateName);
         $injectionParams->alias('Jig\JigBase', $className);
 
-        return new Tier('TierBridge\createHtmlBody', $injectionParams);
+        return new Tier('Tier\JigBridge\createHtmlBody', $injectionParams);
     }
 }
 

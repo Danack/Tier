@@ -2,6 +2,8 @@
 
 namespace Tier\ResponseBody;
 
+use Room11\HTTP\Body;
+
 /**
  * Class ExceptionHtmlBody
  *
@@ -10,17 +12,34 @@ namespace Tier\ResponseBody;
  *
  * @package Tier\ResponseBody
  */
-class ExceptionHtmlBody extends HtmlBody
+class ExceptionHtmlBody implements Body
 {
+    private $text;
+    
     public function __construct($bodyText)
     {
         $fullText = $this->getBeforeText();
         $fullText .= $bodyText;
         $fullText .= $this->getAfterText();
 
-        parent::__construct($fullText);
+        $this->text = $fullText;
     }
 
+    
+    public function __invoke()
+    {
+        echo $this->text;
+    }
+
+    public function getHeaders()
+    {
+        return [
+            'Content-Type' => 'text/html; charset=UTF-8; charset=utf-8',
+            'Content-Length' => strlen($this->text)
+        ];
+    }
+    
+    
     private function getBeforeText()
     {
         $text = <<< END

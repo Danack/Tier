@@ -21,7 +21,6 @@
         "phpunit/phpunit": "3.7.*"
     },
     "require":{
-        "rdlowrey/auryn": "1.0.2 as 0.14.0",
-        "rdlowrey/Arya": "dev-master"
+        "rdlowrey/auryn": "^1.0.2"
     }
 }

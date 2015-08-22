@@ -2,9 +2,9 @@
 
 namespace Tier;
 
-use Arya\Request;
-use Arya\Response;
 use Auryn\Injector;
+use Room11\HTTP\Request;
+use Room11\HTTP\Response;
 
 /**
  *
@@ -76,7 +76,7 @@ function tierShutdownFunction()
  */
 function sendErrorResponse(Request $request, $body, $errorCode)
 {
-    $response = new Response();
+    $response = new \Room11\HTTP\Response\Response();
     $response->setBody($body);
     $response->setStatus($errorCode);
     sendResponse($request, $response);
@@ -139,7 +139,7 @@ function sendResponse(Request $request, Response $response, $autoAddReason = tru
 function throwWrongTypeException($result)
 {
     if ($result === null) {
-        throw new TierException("Return value of tier must be either a response or a tier, null given.");
+        throw new TierException('Return value of tier must be either a Room11\HTTP\Body or a tier, null given.');
     }
 
     if (is_object($result)) {
@@ -150,7 +150,7 @@ function throwWrongTypeException($result)
     }
 
     $message = sprintf(
-        "Return value of tier must be either a response or a tier, instead %s returned.'",
+        'Return value of tier must be either a Room11\HTTP\Body or a tier, instead %s returned.',
         $detail
     );
 
