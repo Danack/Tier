@@ -4,112 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa0542718b4976a46405663219823246",
+    "hash": "103fcb07217c1ff850a92b19d50e5cf2",
     "packages": [
         {
-            "name": "nikic/fast-route",
-            "version": "v0.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nikic/FastRoute.git",
-                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nikic/FastRoute/zipball/7dc9a43cb856debc22fe158a1144018e16f7a637",
-                "reference": "7dc9a43cb856debc22fe158a1144018e16f7a637",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "FastRoute\\": "src/"
-                },
-                "files": [
-                    "src/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Nikita Popov",
-                    "email": "nikic@php.net"
-                }
-            ],
-            "description": "Fast request router for PHP",
-            "keywords": [
-                "router",
-                "routing"
-            ],
-            "time": "2014-05-17 11:33:04"
-        },
-        {
-            "name": "rdlowrey/arya",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rdlowrey/Arya.git",
-                "reference": "7a110ded0c4c247c12855ad30427a1f5f7008349"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/Arya/zipball/7a110ded0c4c247c12855ad30427a1f5f7008349",
-                "reference": "7a110ded0c4c247c12855ad30427a1f5f7008349",
-                "shasum": ""
-            },
-            "require": {
-                "nikic/fast-route": "~0.2.0",
-                "php": ">=5.4.0",
-                "rdlowrey/auryn": "~0.14.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7",
-                "rdlowrey/artax": "~0.6.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Arya\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Daniel Lowrey",
-                    "email": "rdlowrey@gmail.com",
-                    "role": "Creator / Lead Developer"
-                }
-            ],
-            "description": "A microframework for PHP 5.4+",
-            "homepage": "https://github.com/rdlowrey/Arya",
-            "keywords": [
-                "dependency-injection",
-                "microframework",
-                "routing"
-            ],
-            "time": "2015-07-29 12:25:01"
-        },
-        {
             "name": "rdlowrey/auryn",
-            "version": "v1.0.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rdlowrey/auryn.git",
-                "reference": "70744560af9fea36f5c7f930b8cadc4586ff1944"
+                "reference": "f57eaf665a601dbe061c8b1426d84f58c003e6a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rdlowrey/auryn/zipball/70744560af9fea36f5c7f930b8cadc4586ff1944",
-                "reference": "70744560af9fea36f5c7f930b8cadc4586ff1944",
+                "url": "https://api.github.com/repos/rdlowrey/auryn/zipball/f57eaf665a601dbe061c8b1426d84f58c003e6a8",
+                "reference": "f57eaf665a601dbe061c8b1426d84f58c003e6a8",
                 "shasum": ""
             },
             "require": {
@@ -157,7 +65,7 @@
                 "dic",
                 "ioc"
             ],
-            "time": "2015-08-12 02:24:20"
+            "time": "2015-08-26 16:31:48"
         }
     ],
     "packages-dev": [
@@ -590,6 +498,95 @@
             "time": "2013-01-13 10:24:48"
         },
         {
+            "name": "room11/caching",
+            "version": "0.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Danack/Caching.git",
+                "reference": "cdd0c2a8eacfb3af9badbb62d020910414bfb941"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Danack/Caching/zipball/cdd0c2a8eacfb3af9badbb62d020910414bfb941",
+                "reference": "cdd0c2a8eacfb3af9badbb62d020910414bfb941",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.5",
+                "rdlowrey/auryn": "^1.0.2",
+                "squizlabs/php_codesniffer": "^2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Room11\\Caching": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dan Ackroyd",
+                    "email": "Danack@basereality.com",
+                    "homepage": "http://www.basereality.com"
+                }
+            ],
+            "description": "A set of interfaces and standard implementations to allow sweet sweet interoperability.",
+            "keywords": [
+                "caching",
+                "http",
+                "interface",
+                "room11"
+            ],
+            "time": "2015-08-22 20:09:34"
+        },
+        {
+            "name": "room11/http",
+            "version": "0.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Danack/HTTP.git",
+                "reference": "d5084bdc536e72d1bfd6662f8d3bd806b335c7f6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Danack/HTTP/zipball/d5084bdc536e72d1bfd6662f8d3bd806b335c7f6",
+                "reference": "d5084bdc536e72d1bfd6662f8d3bd806b335c7f6",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.5",
+                "rdlowrey/auryn": "^1.0.2",
+                "squizlabs/php_codesniffer": "^2.0.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Room11\\HTTP": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dan Ackroyd",
+                    "email": "Danack@basereality.com",
+                    "homepage": "http://www.basereality.com"
+                }
+            ],
+            "description": "A set of interfaces and standard implementations to allow sweet sweet interoperability.",
+            "keywords": [
+                "http",
+                "interface",
+                "room11"
+            ],
+            "time": "2015-08-22 14:15:09"
+        },
+        {
             "name": "symfony/yaml",
             "version": "v2.7.3",
             "source": {
@@ -639,18 +636,9 @@
             "time": "2015-07-28 14:07:07"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.14.0",
-            "alias_normalized": "0.14.0.0",
-            "version": "1.0.2.0",
-            "package": "rdlowrey/auryn"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "rdlowrey/arya": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

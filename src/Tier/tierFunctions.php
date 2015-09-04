@@ -20,19 +20,13 @@ function createRequestFromGlobals()
     catch (\Exception $e) {
         //TODO - exit quickly.
         header("We totally failed", true, 501);
-        echo "we ded ".$e->getMessage();
+        echo "Failed to read globals to create request. ".$e->getMessage();
         exit(0);
     }
 
     return $request;
 }
 
-
-function setupErrorHandlers(){
-    register_shutdown_function('Tier\tierShutdownFunction');
-    set_exception_handler('Tier\tierExceptionHandler');
-    set_error_handler('Tier\tierErrorHandler');
-}
 
 /**
  *
@@ -186,6 +180,7 @@ function throwWrongTypeException($result)
 }
 
 
+
 /**
  * Helper function to allow template rendering to be easier.
  * @param $templateName
@@ -221,3 +216,43 @@ function createHtmlBody(JigBase $template)
 
     return new HtmlBody($text);
 }
+
+function tierExceptionHandler(\Exception $ex)
+{
+    //TODO - need to ob_end_clean as many times as required because
+    //otherwise partial content gets sent to the client.
+
+    if (headers_sent() == false) {
+        header("HTTP/1.0 500 Internal Server Error", true, 500);
+    }
+    else {
+        //Exception after headers sent
+    }
+
+    while ($ex) {
+        echo "Exception " . get_class($ex) . ': ' . $ex->getMessage()."<br/>";
+
+        foreach ($ex->getTrace() as $tracePart) {
+            if (isset($tracePart['file']) && isset($tracePart['line'])) {
+                echo $tracePart['file'] . " " . $tracePart['line'] . "<br/>";
+            }
+            else if (isset($tracePart["function"])) {
+                echo $tracePart["function"] . "<br/>";
+            }
+            else {
+                var_dump($tracePart);
+            }
+        }
+        $ex = $ex->getPrevious();
+        if ($ex) {
+            echo "Previously ";
+        }
+    };
+}
+
+function setupErrorHandlers(){
+    register_shutdown_function('Tier\tierShutdownFunction');
+    set_exception_handler('Tier\tierExceptionHandler');
+    set_error_handler('Tier\tierErrorHandler');
+}
+
