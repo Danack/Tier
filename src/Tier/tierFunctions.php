@@ -6,6 +6,10 @@ use Room11\HTTP\Request;
 use Room11\HTTP\Request\Request as RequestImpl;
 use Room11\HTTP\Response;
 
+use Jig\Jig;
+use Jig\JigBase;
+use Room11\HTTP\Body\HtmlBody;
+
 
 function createRequestFromGlobals()
 {
@@ -179,4 +183,41 @@ function throwWrongTypeException($result)
     );
 
     throw new TierException($message);
+}
+
+
+/**
+ * Helper function to allow template rendering to be easier.
+ * @param $templateName
+ * @param array $sharedObjects
+ * @return Tier
+ */
+function getRenderTemplateTier($templateName, array $sharedObjects = [])
+{
+    $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
+        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $jigRender->checkTemplateCompiled($templateName);
+
+        $alias = [];
+        $alias['Jig\JigBase'] = $className;
+        $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
+
+        return new Tier('Tier\createHtmlBody', $injectionParams);
+    };
+
+    return new Tier($fn);
+}
+
+
+/**
+ * @param JigBase $template
+ * @return HtmlBody
+ * @throws \Exception
+ * @throws \Jig\JigException
+ */
+function createHtmlBody(JigBase $template)
+{
+    $text = $template->render();
+
+    return new HtmlBody($text);
 }
