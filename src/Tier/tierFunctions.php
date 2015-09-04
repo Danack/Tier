@@ -2,9 +2,33 @@
 
 namespace Tier;
 
-use Auryn\Injector;
 use Room11\HTTP\Request;
+use Room11\HTTP\Request\Request as RequestImpl;
 use Room11\HTTP\Response;
+
+
+function createRequestFromGlobals()
+{
+    try {
+        $_input = empty($_SERVER['CONTENT-LENGTH']) ? null : fopen('php://input', 'r');
+        $request = new RequestImpl($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
+    }
+    catch (\Exception $e) {
+        //TODO - exit quickly.
+        header("We totally failed", true, 501);
+        echo "we ded ".$e->getMessage();
+        exit(0);
+    }
+
+    return $request;
+}
+
+
+function setupErrorHandlers(){
+    register_shutdown_function('Tier\tierShutdownFunction');
+    set_exception_handler('Tier\tierExceptionHandler');
+    set_error_handler('Tier\tierErrorHandler');
+}
 
 /**
  *

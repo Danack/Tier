@@ -7,6 +7,11 @@ use Room11\HTTP\Request;
 use Room11\HTTP\Response\Response;
 use Room11\HTTP\Body;
 
+use Auryn\InjectorException;
+use Auryn\InjectionException;
+use Jig\JigException;
+use Tier\ResponseBody\ExceptionHtmlBody;
+
 
 class TierApp
 {
@@ -51,6 +56,38 @@ class TierApp
     }
 
     public function execute(Request $request)
+    {
+        try {
+            $this->executeInternal($request);
+        }
+        catch (InjectionException $ie) {
+            // TODO - add custom notifications.
+        
+            $body = $ie->getMessage();
+            $body .= implode("<br/>", $ie->getDependencyChain());
+        
+            $body = new ExceptionHtmlBody($body);
+            \Tier\sendErrorResponse($request, $body, 500);
+        }
+        catch (InjectorException $ie) {
+            // TODO - add custom notifications.
+        
+            $body = new ExceptionHtmlBody($ie);
+            \Tier\sendErrorResponse($request, $body, 500);
+        }
+        
+        catch (JigException $je) {
+            $body = new ExceptionHtmlBody($je);
+            \Tier\sendErrorResponse($request, $body, 500);
+        }
+        catch (\Exception $e) {
+            $body = new ExceptionHtmlBody($e);
+            \Tier\sendErrorResponse($request, $body, 500);
+        }
+    }
+    
+    
+    public function executeInternal(Request $request)
     {
         // Create and share these as they need to be the same
         // across the application
