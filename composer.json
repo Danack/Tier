@@ -18,7 +18,9 @@
     },
     "require-dev": {
         "mockery/mockery": "0.9.1",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "room11/caching": "^0.0.4", 
+        "room11/http": "^0.0.3"
     },
     "require":{
         "rdlowrey/auryn": "^1.0.2"
