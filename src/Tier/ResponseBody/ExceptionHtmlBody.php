@@ -19,7 +19,7 @@ class ExceptionHtmlBody implements Body
     public function __construct($bodyText)
     {
         $fullText = $this->getBeforeText();
-        $fullText .= $bodyText;
+        $fullText .= nl2br($bodyText);
         $fullText .= $this->getAfterText();
 
         $this->text = $fullText;

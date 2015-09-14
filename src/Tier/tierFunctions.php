@@ -84,7 +84,17 @@ function tierShutdownFunction()
 //            $msg = "Oops! Something went terribly wrong :(";
 //        }
 
-        $msg = "<pre style=\"color:red;\">{$msg}</pre>";
+        $preStyles = [
+            "color: red",
+            "white-space: pre-wrap",       /* css-3 */
+            "white-space: -moz-pre-wrap",  /* Mozilla, since 1999 */
+            "white-space: -pre-wrap",      /* Opera 4-6 */
+            "white-space: -o-pre-wrap",    /* Opera 7 */
+            "word-wrap: break-word",       /* Internet Explorer 5.5+ */
+        ];
+
+        $preStyle = implode(";", $preStyles);
+        $msg = "<pre style='$preStyle'>{$msg}</pre>";
 
         echo "<html><body><h1>500 Internal Server Error</h1><hr/>{$msg}</body></html>";
     }

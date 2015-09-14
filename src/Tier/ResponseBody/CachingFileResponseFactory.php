@@ -22,7 +22,6 @@ class CachingFileResponseFactory
         $cachingHeaders = $this->caching->getHeaders(filemtime($fileNameToServe));
         $headers = array_merge($headers, $cachingHeaders);
 
-        
         return new FileBody(
             $fileNameToServe,
             $contentType,
