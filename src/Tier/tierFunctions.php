@@ -10,6 +10,12 @@ use Jig\Jig;
 use Jig\JigBase;
 use Room11\HTTP\Body\HtmlBody;
 
+use Auryn\InjectorException;
+use Auryn\InjectionException;
+use Jig\JigException;
+use Tier\ResponseBody\ExceptionHtmlBody;
+
+
 
 function createRequestFromGlobals()
 {
@@ -266,3 +272,33 @@ function setupErrorHandlers(){
     set_error_handler('Tier\tierErrorHandler');
 }
 
+
+function processJigException(JigException $je, Request $request)
+{
+    $body = new ExceptionHtmlBody($je);
+    \Tier\sendErrorResponse($request, $body, 500);
+}
+
+function processInjectionException(InjectionException $ie, Request $request) {
+    // TODO - add custom notifications.
+
+    $body = $ie->getMessage();
+    $body .= implode("<br/>", $ie->getDependencyChain());
+
+    $body = new ExceptionHtmlBody($body);
+    \Tier\sendErrorResponse($request, $body, 500);
+}
+
+function processInjectorException(InjectorException $ie, Request $request)
+{
+    // TODO - add custom notifications.
+    $body = new ExceptionHtmlBody($ie);
+    \Tier\sendErrorResponse($request, $body, 500);
+}
+
+
+function processException(\Exception $e, Request $request)
+{
+    $body = new ExceptionHtmlBody($e);
+    \Tier\sendErrorResponse($request, $body, 500);
+}

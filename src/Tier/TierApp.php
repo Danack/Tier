@@ -12,7 +12,6 @@ use Auryn\InjectionException;
 use Jig\JigException;
 use Tier\ResponseBody\ExceptionHtmlBody;
 
-
 class TierApp
 {
     /**
@@ -29,11 +28,52 @@ class TierApp
     private $postCallables = [];
     
     private $initialInjectionParams = null;
+    
+    private $exceptionHandlers = [];
+    
+    const FIRST = 0;
+    const MIDDLE = 50;
+    const LAST = 100;
 
-    public function __construct(Tier $tier, InjectionParams $injectionParams = null)
-    {
+    public function __construct(
+        Tier $tier,
+        InjectionParams $injectionParams = null,
+        Injector $injector = null
+    ) {
         $this->tiers[] = $tier;
         $this->initialInjectionParams = $injectionParams;
+
+        if ($injector == null) {
+            $this->injector = new Injector();
+        }
+    }
+    
+    public function setStandardExceptionHandlers()
+    {
+        $this->addExceptionHandler(
+            JigException::class,
+            'Tier\processJigException',
+            self::MIDDLE
+        );
+        
+        $this->addExceptionHandler(
+            InjectorException::class,
+            'Tier\processInjectorException',
+            self::LAST - 2
+        );
+
+        $this->addExceptionHandler(
+            InjectionException::class,
+            'Tier\processInjectionException',
+            self::MIDDLE
+        );
+
+        $this->addExceptionHandler(
+            \Exception::class,
+            'Tier\processException',
+            self::LAST
+        );
+
     }
 
     public function addTier(Tier $tier)
@@ -54,35 +94,25 @@ class TierApp
     {
         $this->postCallables[] = $callable;
     }
+    
+    public function addExceptionHandler($exceptionClassName, callable $callback, $priority = 50)
+    {
+        $priority = intval($priority);
+        if ($priority < 0 || $priority > 100) {
+            throw new TierException("Priority of exception handler must be between 0 and 100; $priority not acceptable.");
+        }
+
+        $this->exceptionHandlers[$priority][$exceptionClassName] = $callback;
+    }
+    
 
     public function execute(Request $request)
     {
         try {
             $this->executeInternal($request);
         }
-        catch (InjectionException $ie) {
-            // TODO - add custom notifications.
-        
-            $body = $ie->getMessage();
-            $body .= implode("<br/>", $ie->getDependencyChain());
-        
-            $body = new ExceptionHtmlBody($body);
-            \Tier\sendErrorResponse($request, $body, 500);
-        }
-        catch (InjectorException $ie) {
-            // TODO - add custom notifications.
-        
-            $body = new ExceptionHtmlBody($ie);
-            \Tier\sendErrorResponse($request, $body, 500);
-        }
-        
-        catch (JigException $je) {
-            $body = new ExceptionHtmlBody($je);
-            \Tier\sendErrorResponse($request, $body, 500);
-        }
         catch (\Exception $e) {
-            $body = new ExceptionHtmlBody($e);
-            \Tier\sendErrorResponse($request, $body, 500);
+            $this->processException($e, $request);
         }
     }
     
@@ -91,16 +121,16 @@ class TierApp
     {
         // Create and share these as they need to be the same
         // across the application
-        $injector = new Injector();
         $response = new Response;
-        $injector->share($request);
-        $injector->share($response);
-        $injector->share($injector); //yolo
+        $this->injector->share($request);
+        $this->injector->alias(Request::class, get_class($request));
+        $this->injector->share($response);
+        $this->injector->share($this->injector); //yolo
 
-        $this->initialInjectionParams->addToInjector($injector);
+        $this->initialInjectionParams->addToInjector($this->injector);
 
         foreach ($this->preCallables as $preCallable) {
-            $injector->execute($preCallable);
+            $this->injector->execute($preCallable);
         }
 
         while (true) {
@@ -118,17 +148,17 @@ class TierApp
 
             // Setup the information created by the previous Tier
             if (($injectionParams = $tier->getInjectionParams())) {
-                $injectionParams->addToInjector($injector);
+                $injectionParams->addToInjector($this->injector);
             }
 
             // If the next Tier has a setup function, call it
             $setupCallable = $tier->getSetupCallable();
             if ($setupCallable) {
-                $injector->execute($setupCallable);
+                $this->injector->execute($setupCallable);
             }
 
             // Call this Tier's callable
-            $result = $injector->execute($tier->getTierCallable());
+            $result = $this->injector->execute($tier->getTierCallable());
 
             // If it's a responseBody send it
             if ($result instanceof Body) {                
@@ -158,7 +188,23 @@ class TierApp
         }
 
         foreach ($this->postCallables as $postCallable) {
-            $injector->execute($postCallable);
+            $this->injector->execute($postCallable);
         }
+    }
+    
+    private function processException(\Exception $e, Request $request)
+    {
+        ksort($this->exceptionHandlers);
+        foreach ($this->exceptionHandlers as $priority => $exceptionHandlerList) {
+            foreach ($exceptionHandlerList as $classname => $handler) {
+                if ($e instanceof $classname) {
+                    $handler($e, $request);
+                    return;
+                }
+            }
+        }
+        
+        //No exception handlers matched. Lets use the default one.
+        processException($e, $request);
     }
 }
