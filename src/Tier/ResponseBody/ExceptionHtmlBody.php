@@ -16,10 +16,10 @@ class ExceptionHtmlBody implements Body
 {
     private $text;
     
-    public function __construct($bodyText)
+    public function __construct($exceptionString)
     {
         $fullText = $this->getBeforeText();
-        $fullText .= nl2br($bodyText);
+        $fullText .= nl2br($exceptionString);
         $fullText .= $this->getAfterText();
 
         $this->text = $fullText;

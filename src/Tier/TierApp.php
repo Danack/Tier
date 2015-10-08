@@ -204,6 +204,8 @@ class TierApp
             }
         }
         
+        
+        
         //No exception handlers matched. Lets use the default one.
         processException($e, $request);
     }

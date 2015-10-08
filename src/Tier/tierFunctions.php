@@ -245,26 +245,56 @@ function tierExceptionHandler(\Exception $ex)
         //Exception after headers sent
     }
 
+    echo getExceptionString($ex);
+}
+
+function getExceptionString(\Exception $ex) {
+
+    $string = '';
+    
     while ($ex) {
-        echo "Exception " . get_class($ex) . ': ' . $ex->getMessage()."<br/>";
+        $number = 0;
+        $string .= "Exception " . get_class($ex) . ': ' . $ex->getMessage()."\n\n";
 
         foreach ($ex->getTrace() as $tracePart) {
-            if (isset($tracePart['file']) && isset($tracePart['line'])) {
-                echo $tracePart['file'] . " " . $tracePart['line'] . "<br/>";
+            
+            $line = false;
+            if (isset($tracePart['file']) && isset($tracePart['line']) ) {
+                $line .= $tracePart['file']." ";
+                $line .= $tracePart['line']." ";
             }
-            else if (isset($tracePart["function"])) {
-                echo $tracePart["function"] . "<br/>";
+            else if (isset($tracePart['file'])) {
+                $line .= $tracePart['file']." ";
+            }
+            else if (isset($tracePart['line'])) {
+                $line .= $tracePart['line']." ";
             }
             else {
-                var_dump($tracePart);
+                $line .= "*** "; // Some form of internal function or CUF
             }
+
+            if (isset($tracePart["class"])) {
+                $line .= $tracePart["class"];
+            }
+            if (isset($tracePart["type"])) {
+                $line .= $tracePart["type"];
+            }
+            if (isset($tracePart["function"])) {
+                $line .= $tracePart["function"];
+            }
+
+            $string .= sprintf("#%s %s\n", $number, $line);
+            $number++;
         }
         $ex = $ex->getPrevious();
         if ($ex) {
-            echo "Previously ";
+            $string .=  "\nPrevious ";
         }
     };
+    
+    return $string;
 }
+
 
 function setupErrorHandlers(){
     register_shutdown_function('Tier\tierShutdownFunction');
@@ -275,30 +305,32 @@ function setupErrorHandlers(){
 
 function processJigException(JigException $je, Request $request)
 {
-    $body = new ExceptionHtmlBody($je);
+    $exceptionString = \Tier\getExceptionString($je);
+    // TODO - jig templates need to be easier to debug.
+    $body = new ExceptionHtmlBody($exceptionString);
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
-function processInjectionException(InjectionException $ie, Request $request) {
-    // TODO - add custom notifications.
-
+function processInjectionException(InjectionException $ie, Request $request)
+{
     $body = $ie->getMessage();
-    $body .= implode("<br/>", $ie->getDependencyChain());
-
+    $body .= implode("\n", $ie->getDependencyChain());
+    
     $body = new ExceptionHtmlBody($body);
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
 function processInjectorException(InjectorException $ie, Request $request)
 {
-    // TODO - add custom notifications.
-    $body = new ExceptionHtmlBody($ie);
+    $exceptionString = \Tier\getExceptionString($ie);
+    $body = new ExceptionHtmlBody($exceptionString);
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
 
 function processException(\Exception $e, Request $request)
 {
-    $body = new ExceptionHtmlBody($e);
+    $exceptionString = \Tier\getExceptionString($e);
+    $body = new ExceptionHtmlBody($exceptionString);
     \Tier\sendErrorResponse($request, $body, 500);
 }
