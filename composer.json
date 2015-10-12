@@ -17,7 +17,9 @@
         }
     },
     "require-dev": {
+        "danack/jig": "dev-master as 0.16.4",
         "mockery/mockery": "0.9.1",
+        "nikic/fast-route": "0.3.0",
         "phpunit/phpunit": "3.7.*",
         "room11/caching": "^0.0.4", 
         "room11/http": "^0.0.3"
