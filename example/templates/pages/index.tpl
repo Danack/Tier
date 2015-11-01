@@ -20,7 +20,7 @@
         </ul>
 
         <div>
-    For more complete examples and documentation please go to <a href="http://phpjig.com">phpjig.com</a>
+    For more complete examples and documentation please go to <a href="http://tier.phpjig.com">tier.phpjig.com</a>
         </div>
       </div>
     </div>
