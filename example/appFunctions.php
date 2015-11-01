@@ -1,13 +1,18 @@
 <?php
 
+use Amp\Artax\Client as ArtaxClient;
+use ArtaxServiceBuilder\ResponseCache;
+use Arya\Response;
 use Jig\JigConfig;
 use Jig\Jig;
+use Tier\ResponseBody\HtmlBody;
 use Jig\JigBase;
 use Tier\Tier;
 use Tier\InjectionParams;
-use Room11\HTTP\Body\HtmlBody;
-use Room11\HTTP\Response;
-use Room11\HTTP\Request;
+use Tier\Data\RouteList;
+use GithubService\GithubArtaxService\GithubService;
+use Tier\Data\ErrorInfo;
+
 
 /**
  * Read config settings from environment with a default value.
@@ -26,13 +31,39 @@ function getEnvWithDefault($env, $default)
 
 
 /**
+ * @return \Tier\Data\PDOSQLConfig
+ */
+function createPDOSQLConfig() {    
+    return new \Tier\Data\PDOSQLConfig(
+        getEnvWithDefault('pdo.dsn', null),
+        getEnvWithDefault('pdo.user', null),
+        getEnvWithDefault('pdo.password', null)
+    );
+}
+
+/**
+ * @param \Tier\Data\PDOSQLConfig $pdoSQLConfig
+ * @return PDO
+ */
+function createPDO(\Tier\Data\PDOSQLConfig $pdoSQLConfig)
+{
+    $instance = new PDO(
+        $pdoSQLConfig->dsn,
+        $pdoSQLConfig->user,
+        $pdoSQLConfig->password
+    );
+    
+    return $instance;
+}
+
+/**
  * @return JigConfig
  */
 function createJigConfig()
 {
     $jigConfig = new JigConfig(
-        __DIR__."/./templates/",
-        __DIR__."/./var/compile/",
+        __DIR__."/../templates/",
+        __DIR__."/../var/compile/",
         'tpl',
         getEnvWithDefault('jig.compile', \Jig\Jig::COMPILE_ALWAYS)
     );
@@ -40,29 +71,75 @@ function createJigConfig()
     return $jigConfig;
 }
 
+/**
+ * An example to show that 'just' a function can be the end point of a route.
+ * @param GithubService $githubService
+ * @return Tier
+ */
+function controllerAsFunction(GithubService $githubService)
+{
+    try {
+        $repoCommitsCommand = $githubService->listRepoCommits(null, 'danack', 'imagick-demos');
+        $repoCommitsCommand->setPerPage(10);
+        $commits = $repoCommitsCommand->execute();
+
+        return getTemplateCallable('pages/commits', ['GithubService\Model\Commits' => $commits]);   
+    }
+    catch (\Exception $e) {
+        $errorInfo = new ErrorInfo(
+            "Error getting commits",
+            $e->getMessage()
+        );
+
+        return getTemplateCallable('pages/error', ['Tier\Data\ErrorInfo' => $errorInfo]);
+    }
+}
+
+
+/**
+ * @param ArtaxClient $client
+ * @param \Amp\Reactor $reactor
+ * @param ResponseCache $cache
+ * @return GithubService
+ */
+function createGithubArtaxService(ArtaxClient $client, \Amp\Reactor $reactor, ResponseCache $cache)
+{
+    return new GithubService($client, $reactor, $cache, "Danack/Tier");
+}
 
 /**
  * Helper function to bind the route list to FastRoute
+ * @param RouteList $routeList
  * @param \FastRoute\RouteCollector $r
  */
-function routesFunction(FastRoute\RouteCollector $r) {
-    $r->addRoute('GET', '/', ['Tier\Controller\Index', 'display']);
+function routesFunction(RouteList $routeList, FastRoute\RouteCollector $r) {
+    foreach ($routeList->getRoutes() as $route) {
+        $r->addRoute(
+            $route->method,
+            $route->path,
+            $route->callable
+        );
+    }
 };
 
 
 /**
  * The callable that routes a request.
- * @param Request $request
+ * @param RouteList $routeList
  * @param Response $response
  * @return Tier
  */
-function routeRequest(Request $request, Response $response) {
+function routeRequest(RouteList $routeList, Response $response) {
 
-    $dispatcher = FastRoute\simpleDispatcher('routesFunction');
+    $fn = function (FastRoute\RouteCollector $r) use ($routeList) {
+        routesFunction($routeList, $r);
+    };
+
+    $dispatcher = FastRoute\simpleDispatcher($fn);
 
     $httpMethod = 'GET'; //yay hard coding.
     $uri = '/';
-    //TODO! - use Request.
+
     if (array_key_exists('REQUEST_URI', $_SERVER)) {
         $uri = $_SERVER['REQUEST_URI'];
     }
@@ -129,7 +206,7 @@ function createHtmlBody(JigBase $template)
 function getTemplateCallable($templateName, array $sharedObjects = [])
 {
     $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
-        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $className = $jigRender->getFQCNFromTemplateName($templateName);
         $jigRender->checkTemplateCompiled($templateName);
 
         $alias = [];

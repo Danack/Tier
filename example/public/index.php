@@ -9,5 +9,5 @@ if (php_sapi_name() == "cli-server") {
     }
 }
 
-require_once "../index.php";
+require_once "../process.php";
 

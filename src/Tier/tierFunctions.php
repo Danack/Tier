@@ -2,21 +2,22 @@
 
 namespace Tier;
 
+use Auryn\InjectionException;
+use Auryn\InjectorException;
+use Jig\Jig;
+use Jig\JigBase;
+use Jig\JigException;
+use Room11\HTTP\Body;
+use Room11\HTTP\Body\HtmlBody;
+use Room11\HTTP\HeadersSet;
 use Room11\HTTP\Request;
 use Room11\HTTP\Request\Request as RequestImpl;
 use Room11\HTTP\Response;
-
-use Jig\Jig;
-use Jig\JigBase;
-use Room11\HTTP\Body\HtmlBody;
-
-use Auryn\InjectorException;
-use Auryn\InjectionException;
-use Jig\JigException;
 use Tier\ResponseBody\ExceptionHtmlBody;
 
-
-
+/**
+ * @return Request
+ */
 function createRequestFromGlobals()
 {
     try {
@@ -125,8 +126,12 @@ function sendErrorResponse(Request $request, $body, $errorCode)
  * @param Response $response
  * @param bool $autoAddReason
  */
-function sendResponse(Request $request, Response $response, $autoAddReason = true)
-{
+function sendResponse(
+    Request $request,
+    Response $response,
+    $autoAddReason = true
+) {
+
     $statusCode = $response->getStatus();
     $reason = $response->getReasonPhrase();
     if ($autoAddReason && empty($reason)) {
@@ -143,13 +148,17 @@ function sendResponse(Request $request, Response $response, $autoAddReason = tru
     if (isset($reason[0])) {
         $statusLine .= " {$reason}";
     }
-
-    header($statusLine);
-
-    $headers = $response->getAllHeaderLines();
-
-    foreach ($headers as $headerLine) {
-        header($headerLine, $replace = false);
+    
+    if (headers_sent() == false) {
+        // Headers sent should only happen when their is an error after the 
+        // body has been sent.
+        header($statusLine);
+    
+        $headers = $response->getAllHeaderLines();
+    
+        foreach ($headers as $headerLine) {
+            header($headerLine, $replace = false);
+        }
     }
 
     flush(); // Force header output
@@ -158,16 +167,19 @@ function sendResponse(Request $request, Response $response, $autoAddReason = tru
 
     if (method_exists($body, '__toString')) {
         echo $body->__toString();
+        return;
     }
     else if (is_string($body)) {
         echo $body;
+        return;
     }
     elseif (is_callable($body)) {
         $body();
+        return;
     }
-    else {
-        //this is bad.
-    }
+    
+    //this is bad.
+    throw new TierException("Unknown body type.");
 }
 
 /**
@@ -192,7 +204,7 @@ function throwWrongTypeException($result)
         $detail
     );
 
-    throw new TierException($message);
+    return new TierException($message);
 }
 
 
@@ -206,7 +218,7 @@ function throwWrongTypeException($result)
 function getRenderTemplateTier($templateName, array $sharedObjects = [])
 {
     $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
-        $className = $jigRender->getTemplateCompiledClassname($templateName);
+        $className = $jigRender->getFQCNFromTemplateName($templateName);
         $jigRender->checkTemplateCompiled($templateName);
 
         $alias = [];
@@ -333,4 +345,25 @@ function processException(\Exception $e, Request $request)
     $exceptionString = \Tier\getExceptionString($e);
     $body = new ExceptionHtmlBody($exceptionString);
     \Tier\sendErrorResponse($request, $body, 500);
+}
+
+
+function sendBodyResponse(
+    Body $body,
+    Request $request,
+    Response $response,
+    HeadersSet $headerSet
+) {
+    $headerSet = $headerSet->getAllHeaders();
+    
+    foreach ($headerSet as $field => $values) {
+        foreach ($values as $value) {
+            $response->setHeader($field, $value);
+        }
+    }
+
+    $response->setBody($body);
+    \Tier\sendResponse($request, $response);
+
+    return \Tier\TierApp::PROCESS_END;
 }
