@@ -1,6 +1,9 @@
 {include file='component/pageStart'}
 
 
+
+
+
 <div class="container">
   
 <div class="row">
@@ -12,8 +15,12 @@
   </div>
 </div>
 
-<div class="row">    
-    <div class="col-md-12">
+<div class="row">
+    <div class="col-md-2">
+        {include file='component/sidebar'}
+    </div>
+    
+    <div class="col-md-9">
     {block name='content'}
         This is the blank page - it should never be seen.
     {/block}
