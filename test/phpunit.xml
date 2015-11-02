@@ -5,7 +5,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="Jig Test Suite">
+        <testsuite name="TierApp Test Suite">
             <directory>../test/</directory>
             <exclude>BaseTestCase.php</exclude> <!-- This doens't seem to work-->
         </testsuite>
@@ -13,13 +13,13 @@
 
     <filter>
         <whitelist>
-            <directory>../src/Jig</directory>
-            <directory>../tmp/generatedTemplates/Jig</directory>
+            <directory>../src/Tier</directory>
+            <!-- <directory>../tmp/generatedTemplates/Jig</directory> -->
         </whitelist>
     </filter>
 
     <listeners>
-        <listener class="\Mockery\Adapter\Phpunit\TestListener"/>
+        <listener class="Mockery\Adapter\Phpunit\TestListener"/>
     </listeners>
 
     <logging>

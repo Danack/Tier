@@ -17,6 +17,8 @@ class BaseTestCase extends \PHPUnit_Framework_TestCase
         $this->startLevel = ob_get_level();
         ob_start();
     }
+    
+
 
     public function teardown()
     {
