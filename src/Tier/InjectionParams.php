@@ -115,7 +115,7 @@ class InjectionParams
 
     /**
      * @param array $mocks An array where the keys are the interface/classnames to
-     * be replaced, and the values are the new classes/objects to be used. 
+     * be replaced, and the values are the new classes/objects to be used.
      */
     public function mergeMocks(array $mocks)
     {

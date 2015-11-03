@@ -5,8 +5,6 @@
     
     <!-- <exclude-pattern>*Intahwebz*</exclude-pattern> -->
     <exclude-pattern>*JigTest/CoverageTest.php</exclude-pattern>
-    
-    
 
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
@@ -52,17 +50,11 @@
 
     <!-- Sometimes this is fine. -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
-        <exclude-pattern>*JigRender.php</exclude-pattern>
-        <exclude-pattern>*Escaper.php</exclude-pattern>
+        <!-- <exclude-pattern>*JigRender.php</exclude-pattern> -->
     </rule>
 
-    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-        <exclude-pattern>*PlaceHolder/PlaceHolderPlugin.php</exclude-pattern>
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude-pattern>*TierApp.php</exclude-pattern>
     </rule>
-
-    <rule ref="Squiz.Functions.MultiLineFunctionDeclaration.OneParamPerLine">
-        <exclude-pattern>*JigTest/JigConverterTest.php</exclude-pattern>
-    </rule>
-
 </ruleset>
         

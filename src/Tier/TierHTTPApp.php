@@ -50,7 +50,7 @@ class TierHTTPApp extends TierApp
      * @return ExceptionResolver
      * @throws TierException
      */
-    function createStandardExceptionResolver()
+    public function createStandardExceptionResolver()
     {
         $exceptionResolver = new ExceptionResolver();
         $exceptionResolver->addExceptionHandler(
@@ -131,7 +131,9 @@ class TierHTTPApp extends TierApp
                 'processException'
             );
             $this->injector->execute(
-                $handler, ['Room11\HTTP\Request' => $request]);
+                $handler,
+                ['Room11\HTTP\Request' => $request]
+            );
         }
     }
 }

@@ -45,7 +45,7 @@ class TierApp
 
     /**
      * The expected products are the names of objects that the application is expected to
-     * produce. They will automatically be shared to be made available for processing by 
+     * produce. They will automatically be shared to be made available for processing by
      * later Tiers. For example in a webserver application, a response body would be an
      * appropriate expected result.
      * @var array[string]
@@ -88,7 +88,8 @@ class TierApp
                 //Check we haven't got caught in a redirect loop
                 $this->internalExecutions++;
                 if ($this->internalExecutions > $this->maxInternalExecutions) {
-                    throw new TierException("Too many tiers executed. You probably have a recursion error in your application.");
+                    $message = "Too many tiers executed. You probably have a recursion error in your application.";
+                    throw new TierException($message);
                 }
 
                 /** @var $tier Executable  */
@@ -200,6 +201,4 @@ class TierApp
     {
         $this->executableListByTier->addExecutable($tier, $executable);
     }
-
-
 }

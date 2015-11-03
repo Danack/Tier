@@ -49,7 +49,7 @@ class ExceptionResolver
         foreach ($this->exceptionHandlers as $priority => $exceptionHandlerList) {
             foreach ($exceptionHandlerList as $classname => $handler) {
                 if ($e instanceof $classname) {
-                    return $handler; 
+                    return $handler;
                 }
             }
         }
