@@ -1,8 +1,9 @@
 
 # Tier - a layered application architecture.
 
-This is an example of how to use a DIC with multiple 'tiers' inside an application, to allow complete separation between routing, controllers and view tiers.
+An application runner framework that uses a DIC to allow multiple 'tiers', to allow complete separation between routing, controllers and view tiers.
 
+[![Build Status](https://travis-ci.org/danack/tier.svg?branch=master)](https://travis-ci.org/danack/tier)
 
 # How to run
 
