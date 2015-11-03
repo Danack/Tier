@@ -82,7 +82,7 @@ class TierHTTPApp extends TierApp
      */
     public function addPreCallable($callable)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_BEFORE_BODY, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_BODY, $callable);
     }
 
     /**
@@ -90,7 +90,7 @@ class TierHTTPApp extends TierApp
      */
     public function addResponseCallable($callable)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $callable);
     }
     
     /**
@@ -98,23 +98,23 @@ class TierHTTPApp extends TierApp
      */
     public function addTier(Executable $tier)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $tier);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $tier);
     }
 
     public function addSendCallable($callable)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $callable);
     }
 
 
     public function addBeforeSendCallable($callable)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $callable);
     }
 
     public function addPostCallable($callable)
     {
-        $this->tiersByStage->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $callable);
     }
     
         /**

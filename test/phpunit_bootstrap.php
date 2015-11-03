@@ -1,8 +1,8 @@
 <?php
 
-
-
 $autoloader = require(__DIR__.'/../vendor/autoload.php');
+
+require(__DIR__.'/../src/Tier/tierFunctions.php');
 
 $autoloader->add('JigTest', [realpath('./').'/test/']);
 $autoloader->add(

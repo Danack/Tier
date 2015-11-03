@@ -25,8 +25,9 @@ function createRequestFromGlobals()
         $request = new RequestImpl($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
     }
     catch (\Exception $e) {
-        //TODO - exit quickly.
-        header("We totally failed", true, 501);
+        // Exit quickly. Something is seriously wrong and we will not be able to
+        // handle it inside the application.
+        header("Server unavailable", true, 501);
         echo "Failed to read globals to create request. ".$e->getMessage();
         exit(0);
     }
@@ -182,30 +183,6 @@ function sendResponse(
     throw new TierException("Unknown body type.");
 }
 
-/**
- * @param $result
- * @throws TierException
- */
-function throwWrongTypeException($result)
-{
-    if ($result === null) {
-        throw new TierException('Return value of tier must be either a Room11\HTTP\Body or a tier, null given.');
-    }
-
-    if (is_object($result)) {
-        $detail = "object of type '".get_class($result)."' returned.";
-    }
-    else {
-        $detail = "variable of type '".gettype($result)."' returned.";
-    }
-
-    $message = sprintf(
-        'Return value of tier must be either a Room11\HTTP\Body or a tier, instead %s returned.',
-        $detail
-    );
-
-    return new TierException($message);
-}
 
 
 

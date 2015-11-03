@@ -19,10 +19,13 @@ class TierApp
     public $maxInternalExecutions = 20;
     
     /**
-     * @var array[int][Tier]
+     * @var \Tier\ExecutableListByTier
      */
-    protected $tiersByStage;
+    protected $executableListByTier;
 
+    /**
+     * @var \Tier\InjectionParams
+     */
     protected $initialInjectionParams = null;
 
     /** @var Injector The DIC that runs the app */
@@ -40,10 +43,21 @@ class TierApp
     // Application has finished running
     const PROCESS_END = 3;
 
-    /** @var array  */
+    /**
+     * The expected products are the names of objects that the application is expected to
+     * produce. They will automatically be shared to be made available for processing by 
+     * later Tiers. For example in a webserver application, a response body would be an
+     * appropriate expected result.
+     * @var array[string]
+     */
     protected $expectedProducts = [];
-    
 
+    const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
+
+    /**
+     * @param InjectionParams $injectionParams
+     * @param Injector $injector
+     */
     public function __construct(
         InjectionParams $injectionParams,
         Injector $injector = null
@@ -57,7 +71,7 @@ class TierApp
             $this->injector = $injector;
         }
         
-        $this->tiersByStage = new ExecutableListByTier();
+        $this->executableListByTier = new ExecutableListByTier();
     }
 
     /**
@@ -69,12 +83,12 @@ class TierApp
         // across the application
         $this->injector->share($this->injector); //yolo
         $this->initialInjectionParams->addToInjector($this->injector);
-        foreach ($this->tiersByStage as $appStage => $tiersForStage) {
+        foreach ($this->executableListByTier as $appStage => $tiersForStage) {
             foreach ($tiersForStage as $tier) {
                 //Check we haven't got caught in a redirect loop
                 $this->internalExecutions++;
                 if ($this->internalExecutions > $this->maxInternalExecutions) {
-                    throw new TierException("Too many tiers");
+                    throw new TierException("Too many tiers executed. You probably have a recursion error in your application.");
                 }
 
                 /** @var $tier Executable  */
@@ -120,31 +134,36 @@ class TierApp
     {
          // If it's a new Tier to run, setup the next loop.
         if ($result instanceof Executable) {
-            $this->tiersByStage->addNextStageTier($result);
+            $this->executableListByTier->addNextStageTier($result);
             return self::PROCESS_CONTINUE;
         }
-        if (is_array($result)) {
+        if (is_array($result) && count($result) != 0) {
             //It's an array of tiers to run.
             foreach ($result as $tier) {
                 if (!$tier instanceof Executable) {
-                    throw new TierException(
-                        "A tier must return either a responsebody, a new Tier or an array of Tiers"
+                    throw new InvalidReturnException(
+                        self::RETURN_VALUE,
+                        $result
                     );
                 }
-                $this->tiersByStage->addNextStageTier($tier);
+                $this->executableListByTier->addNextStageTier($tier);
             }
             return self::PROCESS_CONTINUE;
         }
-        if ($result == false) {
+        if ($result === false) {
             // The executed tier wasn't able to handle it e.g. a caching layer
             // There should be another tier to execute in this stage.
             return self::PROCESS_CONTINUE;
         }
 
         // If the $result is an expected product share it for further stages
-        foreach ($this->expectedProducts as $product) {
-            if ($result instanceof $product) {
-                $this->injector->alias($product, get_class($result));
+        foreach ($this->expectedProducts as $expectedProduct) {
+            if ($result instanceof $expectedProduct) {
+                if (strcasecmp($expectedProduct, get_class($result)) !== 0) {
+                    //product is a sub-class of the expected product. Setup an
+                    //alias for it
+                    $this->injector->alias($expectedProduct, get_class($result));
+                }
                 $this->injector->share($result);
                 return self::PROCESS_END_STAGE;
             }
@@ -157,7 +176,7 @@ class TierApp
         }
 
         // Otherwise it's an error
-        throw throwWrongTypeException($result);
+        throw InvalidReturnException::getWrongTypeException($result);
     }
 
     /**
@@ -172,4 +191,15 @@ class TierApp
     {
         $this->expectedProducts[] = $classname;
     }
+
+    /**
+     * @param $tier
+     * @param $executable
+     */
+    public function addExecutable($tier, $executable)
+    {
+        $this->executableListByTier->addExecutable($tier, $executable);
+    }
+
+
 }
