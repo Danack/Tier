@@ -2,7 +2,7 @@
 
 
 
-$autoloader = require('./vendor/autoload.php');
+$autoloader = require(__DIR__.'/../vendor/autoload.php');
 
 $autoloader->add('JigTest', [realpath('./').'/test/']);
 $autoloader->add(
@@ -11,4 +11,4 @@ $autoloader->add(
 );
 
 
-$autoloader->add('Fixtures', [__DIR__.'fixtures/']);
+$autoloader->add('Fixtures', [__DIR__.'/fixtures/']);

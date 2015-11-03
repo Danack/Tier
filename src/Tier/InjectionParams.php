@@ -63,6 +63,11 @@ class InjectionParams
         $this->defines[$className] = $params;
     }
     
+    public function prepare($className, $prepareCallable)
+    {
+        $this->prepares[$className] = $prepareCallable;
+    }
+    
     /**
      * @return array
      */
@@ -108,7 +113,11 @@ class InjectionParams
         return $this->defines;
     }
 
-    public function mergeMocks($mocks)
+    /**
+     * @param array $mocks An array where the keys are the interface/classnames to
+     * be replaced, and the values are the new classes/objects to be used. 
+     */
+    public function mergeMocks(array $mocks)
     {
         $newAliases = [];
 
@@ -130,8 +139,7 @@ class InjectionParams
 
         $this->aliases = $newAliases;
     }
-    
-    
+
     /**
      * @param Injector $injector
      * @param InjectionParams $injectionParams

@@ -14,7 +14,7 @@ class TierAppTest extends BaseTestCase
         $tierApp = new TierApp($injectionParams);
         
         $tierApp->addExpectedProduct('Fixtures\Body');
-        $tierApp->addTier()
+        //$tierApp->addTier();
         
     }
 

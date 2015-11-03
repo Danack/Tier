@@ -2,11 +2,7 @@
 
 namespace Tier;
 
-use Auryn\InjectionException;
 use Auryn\Injector;
-use Auryn\InjectorException;
-use Jig\JigException;
-use Room11\HTTP\Request;
 
 /**
  * Class TierApp
@@ -15,7 +11,7 @@ use Room11\HTTP\Request;
 class TierApp
 {
     /** @var int How many tiers/callables have been executed */
-    private $internalExecutions = 0;
+    protected $internalExecutions = 0;
 
     /** @var int Max limit for number of tiers/callables to execute.
      * Prevents problems with applications getting stuck in a loop.
@@ -27,13 +23,10 @@ class TierApp
      */
     protected $tiersByStage;
 
-    private $initialInjectionParams = null;
-    
-    /** @var array A set of  */
-    private $exceptionHandlers = [];
+    protected $initialInjectionParams = null;
 
     /** @var Injector The DIC that runs the app */
-    private $injector;
+    protected $injector;
 
     // A set of constants that flag how the flow control of the application should
     // proceed.
@@ -41,23 +34,15 @@ class TierApp
     // Running of the application should continue.
     const PROCESS_CONTINUE = 1;
     // The current tier of the appliction has finished and should move to the next one.
-    // This is useful for things like a caching service to indicate that the response 
+    // This is useful for things like a caching service to indicate that the response
     // has been served from cache and the main processing body doesn't need to be run.
     const PROCESS_END_STAGE = 2;
     // Application has finished running
     const PROCESS_END = 3;
 
     /** @var array  */
-    private $expectedProducts = [];
+    protected $expectedProducts = [];
     
-    /**
-     * The order that exception handlers are processed. You will want
-     * to have more specific exception handlers attempt to handle an 
-     * exception before more generic handlers.
-     */
-    const ORDER_FIRST = 0;
-    const ORDER_MIDDLE = 50;
-    const ORDER_LAST = 100;
 
     public function __construct(
         InjectionParams $injectionParams,
@@ -72,79 +57,10 @@ class TierApp
             $this->injector = $injector;
         }
         
-        $this->tiersByStage = new ExecutablesByStage();
-        
+        $this->tiersByStage = new ExecutableListByTier();
     }
 
     /**
-     * @throws TierException
-     */
-    public function setStandardExceptionHandlers()
-    {
-        $this->addExceptionHandler(
-            JigException::class,
-            'Tier\processJigException',
-            self::ORDER_MIDDLE
-        );
-        
-        $this->addExceptionHandler(
-            InjectorException::class,
-            'Tier\processInjectorException',
-            self::ORDER_LAST - 2
-        );
-
-        $this->addExceptionHandler(
-            InjectionException::class,
-            'Tier\processInjectionException',
-            self::ORDER_MIDDLE
-        );
-
-        $this->addExceptionHandler(
-            \Exception::class,
-            'Tier\processException',
-            self::ORDER_LAST
-        );
-    }
-
-    /**
-     * @param Tier $tier
-     */
-    public function addTier(Tier $tier)
-    {
-        $this->tiersByStage->addTier(TierHTTPApp::STAGE_GENERATE_BODY, $tier);
-    }
-
-    /**
-     * @param $exceptionClassName
-     * @param callable $callback
-     * @param int $priority
-     * @throws TierException
-     */
-    public function addExceptionHandler($exceptionClassName, callable $callback, $priority = 50)
-    {
-        $priority = intval($priority);
-        if ($priority < 0 || $priority > 100) {
-            throw new TierException("Priority of exception handler must be between 0 and 100; $priority not acceptable.");
-        }
-
-        $this->exceptionHandlers[$priority][$exceptionClassName] = $callback;
-    }
-
-    /**
-     * @param Request $request
-     */
-    public function execute(Request $request)
-    {
-        try {
-            $this->executeInternal($request);
-        }
-        catch (\Exception $e) {
-            $this->processException($e, $request);
-        }
-    }
-
-    /**
-     * @param Request $request
      * @throws TierException
      */
     public function executeInternal()
@@ -161,8 +77,8 @@ class TierApp
                     throw new TierException("Too many tiers");
                 }
 
-                /** @var $tier Tier  */
-                if ($tier instanceof Tier) {
+                /** @var $tier Executable  */
+                if ($tier instanceof Executable) {
                     // Setup the information created by the previous Tier
                     if (($injectionParams = $tier->getInjectionParams())) {
                         $injectionParams->addToInjector($this->injector);
@@ -174,9 +90,9 @@ class TierApp
                         $this->injector->execute($setupCallable);
                     }
                     // Call this Tier's callable
-                    $result = $this->injector->execute($tier->getTierCallable());
+                    $result = $this->injector->execute($tier->getCallable());
                 }
-                else {                    
+                else {
                     $result = $this->injector->execute($tier);
                 }
 
@@ -194,26 +110,6 @@ class TierApp
         
         throw new TierException("Processing did not result in a TierApp::PROCESS_END");
     }
-    
-    private function processException(\Exception $e, Request $request)
-    {
-        ksort($this->exceptionHandlers);
-        foreach ($this->exceptionHandlers as $priority => $exceptionHandlerList) {
-            foreach ($exceptionHandlerList as $classname => $handler) {
-                if ($e instanceof $classname) {
-                    
-                    $fn = function (Request $request) use ($e, $handler) {
-                        return $handler($e, $request);
-                    };
-                    $this->injector->execute($fn);
-                    return;
-                }
-            }
-        }
-
-        //No exception handlers matched. Lets use the default one.
-        processException($e, $request);
-    }
 
     /**
      * @param $result
@@ -223,14 +119,14 @@ class TierApp
     private function processResult($result)
     {
          // If it's a new Tier to run, setup the next loop.
-        if ($result instanceof Tier) {
+        if ($result instanceof Executable) {
             $this->tiersByStage->addNextStageTier($result);
             return self::PROCESS_CONTINUE;
         }
         if (is_array($result)) {
             //It's an array of tiers to run.
             foreach ($result as $tier) {
-                if (!$tier instanceof Tier) {
+                if (!$tier instanceof Executable) {
                     throw new TierException(
                         "A tier must return either a responsebody, a new Tier or an array of Tiers"
                     );
@@ -245,7 +141,7 @@ class TierApp
             return self::PROCESS_CONTINUE;
         }
 
-        // If the $result is an expected product share it for further stages 
+        // If the $result is an expected product share it for further stages
         foreach ($this->expectedProducts as $product) {
             if ($result instanceof $product) {
                 $this->injector->alias($product, get_class($result));
@@ -267,8 +163,8 @@ class TierApp
     /**
      * Adds an expected product. Expected products will be automatically
      * shared to further tiers.
-     * 
-     * For example a HTTP app could set a response body as the 
+     *
+     * For example a HTTP app could set a response body as the
      * expected product.
      * @param $classname
      */

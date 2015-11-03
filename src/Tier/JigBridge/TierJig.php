@@ -4,7 +4,7 @@ namespace Tier\JigBridge;
 
 use Jig\Jig;
 use Tier\InjectionParams;
-use Tier\Tier;
+use Tier\Executable;
 use Room11\HTTP\Body\HtmlBody;
 
 function createHtmlBody(\Jig\JigBase $template)
@@ -32,7 +32,6 @@ class TierJig
         $className = $this->jig->getFQCNFromTemplateName($templateName);
         $injectionParams->alias('Jig\JigBase', $className);
 
-        return new Tier('Tier\JigBridge\createHtmlBody', $injectionParams);
+        return new Executable('Tier\JigBridge\createHtmlBody', $injectionParams);
     }
 }
-

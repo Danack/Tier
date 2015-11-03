@@ -150,7 +150,7 @@ function sendResponse(
     }
     
     if (headers_sent() == false) {
-        // Headers sent should only happen when their is an error after the 
+        // Headers sent should only happen when their is an error after the
         // body has been sent.
         header($statusLine);
     
@@ -213,7 +213,7 @@ function throwWrongTypeException($result)
  * Helper function to allow template rendering to be easier.
  * @param $templateName
  * @param array $sharedObjects
- * @return Tier
+ * @return Executable
  */
 function getRenderTemplateTier($templateName, array $sharedObjects = [])
 {
@@ -225,10 +225,10 @@ function getRenderTemplateTier($templateName, array $sharedObjects = [])
         $alias['Jig\JigBase'] = $className;
         $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
 
-        return new Tier('Tier\createHtmlBody', $injectionParams);
+        return new Executable('Tier\createHtmlBody', $injectionParams);
     };
 
-    return new Tier($fn);
+    return new Executable($fn);
 }
 
 
@@ -260,8 +260,8 @@ function tierExceptionHandler(\Exception $ex)
     echo getExceptionString($ex);
 }
 
-function getExceptionString(\Exception $ex) {
-
+function getExceptionString(\Exception $ex)
+{
     $string = '';
     
     while ($ex) {
@@ -269,9 +269,8 @@ function getExceptionString(\Exception $ex) {
         $string .= "Exception " . get_class($ex) . ': ' . $ex->getMessage()."\n\n";
 
         foreach ($ex->getTrace() as $tracePart) {
-            
             $line = false;
-            if (isset($tracePart['file']) && isset($tracePart['line']) ) {
+            if (isset($tracePart['file']) && isset($tracePart['line'])) {
                 $line .= $tracePart['file']." ";
                 $line .= $tracePart['line']." ";
             }
@@ -308,21 +307,29 @@ function getExceptionString(\Exception $ex) {
 }
 
 
-function setupErrorHandlers(){
+function setupErrorHandlers()
+{
     register_shutdown_function('Tier\tierShutdownFunction');
     set_exception_handler('Tier\tierExceptionHandler');
     set_error_handler('Tier\tierErrorHandler');
 }
 
 
+/**
+ * @param JigException $je
+ * @param Request $request
+ */
 function processJigException(JigException $je, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($je);
-    // TODO - jig templates need to be easier to debug.
     $body = new ExceptionHtmlBody($exceptionString);
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
+/**
+ * @param InjectionException $ie
+ * @param Request $request
+ */
 function processInjectionException(InjectionException $ie, Request $request)
 {
     $body = $ie->getMessage();
@@ -332,6 +339,10 @@ function processInjectionException(InjectionException $ie, Request $request)
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
+/**
+ * @param InjectorException $ie
+ * @param Request $request
+ */
 function processInjectorException(InjectorException $ie, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($ie);
@@ -339,7 +350,10 @@ function processInjectorException(InjectorException $ie, Request $request)
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
-
+/**
+ * @param \Exception $e
+ * @param Request $request
+ */
 function processException(\Exception $e, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($e);
@@ -347,7 +361,14 @@ function processException(\Exception $e, Request $request)
     \Tier\sendErrorResponse($request, $body, 500);
 }
 
-
+/**
+ * @param Body $body
+ * @param Request $request
+ * @param Response $response
+ * @param HeadersSet $headerSet
+ * @return int
+ * @throws TierException
+ */
 function sendBodyResponse(
     Body $body,
     Request $request,

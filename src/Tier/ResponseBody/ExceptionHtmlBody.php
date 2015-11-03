@@ -25,12 +25,17 @@ class ExceptionHtmlBody implements Body
         $this->text = $fullText;
     }
 
-    
+    /**
+     * Send the output to the client
+     */
     public function __invoke()
     {
         echo $this->text;
     }
 
+    /**
+     * @return array
+     */
     public function getHeaders()
     {
         return [
@@ -38,8 +43,10 @@ class ExceptionHtmlBody implements Body
             'Content-Length' => strlen($this->text)
         ];
     }
-    
-    
+
+    /**
+     * @return string
+     */
     private function getBeforeText()
     {
         $text = <<< END
@@ -89,8 +96,10 @@ END;
 
         return $text;
     }
-    
-    
+
+    /**
+     * @return string
+     */
     private function getAfterText()
     {
         $text = <<< END

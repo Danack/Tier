@@ -3,14 +3,14 @@
 
 namespace Tier;
 
-class Executables implements \Iterator 
+class ExecutableList implements \Iterator
 {
     private $position = 0;
 
     /**
-     * @var Tier[]
+     * @var Executable[]
      */
-    private $stages;
+    private $list;
 
     public function __construct()
     {
@@ -19,14 +19,15 @@ class Executables implements \Iterator
 
     public function current()
     {
-        return $this->stages[$this->position];
+        return $this->list[$this->position];
     }
     
-    public function key() {
+    public function key()
+    {
         return $this->position;
     }
     
-    public function next ()
+    public function next()
     {
         //The stages are already sorted by key value
         $this->position++;
@@ -37,12 +38,13 @@ class Executables implements \Iterator
         $this->position = 0;
     }
     
-    public function valid() {
-        return isset($this->stages[$this->position]);
+    public function valid()
+    {
+        return isset($this->list[$this->position]);
     }
 
-    public function addTier($tier)
+    public function addExecutable($executable)
     {
-        $this->stages[] = $tier;
+        $this->list[] = $executable;
     }
 }
