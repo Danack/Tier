@@ -150,7 +150,7 @@ class InjectionParams
         foreach ($this->aliases as $original => $alias) {
             $injector->alias($original, $alias);
         }
-        
+
         foreach ($this->shares as $share) {
             $injector->share($share);
         }

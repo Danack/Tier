@@ -14,6 +14,7 @@ use Room11\HTTP\Request;
 use Room11\HTTP\Request\Request as RequestImpl;
 use Room11\HTTP\Response;
 use Tier\ResponseBody\ExceptionHtmlBody;
+use Room11\HTTP\Request\CLIRequest;
 
 /**
  * @return Request
@@ -21,6 +22,8 @@ use Tier\ResponseBody\ExceptionHtmlBody;
 function createRequestFromGlobals()
 {
     try {
+        
+
         $_input = empty($_SERVER['CONTENT-LENGTH']) ? null : fopen('php://input', 'r');
         $request = new RequestImpl($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
     }
@@ -112,13 +115,16 @@ function tierShutdownFunction()
 /**
  * @param Request $request
  * @param $body
- * @param $errorCode
+ * @param $overrideErrorCode
  */
-function sendErrorResponse(Request $request, $body, $errorCode)
+function sendErrorResponse(Request $request, $body, $overrideErrorCode = null)
 {
     $response = new \Room11\HTTP\Response\Response();
     $response->setBody($body);
-    $response->setStatus($errorCode);
+    if ($overrideErrorCode !== null) {
+        $response->setStatus($overrideErrorCode);
+    }
+
     sendResponse($request, $response);
 }
 
@@ -145,7 +151,7 @@ function sendResponse(
          $response->addHeader("Date", gmdate("D, d M Y H:i:s", time())." UTC");
     }
 
-    $statusLine = sprintf("HTTP/%s %s", $request['SERVER_PROTOCOL'], $statusCode);
+    $statusLine = sprintf("HTTP/%s %s", $request->getProtocol(), $statusCode);
     if (isset($reason[0])) {
         $statusLine .= " {$reason}";
     }
@@ -299,8 +305,8 @@ function setupErrorHandlers()
 function processJigException(JigException $je, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($je);
-    $body = new ExceptionHtmlBody($exceptionString);
-    \Tier\sendErrorResponse($request, $body, 500);
+    $body = new ExceptionHtmlBody($exceptionString, 500);
+    \Tier\sendErrorResponse($request, $body);
 }
 
 /**
@@ -309,11 +315,12 @@ function processJigException(JigException $je, Request $request)
  */
 function processInjectionException(InjectionException $ie, Request $request)
 {
-    $body = $ie->getMessage();
+    $body = $ie->getMessage()."\n\n";
+    $body .= "Dependency chain is:\n\n";
     $body .= implode("\n", $ie->getDependencyChain());
     
-    $body = new ExceptionHtmlBody($body);
-    \Tier\sendErrorResponse($request, $body, 500);
+    $body = new ExceptionHtmlBody($body, 500);
+    \Tier\sendErrorResponse($request, $body);
 }
 
 /**
@@ -323,8 +330,8 @@ function processInjectionException(InjectionException $ie, Request $request)
 function processInjectorException(InjectorException $ie, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($ie);
-    $body = new ExceptionHtmlBody($exceptionString);
-    \Tier\sendErrorResponse($request, $body, 500);
+    $body = new ExceptionHtmlBody($exceptionString, 500);
+    \Tier\sendErrorResponse($request, $body);
 }
 
 /**
@@ -334,8 +341,8 @@ function processInjectorException(InjectorException $ie, Request $request)
 function processException(\Exception $e, Request $request)
 {
     $exceptionString = \Tier\getExceptionString($e);
-    $body = new ExceptionHtmlBody($exceptionString);
-    \Tier\sendErrorResponse($request, $body, 500);
+    $body = new ExceptionHtmlBody($exceptionString, 500);
+    \Tier\sendErrorResponse($request, $body);
 }
 
 /**
@@ -353,7 +360,7 @@ function sendBodyResponse(
     HeadersSet $headerSet
 ) {
     $headerSet = $headerSet->getAllHeaders();
-    
+
     foreach ($headerSet as $field => $values) {
         foreach ($values as $value) {
             $response->setHeader($field, $value);

@@ -3,9 +3,6 @@
 
 namespace Tier;
 
-use Auryn\InjectionException;
-use Auryn\InjectorException;
-use Jig\JigException;
 use Auryn\Injector;
 use Room11\HTTP\Request;
 
@@ -35,7 +32,6 @@ class TierHTTPApp extends TierApp
         Injector $injector = null,
         ExceptionResolver $exceptionResolver = null
     ) {
-        
         parent::__construct($injectionParams, $injector);
             
         if ($exceptionResolver == null) {
@@ -86,32 +82,32 @@ class TierHTTPApp extends TierApp
     }
 
     /**
-     * @param $callable
-     */
-    public function addResponseCallable($callable)
-    {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $callable);
-    }
-    
-    /**
      * @param Executable $tier
      */
-    public function addTier(Executable $tier)
+    public function addGenerateBodyExecutable(Executable $tier)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $tier);
     }
 
+    /**
+     * @param $callable
+     */
     public function addSendCallable($callable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $callable);
     }
 
-
+    /**
+     * @param $callable
+     */
     public function addBeforeSendCallable($callable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $callable);
     }
 
+    /**
+     * @param $callable
+     */
     public function addPostCallable($callable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $callable);
@@ -123,17 +119,22 @@ class TierHTTPApp extends TierApp
     public function execute(Request $request)
     {
         try {
+            $this->injector->alias('Room11\HTTP\Request', get_class($request));
+            $this->injector->share($request);
             $this->executeInternal();
         }
         catch (\Exception $e) {
-            $handler = $this->exceptionResolver->getExceptionHandler(
+            list($handler, $exceptionClass) = $this->exceptionResolver->getExceptionHandler(
                 $e,
                 'processException'
             );
-            $this->injector->execute(
-                $handler,
-                ['Room11\HTTP\Request' => $request]
-            );
+
+            $injector = clone $this->injector;
+            if (strcasecmp($exceptionClass, get_class($e)) !== 0) {
+                $injector->alias($exceptionClass, get_class($e));
+            }
+            $injector->share($e);
+            $injector->execute($handler);
         }
     }
 }

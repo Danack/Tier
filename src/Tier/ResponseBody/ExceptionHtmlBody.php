@@ -15,14 +15,16 @@ use Room11\HTTP\Body;
 class ExceptionHtmlBody implements Body
 {
     private $text;
+    private $statusCode;
     
-    public function __construct($exceptionString)
+    public function __construct($exceptionString, $statusCode)
     {
         $fullText = $this->getBeforeText();
         $fullText .= nl2br($exceptionString);
         $fullText .= $this->getAfterText();
 
         $this->text = $fullText;
+        $this->statusCode = $statusCode;
     }
 
     /**
@@ -31,6 +33,11 @@ class ExceptionHtmlBody implements Body
     public function __invoke()
     {
         echo $this->text;
+    }
+    
+    public function getStatusCode()
+    {
+        return $this->statusCode;
     }
 
     /**
