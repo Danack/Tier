@@ -22,8 +22,6 @@ use Room11\HTTP\Request\CLIRequest;
 function createRequestFromGlobals()
 {
     try {
-        
-
         $_input = empty($_SERVER['CONTENT-LENGTH']) ? null : fopen('php://input', 'r');
         $request = new RequestImpl($_SERVER, $_GET, $_POST, $_FILES, $_COOKIE, $_input);
     }
@@ -156,16 +154,22 @@ function sendResponse(
         $statusLine .= " {$reason}";
     }
     
-    if (headers_sent() == false) {
-        // Headers sent should only happen when their is an error after the
-        // body has been sent.
-        header($statusLine);
+
     
-        $headers = $response->getAllHeaderLines();
+    $file = null;
+    $line = null;
+    if (headers_sent($file, $line)) {
+        //TODO -  
+        throw new TierException("Headers already sent by File ".$file." line ".$line);
+    }
+
     
-        foreach ($headers as $headerLine) {
-            header($headerLine, $replace = false);
-        }
+    header($statusLine);
+
+    $headers = $response->getAllHeaderLines();
+
+    foreach ($headers as $headerLine) {
+        header($headerLine, $replace = false);
     }
 
     flush(); // Force header output
@@ -362,6 +366,9 @@ function sendBodyResponse(
     $headerSet = $headerSet->getAllHeaders();
 
     foreach ($headerSet as $field => $values) {
+        
+        //var_dump( $field, $values);
+        
         foreach ($values as $value) {
             $response->setHeader($field, $value);
         }

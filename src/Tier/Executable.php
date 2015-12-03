@@ -33,6 +33,7 @@ class Executable
      */
     private $injectionParams;
 
+    private $skipIfProduced;
 
     /**
      * @param $callable
@@ -42,11 +43,13 @@ class Executable
     public function __construct(
         $callable,
         InjectionParams $injectionParams = null,
-        $setupCallable = null
+        $setupCallable = null,
+        $skipIfProduced = null
     ) {
         $this->callable = $callable;
         $this->injectionParams = $injectionParams;
         $this->setupCallable = $setupCallable;
+        $this->skipIfProduced = $skipIfProduced;
     }
 
     /**
@@ -71,5 +74,10 @@ class Executable
     public function getInjectionParams()
     {
         return $this->injectionParams;
+    }
+
+    public function getSkipIfProduced()
+    {
+        return $this->skipIfProduced;
     }
 }

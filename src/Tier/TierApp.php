@@ -94,6 +94,12 @@ class TierApp
 
                 /** @var $tier Executable  */
                 if ($tier instanceof Executable) {
+                    $skipIfProduced = $tier->getSkipIfProduced();
+                    if ($skipIfProduced && 
+                        $this->hasExpectedProductBeenProduced($skipIfProduced) == true) {
+                        continue;
+                    }
+
                     // Setup the information created by the previous Tier
                     if (($injectionParams = $tier->getInjectionParams())) {
                         $injectionParams->addToInjector($this->injector);
@@ -158,12 +164,13 @@ class TierApp
         }
 
         // If the $result is an expected product share it for further stages
-        foreach ($this->expectedProducts as $expectedProduct) {
+        foreach ($this->expectedProducts as $expectedProduct => $created) {
             if ($result instanceof $expectedProduct) {
                 if (strcasecmp($expectedProduct, get_class($result)) !== 0) {
                     //product is a sub-class of the expected product. Setup an
                     //alias for it
                     $this->injector->alias($expectedProduct, get_class($result));
+                    $this->expectedProducts[$expectedProduct] = true;
                 }
                 $this->injector->share($result);
                 return self::PROCESS_END_STAGE;
@@ -190,9 +197,26 @@ class TierApp
      */
     public function addExpectedProduct($classname)
     {
-        $this->expectedProducts[] = $classname;
+        $classname = strtolower($classname);
+        if (array_key_exists($classname, $this->expectedProducts)) {
+            throw new TierException("Expected product $classname is already added.");
+        }
+        $this->expectedProducts[$classname] = false;
     }
 
+    /**
+     * @param $classname
+     * @return bool
+     */
+    public function hasExpectedProductBeenProduced($classname)
+    {
+        $classname = strtolower($classname);
+        if (!array_key_exists($classname, $this->expectedProducts)) {
+            return false;
+        }
+        return $this->expectedProducts[$classname];
+    }
+    
     /**
      * @param $tier
      * @param $executable
