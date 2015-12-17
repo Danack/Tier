@@ -95,7 +95,7 @@ class TierApp
                 /** @var $tier Executable  */
                 if ($tier instanceof Executable) {
                     $skipIfProduced = $tier->getSkipIfProduced();
-                    if ($skipIfProduced && 
+                    if ($skipIfProduced &&
                         $this->hasExpectedProductBeenProduced($skipIfProduced) == true) {
                         continue;
                     }

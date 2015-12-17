@@ -159,7 +159,7 @@ function sendResponse(
     $file = null;
     $line = null;
     if (headers_sent($file, $line)) {
-        //TODO -  
+        //TODO - this is not optimal
         throw new TierException("Headers already sent by File ".$file." line ".$line);
     }
 
@@ -366,9 +366,6 @@ function sendBodyResponse(
     $headerSet = $headerSet->getAllHeaders();
 
     foreach ($headerSet as $field => $values) {
-        
-        //var_dump( $field, $values);
-        
         foreach ($values as $value) {
             $response->setHeader($field, $value);
         }

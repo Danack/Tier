@@ -9,7 +9,7 @@ use Room11\HTTP\Body\EmptyBody;
 
 /**
  * Class CachingGeneratingFileResponseFactory
- * Generates a HTTP\Body that as appropriate either i) a 304 ReponseNotModified or ii) A 
+ * Generates a HTTP\Body that as appropriate either i) a 304 ReponseNotModified or ii) A
  * FileBody with the appropriate caching headers set. If the 304 response is generated,
  * the file gengeration function is not called. The use case this is used for is to avoid
  * constantly checking if a generated file has already been generated.
@@ -20,12 +20,12 @@ class CachingGeneratingFileResponseFactory
     private $caching;
     
     /** @var Request  */
-    private $request; 
+    private $request;
     
     public function __construct(
         Request $request,
-        LastModifiedStrategy $caching)
-    {
+        LastModifiedStrategy $caching
+    ) {
         $this->caching = $caching;
         $this->request = $request;
     }
@@ -57,7 +57,7 @@ class CachingGeneratingFileResponseFactory
     /**
      * @param $fileNameToServe
      * @param $contentType
-     * @param callable $fileGenerator The callable that generates the file. 
+     * @param callable $fileGenerator The callable that generates the file.
      * @param array $headers
      * @return \Room11\HTTP\Body
      */
