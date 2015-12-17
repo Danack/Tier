@@ -253,7 +253,7 @@ function getExceptionString(\Exception $ex)
     
     while ($ex) {
         $number = 0;
-        $string .= "Exception " . get_class($ex) . ': ' . $ex->getMessage()."\n\n";
+        $string .= "Exception " . get_class($ex) . ": '" . $ex->getMessage()."'\n\n";
 
         foreach ($ex->getTrace() as $tracePart) {
             $line = false;
