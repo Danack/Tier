@@ -59,10 +59,7 @@ class Router
     }
 
     /**
-     * @param Dispatcher $dispatcher
      * @param Request $request
-     * @param TierJig $tierJig
-     * @param JigConfig $jigConfig
      * @return Executable
      */
     public function routeRequest(Request $request)

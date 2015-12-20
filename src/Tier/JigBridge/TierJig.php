@@ -21,8 +21,7 @@ class TierJig
         if ($injectionParams == null) {
             $injectionParams = InjectionParams::fromParams([]);
         }
-        $this->jig->checkTemplateCompiled($templateName);
-        $className = $this->jig->getFQCNFromTemplateName($templateName);
+        $className = $this->jig->compile($templateName);
         $injectionParams->alias('Jig\JigBase', $className);
 
         return new Executable(['Tier\JigBridge\TierJig', 'createHtmlBody'], $injectionParams);
