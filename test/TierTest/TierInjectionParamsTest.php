@@ -9,7 +9,7 @@ use Mockery;
 
 class TierInjectionParamsTest extends BaseTestCase
 {
-    function testFromParams()
+    public function testFromParams()
     {
         $injector = new Injector();
         $injectionParams = InjectionParams::fromParams(['foo' => 'bar']);
@@ -31,7 +31,7 @@ class TierInjectionParamsTest extends BaseTestCase
         
     }
     
-    function testAlias()
+    public function testAlias()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -44,7 +44,7 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->addToInjector($injectorMock);
     }
 
-    function testShare()
+    public function testShare()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -57,7 +57,7 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->addToInjector($injectorMock);
     }
     
-    function testDelegate()
+    public function testDelegate()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -70,7 +70,7 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->addToInjector($injectorMock);
     }
     
-    function testPrepare()
+    public function testPrepare()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -83,7 +83,7 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->addToInjector($injectorMock);
     }
     
-    function testDefine()
+    public function testDefine()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -96,7 +96,7 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->addToInjector($injectorMock);
     }
 
-    function testDefineParam()
+    public function testDefineParam()
     {
         $injectorMock = Mockery::mock('Auryn\Injector');
         $injectorMock
@@ -108,5 +108,4 @@ class TierInjectionParamsTest extends BaseTestCase
         $params->defineParam('foo', 'bar');
         $params->addToInjector($injectorMock);
     }
-
 }

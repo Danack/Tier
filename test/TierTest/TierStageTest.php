@@ -9,7 +9,7 @@ use Auryn\Injector;
 class TierStageTest extends BaseTestCase
 {
 
-    function testStageRunning()
+    public function testStageRunning()
     {
         $functionsCalled = [];
         
@@ -32,7 +32,7 @@ class TierStageTest extends BaseTestCase
                 
         $injector = new Injector();
         
-        foreach ($tiersByStage as $appStage => $tiersForStage) {            
+        foreach ($tiersByStage as $appStage => $tiersForStage) {
             foreach ($tiersForStage as $tier) {
                 $injector->execute($tier);
             }

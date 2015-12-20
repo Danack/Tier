@@ -37,7 +37,7 @@ class Router
      */
     private function templateExists($templateName)
     {
-        if(substr($templateName, -1) == '/') {
+        if (substr($templateName, -1) == '/') {
             $templateName .= "index";
         }
         $templateName = str_replace('..', '', $templateName);
@@ -49,7 +49,7 @@ class Router
         }
 
         $indexName = $templateNormalisedName."/index";
-        
+
         $templatePathname = $this->jigConfig->getTemplatePath($indexName);
         if (file_exists($templatePathname) == true) {
             return $indexName;
@@ -58,7 +58,6 @@ class Router
         return false;
     }
 
-
     /**
      * @param Dispatcher $dispatcher
      * @param Request $request
@@ -66,7 +65,7 @@ class Router
      * @param JigConfig $jigConfig
      * @return Executable
      */
-    function routeRequest(Request $request)
+    public function routeRequest(Request $request)
     {
         $path = $request->getPath();
     
@@ -99,12 +98,12 @@ class Router
     }
 
     public static function serve404ErrorPage()
-    {    
+    {
         return new TextBody('Route not found.', 404);
     }
     
     public static function serve405ErrorPage()
-    {    
+    {
         return new TextBody('Method not allowed for route.', 405);
-    }    
+    }
 }

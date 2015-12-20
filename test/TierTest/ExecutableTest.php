@@ -7,7 +7,7 @@ use Tier\InjectionParams;
 
 class ExecutableTest extends BaseTestCase
 {
-    function testPath()
+    public function testPath()
     {
         $fn1 = function() {
             return "actual";

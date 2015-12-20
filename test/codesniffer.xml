@@ -13,6 +13,8 @@
     </rule>
 
 
+    
+
     <rule ref="PSR2">
         <!-- Need to find a way to turn this off for text, before re-enabling -->
         <!-- <exclude name="Generic.Files.LineLength.TooLong"/> -->
@@ -30,6 +32,11 @@
         <exclude name="Squiz.ControlStructures.ElseIfDeclaration"/>
         <exclude name="Squiz.WhiteSpace.ScopeClosingBrace"/>
 
+        
+        <!-- This doen't understand that 'function' is used to define closures-->
+        <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction"/>
+        
+        
         <!-- TODO make this be newline -->
         <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace"/>
         
@@ -52,9 +59,16 @@
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <!-- <exclude-pattern>*JigRender.php</exclude-pattern> -->
     </rule>
-
+    
     <rule ref="Generic.Files.LineLength.TooLong">
         <exclude-pattern>*TierApp.php</exclude-pattern>
     </rule>
+    
+    <!-- It's fine for test method names to have snake case -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>*Test*</exclude-pattern>
+    </rule>
+    
+    
 </ruleset>
         

@@ -8,7 +8,7 @@ use Fixtures\BarException;
 
 class ExceptionResolverTest extends BaseTestCase
 {
-    function testExceptionResolver()
+    public function testExceptionResolver()
     {
         $exceptionResolver = new ExceptionResolver();
         $fn = function() {
@@ -23,31 +23,34 @@ class ExceptionResolverTest extends BaseTestCase
         
         $exceptionResolver->addExceptionHandler(
             'Fixtures\FooException',
-            $fn, 
+            $fn,
             ExceptionResolver::ORDER_LAST
         );
 
         $fooException = new FooException();
-        $handler = $exceptionResolver->getExceptionHandler(
+        $handlerInfo = $exceptionResolver->getExceptionHandler(
             $fooException,
             $defaultHandler
         );
+        
+        list($handler, $classname) = $handlerInfo;
         $this->assertEquals("Foo handler", $handler());
         
         $barException = new BarException();
-        $handler = $exceptionResolver->getExceptionHandler(
+        $handlerInfo = $exceptionResolver->getExceptionHandler(
             $barException,
             $defaultHandler
         );
+        list($handler, $classname) = $handlerInfo;
+        
         $this->assertEquals("Default handler", $handler());
     }
     
-    function testExceptionResolverError()
+    public function testExceptionResolverError()
     {
         $exceptionResolver = new ExceptionResolver();
         $fn = function() {};
         $this->setExpectedException('Tier\TierException');
         $exceptionResolver->addExceptionHandler('FooException', $fn, -10);
     }
-
 }

@@ -11,10 +11,7 @@ use Auryn\Injector;
 
 class TierAppTest extends BaseTestCase
 {
-    /**
-     * 
-     */
-    function testContinueContinues()
+    public function testContinueContinues()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -40,7 +37,7 @@ class TierAppTest extends BaseTestCase
     /**
      * @throws TierException
      */
-    function testInjectorParamsUsed()
+    public function testInjectorParamsUsed()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -64,7 +61,7 @@ class TierAppTest extends BaseTestCase
         $this->assertEquals('bar', $fooDebug);
     }
 
-    function testWrongReturnType_DefaultReturn()
+    public function testWrongReturnType_DefaultReturn()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -84,7 +81,7 @@ class TierAppTest extends BaseTestCase
         $this->fail("InvalidReturnException was not thrown.");
     }
 
-    function testWrongReturnType_ObjectReturn()
+    public function testWrongReturnType_ObjectReturn()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -95,7 +92,6 @@ class TierAppTest extends BaseTestCase
         
         $tierApp->addExecutable(0, $fn1);
         try {
-        
             $tierApp->executeInternal();
         }
         catch (InvalidReturnException $ie) {
@@ -105,9 +101,8 @@ class TierAppTest extends BaseTestCase
 
         $this->fail("InvalidReturnException was not thrown.");
     }
-    
-    
-    function testWrongReturnType_ScalarReturn()
+
+    public function testWrongReturnType_ScalarReturn()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -121,7 +116,7 @@ class TierAppTest extends BaseTestCase
     }
     
 
-    function testMultipleExecutablesFinishCurrentStage()
+    public function testMultipleExecutablesFinishCurrentStage()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -161,7 +156,7 @@ class TierAppTest extends BaseTestCase
      * that the result produced is a sub-class of the expected result.
      * @throws TierException
      */
-    function testMultipleExecutablesFinishCurrentStageWithAliasedResult()
+    public function testMultipleExecutablesFinishCurrentStageWithAliasedResult()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -195,7 +190,7 @@ class TierAppTest extends BaseTestCase
     /**
      * @throws TierException
      */
-    function testRecursionError()
+    public function testRecursionError()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -211,7 +206,7 @@ class TierAppTest extends BaseTestCase
     }
     
     
-    function testMissingProcessEnd()
+    public function testMissingProcessEnd()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
@@ -227,7 +222,7 @@ class TierAppTest extends BaseTestCase
     }
     
     
-    function testCoverage1()
+    public function testCoverage1()
     {
         $injectionParams = new InjectionParams();
         $injector = new Injector();
@@ -255,7 +250,7 @@ class TierAppTest extends BaseTestCase
     }
 
    
-    function testReturnArray()
+    public function testReturnArray()
     {
         $injectionParams = new InjectionParams();
 
@@ -301,12 +296,12 @@ class TierAppTest extends BaseTestCase
         $this->assertFalse($fn2cCalled, '$fn2cCalled not called');
     }
 
-    function testReturnArrayError()
+    public function testReturnArrayError()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
 
-        $fn1 = function ()  {
+        $fn1 = function() {
             $executables = [];
             $executables[] = "This is not an execuable";
 

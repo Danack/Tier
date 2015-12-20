@@ -6,7 +6,7 @@ use Tier\ExecutableListByTier;
 
 class ExecutablesTest extends BaseTestCase
 {
-    function testExecutable()
+    public function testExecutable()
     {
         $execListByTier = new ExecutableListByTier();
 
@@ -16,7 +16,7 @@ class ExecutablesTest extends BaseTestCase
         $fn3Count = null;
         $fn2bCount = null;
 
-        $fn2b = function()  use (&$count, &$fn2bCount) {
+        $fn2b = function() use (&$count, &$fn2bCount) {
             $fn2bCount = $count;
             $count++;
         };
@@ -25,12 +25,12 @@ class ExecutablesTest extends BaseTestCase
             $fn1Count = $count;
             $count++;
         };
-        $fn2 = function()  use (&$count, &$fn2Count, $execListByTier, $fn2b) {
+        $fn2 = function() use (&$count, &$fn2Count, $execListByTier, $fn2b) {
             $fn2Count = $count;
             $count++;
             $execListByTier->addNextStageTier($fn2b);
         };
-        $fn3 = function()  use (&$count, &$fn3Count) {
+        $fn3 = function() use (&$count, &$fn3Count) {
             $fn3Count = $count;
             $count++;
         };
