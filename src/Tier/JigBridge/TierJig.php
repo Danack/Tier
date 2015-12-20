@@ -7,13 +7,6 @@ use Tier\InjectionParams;
 use Tier\Executable;
 use Room11\HTTP\Body\HtmlBody;
 
-function createHtmlBody(\Jig\JigBase $template)
-{
-    $text = $template->render();
-
-    return new HtmlBody($text);
-}
-
 class TierJig
 {
     private $jig;
@@ -23,7 +16,7 @@ class TierJig
         $this->jig = $jig;
     }
     
-    public function createTemplateTier($templateName, InjectionParams $injectionParams = null)
+    public function createJigExecutable($templateName, InjectionParams $injectionParams = null)
     {
         if ($injectionParams == null) {
             $injectionParams = InjectionParams::fromParams([]);
@@ -32,6 +25,13 @@ class TierJig
         $className = $this->jig->getFQCNFromTemplateName($templateName);
         $injectionParams->alias('Jig\JigBase', $className);
 
-        return new Executable('Tier\JigBridge\createHtmlBody', $injectionParams);
+        return new Executable(['Tier\JigBridge\TierJig', 'createHtmlBody'], $injectionParams);
+    }
+    
+    public static function createHtmlBody(\Jig\JigBase $template)
+    {
+        $text = $template->render();
+
+        return new HtmlBody($text);
     }
 }
