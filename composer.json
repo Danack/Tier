@@ -22,7 +22,7 @@
         }
     },
     "require-dev": {
-        "danack/jig": "^0.17.0",
+        "danack/jig": "^0.20.2",
         "mockery/mockery": "0.9.1",
         "phpunit/phpunit": "3.7.*",
         "room11/caching": "^0.0.4", 
