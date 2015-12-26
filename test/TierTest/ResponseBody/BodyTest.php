@@ -8,7 +8,7 @@ class BodyTest extends BaseTestCase
 {
     public function testPath()
     {
-        $body = new ExceptionHtmlBody("TestMessage", 503);
+        $body = new ExceptionHtmlBody("TestMessage", 501);
         $headers = $body->getHeaders();
         ob_start();
         $body->__invoke();
@@ -17,6 +17,7 @@ class BodyTest extends BaseTestCase
 
         $this->assertArrayHasKey('Content-Type', $headers);
         $this->assertArrayHasKey('Content-Length', $headers);
+
         $this->assertContains("TestMessage", $text);
     }
 }

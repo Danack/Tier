@@ -134,8 +134,9 @@ class TierApp
 
     /**
      * @param $result
-     * @return int
+     * @throws InvalidReturnException
      * @throws TierException
+     * @return int
      */
     private function processResult($result)
     {
@@ -194,6 +195,7 @@ class TierApp
      * For example a HTTP app could set a response body as the
      * expected product.
      * @param $classname
+     * @throws TierException
      */
     public function addExpectedProduct($classname)
     {

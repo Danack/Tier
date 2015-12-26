@@ -14,7 +14,6 @@ use Room11\HTTP\Request;
 use Room11\HTTP\Request\Request as RequestImpl;
 use Room11\HTTP\Response;
 use Tier\ResponseBody\ExceptionHtmlBody;
-use Room11\HTTP\Request\CLIRequest;
 
 /**
  * @return Request
@@ -37,9 +36,7 @@ function createRequestFromGlobals()
 }
 
 
-/**
- *
- */
+
 function tierErrorHandler($errno, $errstr, $errfile, $errline)
 {
     if (error_reporting() == 0) {
@@ -130,6 +127,7 @@ function sendErrorResponse(Request $request, $body, $overrideErrorCode = null)
  * @param Request $request
  * @param Response $response
  * @param bool $autoAddReason
+ * @throws TierException
  */
 function sendResponse(
     Request $request,
@@ -205,8 +203,7 @@ function sendResponse(
 function getRenderTemplateTier($templateName, array $sharedObjects = [])
 {
     $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
-        $className = $jigRender->getFQCNFromTemplateName($templateName);
-        $jigRender->checkTemplateCompiled($templateName);
+        $className = $jigRender->compile($templateName);
 
         $alias = [];
         $alias['Jig\JigBase'] = $className;
