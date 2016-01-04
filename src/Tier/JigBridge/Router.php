@@ -18,13 +18,11 @@ class Router
     public function __construct(
         JigConfig $jigConfig,
         Dispatcher $dispatcher,
-        TierJig $tierJig,
-        JigConfig $jigConfig
+        TierJig $tierJig
     ) {
         $this->jigConfig = $jigConfig;
         $this->dispatcher = $dispatcher;
         $this->tierJig = $tierJig;
-        $this->jigConfig = $jigConfig;
     }
 
 
