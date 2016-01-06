@@ -39,7 +39,7 @@ class TierHTTPApp extends TierApp
     ) {
         parent::__construct($injectionParams, $injector);
             
-        if ($exceptionResolver == null) {
+        if ($exceptionResolver === null) {
             $exceptionResolver = $this->createStandardExceptionResolver();
         }
         $this->exceptionResolver = $exceptionResolver;
@@ -73,7 +73,7 @@ class TierHTTPApp extends TierApp
             ExceptionResolver::ORDER_LAST - 2
         );
         
-        $fallbackHandler = ['Tier\Tier', 'processException']; 
+        $fallbackHandler = ['Tier\Tier', 'processException'];
         // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
             'Throwable',
@@ -100,7 +100,6 @@ class TierHTTPApp extends TierApp
     }
 
     /**
-     * 
      * @param Executable $executable
      */
     public function addGenerateBodyExecutable(Executable $executable)

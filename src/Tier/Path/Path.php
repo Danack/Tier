@@ -10,7 +10,7 @@ class Path
 
     public function __construct($path)
     {
-        if ($path == null) {
+        if ($path === null) {
             throw new TierException(
                 "Path cannot be null for class ".get_class($this)
             );

@@ -16,8 +16,9 @@ class ExceptionHtmlBody implements Body
 {
     private $text;
     private $statusCode;
+    private $reasonPhrase;
     
-    public function __construct($exceptionString, $statusCode)
+    public function __construct($exceptionString, $statusCode, $reasonPhrase = null)
     {
         $fullText = $this->getBeforeText();
         $fullText .= nl2br($exceptionString);
@@ -25,6 +26,12 @@ class ExceptionHtmlBody implements Body
 
         $this->text = $fullText;
         $this->statusCode = $statusCode;
+        $this->reasonPhrase = $reasonPhrase;
+    }
+
+    public function getReasonPhrase()
+    {
+        return $this->reasonPhrase;
     }
     
     /**
@@ -43,8 +50,7 @@ class ExceptionHtmlBody implements Body
     {
         return $this->text;
     }
-    
-    
+
     public function getStatusCode()
     {
         return $this->statusCode;

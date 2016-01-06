@@ -1,22 +1,20 @@
 <?php
 
-
 namespace Tier;
-
 
 /**
  * Class ExceptionResolver
- * 
+ *
  * Picks which handler to handle an exception based on:
- * 
+ *
  * i) Whether the handler is able to handle that exception i.e. whether
  * the exception that needs to be handled is a sub-type of the exceptions the handler
  * is able to handle.
- * 
+ *
  * ii) The registered priority of each handler.
  *
  * Handlers that handle more generic exceptions should be later order, to allow
- * the more specific handlers to pickup the exception. 
+ * the more specific handlers to pickup the exception.
  */
 class ExceptionResolver
 {

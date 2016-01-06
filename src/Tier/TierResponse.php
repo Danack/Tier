@@ -3,8 +3,7 @@
 
 namespace Tier;
 
-use Psr\Http\Message\MessageInterface;
-use \Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
 use Psr\Http\Message\RequestInterface as Request;
@@ -15,8 +14,8 @@ use Zend\Diactoros\Stream;
 /**
  * Class TierResponse
  * @package Tier
- * 
- * The mutation methods are not implemented as the response is only created 
+ *
+ * The mutation methods are not implemented as the response is only created
  * momentarily before sending, and there are no 'hooks' to modify the response.
  * https://www.youtube.com/watch?v=ywkzQTGkPFg
  */
@@ -120,7 +119,7 @@ class TierResponse implements ResponseInterface
         $headers = $this->headersSet->getAllHeaders();
 
         foreach ($bodyHeaders as $field => $values) {
-            if (is_array($values)) {
+            if (is_array($values) === true) {
                 foreach ($values as $value) {
                     $this->headersToSend[$field][] = $value;
                 }
@@ -131,7 +130,7 @@ class TierResponse implements ResponseInterface
         }
 
         foreach ($headers as $field => $values) {
-             if (is_array($values)) {
+            if (is_array($values) === true) {
                 foreach ($values as $value) {
                     $this->headersToSend[$field][] = (string)$value;
                 }
@@ -140,10 +139,10 @@ class TierResponse implements ResponseInterface
                 $this->headersToSend[$field][] = (string)$values;
             }
         }
-        
-        if (array_key_exists("Date", $this->headersToSend) == false) {
+
+        if (array_key_exists("Date", $this->headersToSend) === false) {
             $this->headersToSend["Date"][] = gmdate("D, d M Y H:i:s", time())." UTC";
-        }   
+        }
     }
     
     /**
@@ -260,7 +259,7 @@ class TierResponse implements ResponseInterface
     public function getHeaderLine($name)
     {
         $value = $this->getHeader($name);
-        if (empty($value)) {
+        if (empty($value) === true) {
             return '';
         }
 
@@ -333,13 +332,7 @@ class TierResponse implements ResponseInterface
      */
     public function getBody()
     {
-        ob_start();
-        $data = $this->body->__invoke();
-        $contents = ob_get_contents();
-        ob_end_clean();
-
-        $contents .= $data;
-        
+        $contents = $this->body->getData();
         $body = new Stream('php://temp', 'wb+');
         $body->write($contents);
         $body->rewind();
@@ -418,15 +411,17 @@ class TierResponse implements ResponseInterface
      */
     public function getReasonPhrase()
     {
+        $bodyReasonPhrase = $this->body->getReasonPhrase();
+        if ($bodyReasonPhrase !== null) {
+            return $bodyReasonPhrase;
+        }
+        
         $statusCode = $this->getStatusCode();
         
-        if (//!$this->reasonPhrase &&
-             isset($this->phrases[$statusCode])
-        ) {
+        if (isset($this->phrases[$statusCode]) === true) {
             return $this->phrases[$statusCode];
         }
+
         return "";
     }
-
-
 }

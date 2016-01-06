@@ -61,7 +61,7 @@ class Executable
     }
 
     /**
-     * @return callable|mixed
+     * @return callable|null
      */
     public function getSetupCallable()
     {

@@ -7,7 +7,6 @@ use Jig\JigConfig;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tier\Executable;
 use Tier\InjectionParams;
-use Tier\JigBridge\TierJig;
 use Room11\HTTP\Body\TextBody;
 
 class Router
@@ -35,21 +34,21 @@ class Router
      */
     private function templateExists($templateName)
     {
-        if (substr($templateName, -1) == '/') {
+        if (substr($templateName, -1) === '/') {
             $templateName .= "index";
         }
         $templateName = str_replace('..', '', $templateName);
         $templateNormalisedName = 'pages'.$templateName;
         $templatePathname = $this->jigConfig->getTemplatePath($templateNormalisedName);
      
-        if (file_exists($templatePathname) == true) {
+        if (file_exists($templatePathname) === true) {
             return $templateNormalisedName;
         }
 
         $indexName = $templateNormalisedName."/index";
 
         $templatePathname = $this->jigConfig->getTemplatePath($indexName);
-        if (file_exists($templatePathname) == true) {
+        if (file_exists($templatePathname) === true) {
             return $indexName;
         }
     
@@ -61,25 +60,25 @@ class Router
      * @return Executable
      */
     public function routeRequest(Request $request)
-    {        
+    {
         $path = $request->getUri()->getPath();
         $routeInfo = $this->dispatcher->dispatch($request->getMethod(), $path);
         $dispatcherResult = $routeInfo[0];
         
-        if ($dispatcherResult == \FastRoute\Dispatcher::FOUND) {
+        if ($dispatcherResult === \FastRoute\Dispatcher::FOUND) {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
             $params = InjectionParams::fromParams($vars);
     
             return new Executable($handler, $params, null);
         }
-        else if ($dispatcherResult == \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+        else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             //TODO - need to embed allowedMethods....theoretically.
             return new Executable([$this, 'serve405ErrorPage']);
         }
     
         $templateName = $this->templateExists($path, $this->jigConfig);
-        if ($templateName != false) {
+        if ($templateName !== false) {
             return $this->tierJig->createJigExecutable($templateName);
         }
     

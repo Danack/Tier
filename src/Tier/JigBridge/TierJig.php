@@ -18,7 +18,7 @@ class TierJig
     
     public function createJigExecutable($templateName, InjectionParams $injectionParams = null)
     {
-        if ($injectionParams == null) {
+        if ($injectionParams === null) {
             $injectionParams = InjectionParams::fromParams([]);
         }
         $className = $this->jig->compile($templateName);

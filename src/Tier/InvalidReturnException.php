@@ -38,7 +38,7 @@ class InvalidReturnException extends \Exception
         if ($result === null) {
             $detail = 'null';
         }
-        else if (is_object($result)) {
+        else if (is_object($result) === true) {
             $detail = "object of type '".get_class($result)."' .";
         }
         else {

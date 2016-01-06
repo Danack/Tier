@@ -19,11 +19,11 @@ function createDispatcher()
 
 function routesFunction(\FastRoute\RouteCollector $r)
 {
-    $r->addRoute('GET', '/introduction', ['TierJigSkeleton\Controller\Basic', 'introduction']);
+    $r->addRoute('GET', '/introduction', ['TierTest\Controller\BasicController', 'introduction']);
 }
 
 class RouterTest extends BaseTestCase
-{    
+{
     /** @var  \Auryn\Injector */
     private $injector;
     
@@ -33,8 +33,8 @@ class RouterTest extends BaseTestCase
         // Create a JigConfig object
         $jigConfig = new JigConfig(
             __DIR__."/../../fixtures/templates/", //directory the source templates are in
-            __DIR__."/../../var/generatedTemplates/",//directory the generated PHP code will be written to.
-            Jig::COMPILE_CHECK_MTIME// How to check if the templates need compiling.
+            __DIR__."/../../var/generatedTemplates/", //directory the generated PHP code will be written to.
+            Jig::COMPILE_CHECK_MTIME // How to check if the templates need compiling.
         );
 
         $this->injector = new Injector();
@@ -68,7 +68,7 @@ class RouterTest extends BaseTestCase
     }
 
     /**
-     * Checks that a request to "/" get matched to the template named index.    
+     * Checks that a request to "/" get matched to the template named index.
      */
     public function testRoutingToIndexByDefaultMatching()
     {
@@ -93,8 +93,8 @@ class RouterTest extends BaseTestCase
     }
     
     
-        /**
-     * Checks that a request to "/" get matched to the template named index.    
+    /**
+     * Checks that a request to "/" get matched to the template named index.
      */
     public function testRoutingToIndexByDefaultSubDirectoryMatching()
     {
@@ -127,7 +127,7 @@ class RouterTest extends BaseTestCase
         $this->assertInstanceOf('Tier\Executable', $result);
         /** @var $result \Tier\Executable */
         $this->assertEquals(
-            ['TierJigSkeleton\Controller\Basic', 'introduction'],
+            ['TierTest\Controller\BasicController', 'introduction'],
             $result->getCallable()
         );
     }
@@ -158,20 +158,12 @@ class RouterTest extends BaseTestCase
         $request = new CLIRequest("/introduction", 'example.com', 'POST');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\Router::routeRequest');
-
-        $body = TierApp::executeExecutable($result, $this->injector);
-
+        $renderCallable = $this->injector->execute('Tier\JigBridge\Router::routeRequest');
+        $body = TierApp::executeExecutable($renderCallable, $this->injector);
         $this->assertInstanceOf('Room11\HTTP\Body\TextBody', $body);
-        
         /** @var $body \Room11\HTTP\Body\HtmlBody */
-        $body->getData();
         $html = $body->getData();
         $this->assertContains("Method not allowed for route.", $html);
         $this->assertEquals(405, $body->getStatusCode());
     }
-
-          
-
-
 }

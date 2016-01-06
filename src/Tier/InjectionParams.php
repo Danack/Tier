@@ -122,8 +122,8 @@ class InjectionParams
         $newAliases = [];
 
         foreach ($this->aliases as $interface => $implementation) {
-            if (array_key_exists($interface, $mocks)) {
-                if (is_object($mocks[$interface]) == true) {
+            if (array_key_exists($interface, $mocks) === true) {
+                if (is_object($mocks[$interface]) === true) {
                     $this->aliases[$interface] = get_class($mocks[$interface]);
                     $this->shares[] = $mocks[$interface];
                 }

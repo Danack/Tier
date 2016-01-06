@@ -4,10 +4,10 @@ namespace Tier;
 
 /**
  * Class ExecutableListByTier
- * 
- * Holds each of the ExecutableList that needs to be executed by 
+ *
+ * Holds each of the ExecutableList that needs to be executed by
  * each tier of the application.
- * 
+ *
  */
 class ExecutableListByTier implements \Iterator
 {
@@ -78,7 +78,7 @@ class ExecutableListByTier implements \Iterator
      */
     public function addExecutable($tierOrder, $executable)
     {
-        if (isset($this->executableListByTier[$tierOrder]) == false) {
+        if (isset($this->executableListByTier[$tierOrder]) === false) {
             $this->executableListByTier[$tierOrder] = new ExecutableList();
         }
         

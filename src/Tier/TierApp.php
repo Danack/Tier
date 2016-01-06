@@ -64,7 +64,7 @@ class TierApp
     ) {
         $this->initialInjectionParams = $injectionParams;
 
-        if ($injector == null) {
+        if ($injector === null) {
             $this->injector = new Injector();
         }
         else {
@@ -94,9 +94,11 @@ class TierApp
 
                 /** @var $tier Executable  */
                 if ($tier instanceof Executable) {
+                    //Some executables shouldn't be run if a certain product
+                    //has already been made. This allows very easy caching layers.
                     $skipIfProduced = $tier->getSkipIfProduced();
-                    if ($skipIfProduced &&
-                        $this->hasExpectedProductBeenProduced($skipIfProduced) == true) {
+                    if ($skipIfProduced !== null &&
+                        $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
                         continue;
                     }
 
@@ -109,10 +111,10 @@ class TierApp
                 // TODO - if we need to allow user handlers this is the place they would go
                 $finished = $this->processResult($result);
                 
-                if ($finished == self::PROCESS_END_STAGE) {
+                if ($finished === self::PROCESS_END_STAGE) {
                     break;
                 }
-                if ($finished == self::PROCESS_END) {
+                if ($finished === self::PROCESS_END) {
                     return;
                 }
             }
@@ -124,13 +126,13 @@ class TierApp
     public static function executeExecutable(Executable $tier, Injector $injector)
     {
         // Setup the information created by the previous Tier.
-        if (($injectionParams = $tier->getInjectionParams())) {
+        if (($injectionParams = $tier->getInjectionParams()) !== null) {
             $injectionParams->addToInjector($injector);
         }
 
         // If the next Tier has a setup function, call it.
         $setupCallable = $tier->getSetupCallable();
-        if ($setupCallable) {
+        if ($setupCallable !== null) {
             $injector->execute($setupCallable);
         }
         // Call this Tier's callable.
@@ -152,10 +154,11 @@ class TierApp
             $this->executableListByTier->addNextStageTier($result);
             return self::PROCESS_CONTINUE;
         }
-        if (is_array($result) && count($result) != 0) {
+        if (is_array($result) === true &&
+            count($result) !== 0) {
             //It's an array of tiers to run.
             foreach ($result as $tier) {
-                if (!$tier instanceof Executable) {
+                if (($tier instanceof Executable) === false) {
                     throw new InvalidReturnException(
                         self::RETURN_VALUE,
                         $result
@@ -174,12 +177,12 @@ class TierApp
         // If the $result is an expected product share it for further stages
         foreach ($this->expectedProducts as $expectedProduct => $created) {
             if ($result instanceof $expectedProduct) {
-                if (strcasecmp($expectedProduct, get_class($result)) !== 0) {
+                if (is_subclass_of($result, $expectedProduct) === true) {
                     //product is a sub-class of the expected product. Setup an
                     //alias for it
                     $this->injector->alias($expectedProduct, get_class($result));
-                    $this->expectedProducts[$expectedProduct] = true;
                 }
+                $this->expectedProducts[$expectedProduct] = true;
                 $this->injector->share($result);
                 return self::PROCESS_END_STAGE;
             }
@@ -207,7 +210,7 @@ class TierApp
     public function addExpectedProduct($classname)
     {
         $classname = strtolower($classname);
-        if (array_key_exists($classname, $this->expectedProducts)) {
+        if (array_key_exists($classname, $this->expectedProducts) === true) {
             throw new TierException("Expected product $classname is already added.");
         }
         $this->expectedProducts[$classname] = false;
@@ -220,7 +223,7 @@ class TierApp
     public function hasExpectedProductBeenProduced($classname)
     {
         $classname = strtolower($classname);
-        if (!array_key_exists($classname, $this->expectedProducts)) {
+        if (array_key_exists($classname, $this->expectedProducts) === false) {
             return false;
         }
         return $this->expectedProducts[$classname];

@@ -5,7 +5,7 @@ namespace Tier;
 
 /**
  * Class ExecutableList
- * 
+ *
  * A list of all Executables that need to be executed for an individual tier.
  */
 class ExecutableList implements \Iterator

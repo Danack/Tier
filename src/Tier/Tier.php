@@ -16,16 +16,12 @@ use Tier\Body\ExceptionHtmlBody;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response\EmitterInterface;
 
-if (class_exists('Throwable') === false) {
-    require __DIR__."/Throwable.php";
-}
-
 class Tier
 {
     /**
      * @return \Psr\Http\Message\RequestInterface
      */
-    static function createRequestFromGlobals()
+    public static function createRequestFromGlobals()
     {
         try {
             $request = ServerRequestFactory::fromGlobals(
@@ -38,6 +34,13 @@ class Tier
         
             return $request;
         }
+        catch (\Throwable $e) {
+            // Exit quickly. Something is seriously wrong and we will not be able to
+            // handle it inside the application.
+            header("Server unavailable", true, 501);
+            echo "Failed to read globals to create request. ".$e->getMessage();
+            exit(0);
+        }
         catch (\Exception $e) {
             // Exit quickly. Something is seriously wrong and we will not be able to
             // handle it inside the application.
@@ -47,17 +50,16 @@ class Tier
         }
     }
 
-
-    static function tierErrorHandler($errno, $errstr, $errfile, $errline)
+    public static function tierErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        if (error_reporting() == 0) {
+        if (error_reporting() === 0) {
             return true;
         }
-        if ($errno == E_DEPRECATED) {
+        if ($errno === E_DEPRECATED) {
             return true; //Don't care - deprecated warnings are generally not useful
         }
 
-        if ($errno == E_CORE_ERROR || $errno == E_ERROR) {
+        if ($errno === E_CORE_ERROR || $errno === E_ERROR) {
             return false;
         }
 
@@ -65,8 +67,7 @@ class Tier
         throw new \Exception($message);
     }
 
-
-    static function tierShutdownFunction()
+    public static function tierShutdownFunction()
     {
         $fatals = [
             E_ERROR,
@@ -80,8 +81,8 @@ class Tier
 
         $lastError = error_get_last();
 
-        if ($lastError && in_array($lastError['type'], $fatals)) {
-            if (headers_sent()) {
+        if (empty($lastError) !== true && in_array($lastError['type'], $fatals) === true) {
+            if (headers_sent() === true) {
                 return;
             }
 
@@ -112,7 +113,7 @@ class Tier
      * @param array $sharedObjects
      * @return Executable
      */
-    static function getRenderTemplateTier($templateName, array $sharedObjects = [])
+    public static function getRenderTemplateTier($templateName, array $sharedObjects = [])
     {
         $fn = function (Jig $jigRender) use ($templateName, $sharedObjects) {
             $className = $jigRender->compile($templateName);
@@ -134,61 +135,64 @@ class Tier
      * @throws \Exception
      * @throws \Jig\JigException
      */
-    static function createHtmlBody(JigBase $template)
+    public static function createHtmlBody(JigBase $template)
     {
         $text = $template->render();
 
         return new HtmlBody($text);
     }
 
-    static function tierExceptionHandler(\Exception $ex)
+    public static function tierExceptionHandler(\Exception $ex)
     {
         //TODO - need to ob_end_clean as many times as required because
         //otherwise partial content gets sent to the client.
+        $obClearCount = 0;
+        while (ob_get_level() > 0 && $obClearCount < 100) {
+            ob_end_clean();
+            $obClearCount++;
+        }
 
-        if (headers_sent() == false) {
+        if (headers_sent() === false) {
             header("HTTP/1.0 500 Internal Server Error", true, 500);
         }
         else {
             //Exception after headers sent
         }
-        
-        var_dump($ex);
 
         echo self::getExceptionString($ex);
     }
 
-    static function getExceptionString(\Exception $ex)
+    public static function getExceptionString(\Exception $ex)
     {
         $string = '';
 
-        while ($ex) {
+        while ($ex !== null) {
             $number = 0;
             $string .= "Exception ".get_class($ex).": '".$ex->getMessage()."'\n\n";
 
             foreach ($ex->getTrace() as $tracePart) {
                 $line = false;
-                if (isset($tracePart['file']) && isset($tracePart['line'])) {
+                if (isset($tracePart['file']) === true && isset($tracePart['line']) === true) {
                     $line .= $tracePart['file']." ";
                     $line .= $tracePart['line']." ";
                 }
-                else if (isset($tracePart['file'])) {
+                else if (isset($tracePart['file']) === true) {
                     $line .= $tracePart['file']." ";
                 }
-                else if (isset($tracePart['line'])) {
+                else if (isset($tracePart['line']) === true) {
                     $line .= $tracePart['line']." ";
                 }
                 else {
                     $line .= "*** "; // Some form of internal function or CUF
                 }
 
-                if (isset($tracePart["class"])) {
+                if (isset($tracePart["class"]) === true) {
                     $line .= $tracePart["class"];
                 }
-                if (isset($tracePart["type"])) {
+                if (isset($tracePart["type"]) === true) {
                     $line .= $tracePart["type"];
                 }
-                if (isset($tracePart["function"])) {
+                if (isset($tracePart["function"]) === true) {
                     $line .= $tracePart["function"];
                 }
 
@@ -196,7 +200,7 @@ class Tier
                 $number++;
             }
             $ex = $ex->getPrevious();
-            if ($ex) {
+            if ($ex !== null) {
                 $string .= "\nPrevious ";
             }
         };
@@ -205,7 +209,7 @@ class Tier
     }
 
 
-    static function setupErrorHandlers()
+    public static function setupErrorHandlers()
     {
         register_shutdown_function(['Tier\Tier', 'tierShutdownFunction']);
         set_exception_handler(['Tier\Tier', 'tierExceptionHandler']);
@@ -217,7 +221,7 @@ class Tier
      * @param JigException $je
      * @param Request $request
      */
-    static function processJigException(
+    public static function processJigException(
         JigException $je,
         Request $request,
         EmitterInterface $emitter
@@ -235,7 +239,7 @@ class Tier
      * @param InjectionException $ie
      * @param \Psr\Http\Message\RequestInterface $request
      */
-    static function processInjectionException(
+    public static function processInjectionException(
         InjectionException $ie,
         Request $request,
         EmitterInterface $emitter
@@ -256,7 +260,7 @@ class Tier
      * @param InjectorException $ie
      * @param Request $request
      */
-    static function processInjectorException(
+    public static function processInjectorException(
         InjectorException $ie,
         Request $request,
         EmitterInterface $emitter
@@ -274,7 +278,7 @@ class Tier
      * @param \Exception $e
      * @param Request $request
      */
-    static function processException(
+    public static function processException(
         \Exception $e,
         Request $request,
         EmitterInterface $emitter
@@ -297,7 +301,7 @@ class Tier
      * @return int
      * @throws TierException
      */
-    static function sendBodyResponse(
+    public static function sendBodyResponse(
         Body $body,
         Request $request,
         HeadersSet $headerSet,

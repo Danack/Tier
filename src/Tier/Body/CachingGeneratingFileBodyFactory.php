@@ -15,7 +15,7 @@ use Room11\HTTP\Body\EmptyBody;
  * constantly checking if a generated file has already been generated.
  * @package Tier\ResponseBody
  */
-class CachingGeneratingFileResponseFactory
+class CachingGeneratingFileBodyFactory
 {
     private $caching;
     
@@ -30,20 +30,28 @@ class CachingGeneratingFileResponseFactory
         $this->request = $request;
     }
 
-    private function checkIfModified($lastModifiedTime)
+    /**
+     * Returns true if the content held by the client is not modified,
+     * according to the If-Modified-Since header, and the contents last
+     * modified time.
+     * Mising headers, or missing last modified time result in false.
+     * @param $lastModifiedTime
+     * @return bool
+     */
+    private function checkNotModified($lastModifiedTime)
     {
         if ($lastModifiedTime === false) {
             return false;
         }
         
-        if (!$this->request->hasHeader('If-Modified-Since')) {
+        if ($this->request->hasHeader('If-Modified-Since') === false) {
             return false;
         }
     
         $header = $this->request->getHeader('If-Modified-Since');
         $clientModifiedTime = @strtotime($header);
         
-        if ($clientModifiedTime == false) {
+        if ($clientModifiedTime === false) {
             return false;
         }
     
@@ -68,11 +76,11 @@ class CachingGeneratingFileResponseFactory
         $headers = []
     ) {
         
-        $notModifiedHeader = $this->checkIfModified(
+        $isNotModified = $this->checkNotModified(
             @filemtime($fileNameToServe)
         );
 
-        if ($notModifiedHeader) {
+        if ($isNotModified === true) {
             return new EmptyBody(304);
         }
 

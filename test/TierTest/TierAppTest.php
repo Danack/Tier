@@ -318,4 +318,71 @@ class TierAppTest extends BaseTestCase
         $this->setExpectedException('Tier\InvalidReturnException');
         $tierApp->executeInternal();
     }
+    
+    public function testProductionSkipsExecutable()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+
+        $fn1 = function() {
+            return new \StdClass();
+        };
+        
+        $fn2 = function() {
+            throw new \Exception("This shouldn't be reached.");
+        };
+        
+        $tierApp->addExpectedProduct('StdClass');
+        $executable = new Executable($fn2, null, null, 'StdClass');
+
+        //The first execution creates and shares a StdClass object.
+        $tierApp->addExecutable(0, $fn1);
+        
+        //The second executable should be skipped.
+        $tierApp->addExecutable(2, $executable);
+        
+        $fn3 = function () {
+            return \Tier\TierApp::PROCESS_END;
+        };
+        
+        $tierApp->addExecutable(5, $fn3);
+
+        $tierApp->executeInternal();
+    }
+
+    /**
+     * This just covers a line in TierApp::hasExpectedProductBeenProduced
+     * @throws TierException
+     */
+    public function testUnknownExpectedProduct()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+
+        $fn1 = function() {
+            return \Tier\TierApp::PROCESS_CONTINUE;
+        };
+        
+        $fn2 = function() {
+            return \Tier\TierApp::PROCESS_END;
+        };
+
+        $tierApp->addExpectedProduct('StdClass');
+        $executable = new Executable($fn2, null, null, 'UnknownClass');
+        
+        $tierApp->addExecutable(0, $fn1);
+        $tierApp->addExecutable(2, $executable);
+        $tierApp->executeInternal();
+    }
+
+    public function testDuplicateExpectedProduct()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+        
+        $tierApp->addExpectedProduct('StdClass');
+        
+        $this->setExpectedException('Tier\TierException');
+        $tierApp->addExpectedProduct('StdClass');
+    }
 }

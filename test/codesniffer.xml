@@ -5,15 +5,19 @@
     
     <!-- <exclude-pattern>*Intahwebz*</exclude-pattern> -->
     <exclude-pattern>*JigTest/CoverageTest.php</exclude-pattern>
-
+    <exclude-pattern>*CompiledTemplate*</exclude-pattern>
+    
     <rule ref="Generic.WhiteSpace.ScopeIndent">
         <properties>
            <property name="ignoreIndentationTokens" type="array" value="T_GOTO_LABEL"/>
         </properties>
     </rule>
 
-
-    
+    <!-- The use of === true is enforced over implicit true statements, -->
+    <rule ref="Squiz.Operators.ComparisonOperatorUsage"/>
+    <!-- Checks to ensure that the logical operators 'and' and 'or' are not used.
+         Use the && and || operators instead. --> 
+    <rule ref="Squiz.Operators.ValidLogicalOperators"/>
 
     <rule ref="PSR2">
         <!-- Need to find a way to turn this off for text, before re-enabling -->
@@ -60,6 +64,11 @@
         <!-- <exclude-pattern>*JigRender.php</exclude-pattern> -->
     </rule>
     
+    
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>*src/Tier/Throwable.php</exclude-pattern>
+    </rule>
+    
     <rule ref="Generic.Files.LineLength.TooLong">
         <exclude-pattern>*TierApp.php</exclude-pattern>
     </rule>
@@ -68,7 +77,6 @@
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
         <exclude-pattern>*Test*</exclude-pattern>
     </rule>
-    
-    
+
 </ruleset>
         
