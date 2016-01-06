@@ -100,18 +100,7 @@ class TierApp
                         continue;
                     }
 
-                    // Setup the information created by the previous Tier
-                    if (($injectionParams = $tier->getInjectionParams())) {
-                        $injectionParams->addToInjector($this->injector);
-                    }
-
-                    // If the next Tier has a setup function, call it
-                    $setupCallable = $tier->getSetupCallable();
-                    if ($setupCallable) {
-                        $this->injector->execute($setupCallable);
-                    }
-                    // Call this Tier's callable
-                    $result = $this->injector->execute($tier->getCallable());
+                    $result = self::executeExecutable($tier, $this->injector);
                 }
                 else {
                     $result = $this->injector->execute($tier);
@@ -131,6 +120,24 @@ class TierApp
         
         throw new TierException("Processing did not result in a TierApp::PROCESS_END");
     }
+
+    public static function executeExecutable(Executable $tier, Injector $injector)
+    {
+        // Setup the information created by the previous Tier.
+        if (($injectionParams = $tier->getInjectionParams())) {
+            $injectionParams->addToInjector($injector);
+        }
+
+        // If the next Tier has a setup function, call it.
+        $setupCallable = $tier->getSetupCallable();
+        if ($setupCallable) {
+            $injector->execute($setupCallable);
+        }
+        // Call this Tier's callable.
+        return $injector->execute($tier->getCallable());
+    }
+
+
 
     /**
      * @param $result

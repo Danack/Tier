@@ -1,11 +1,11 @@
 <?php
 
-namespace Tier\ResponseBody;
+namespace Tier\Body;
 
 use Room11\Caching\LastModifiedStrategy;
 use Room11\HTTP\Body\FileBody;
 
-class CachingFileResponseFactory
+class CachingFileBodyFactory
 {
     private $caching;
     
@@ -14,6 +14,13 @@ class CachingFileResponseFactory
         $this->caching = $caching;
     }
 
+    /**
+     * Create a FileBody that has cache headers set.
+     * @param $fileNameToServe
+     * @param $contentType
+     * @param array $headers
+     * @return FileBody
+     */
     public function create(
         $fileNameToServe,
         $contentType,

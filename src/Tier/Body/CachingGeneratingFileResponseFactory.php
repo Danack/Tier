@@ -1,17 +1,17 @@
 <?php
 
-namespace Tier\ResponseBody;
+namespace Tier\Body;
 
 use Room11\Caching\LastModifiedStrategy;
 use Room11\HTTP\Body\FileBody;
-use Room11\HTTP\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Room11\HTTP\Body\EmptyBody;
 
 /**
  * Class CachingGeneratingFileResponseFactory
  * Generates a HTTP\Body that as appropriate either i) a 304 ReponseNotModified or ii) A
  * FileBody with the appropriate caching headers set. If the 304 response is generated,
- * the file gengeration function is not called. The use case this is used for is to avoid
+ * the file generation function is not called. The use case this is used for is to avoid
  * constantly checking if a generated file has already been generated.
  * @package Tier\ResponseBody
  */

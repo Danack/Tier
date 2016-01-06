@@ -2,7 +2,7 @@
 
 namespace TierTest;
 
-use Tier\ResponseBody\ExceptionHtmlBody;
+use Tier\Body\ExceptionHtmlBody;
 
 class BodyTest extends BaseTestCase
 {
@@ -10,11 +10,7 @@ class BodyTest extends BaseTestCase
     {
         $body = new ExceptionHtmlBody("TestMessage", 501);
         $headers = $body->getHeaders();
-        ob_start();
-        $body->__invoke();
-        $text = ob_get_contents();
-        ob_end_clean();
-
+        $text = $body->getData();
         $this->assertArrayHasKey('Content-Type', $headers);
         $this->assertArrayHasKey('Content-Length', $headers);
 

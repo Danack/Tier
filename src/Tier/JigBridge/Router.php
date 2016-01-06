@@ -4,7 +4,7 @@ namespace Tier\JigBridge;
 
 use FastRoute\Dispatcher;
 use Jig\JigConfig;
-use Room11\HTTP\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 use Tier\Executable;
 use Tier\InjectionParams;
 use Tier\JigBridge\TierJig;
@@ -61,14 +61,8 @@ class Router
      * @return Executable
      */
     public function routeRequest(Request $request)
-    {
-        $path = $request->getPath();
-    
-        $queryPosition = strpos($path, '?');
-        if ($queryPosition !== false) {
-            $path = substr($path, 0, $queryPosition);
-        }
-    
+    {        
+        $path = $request->getUri()->getPath();
         $routeInfo = $this->dispatcher->dispatch($request->getMethod(), $path);
         $dispatcherResult = $routeInfo[0];
         

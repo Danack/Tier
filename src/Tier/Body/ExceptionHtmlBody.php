@@ -1,6 +1,6 @@
 <?php
 
-namespace Tier\ResponseBody;
+namespace Tier\Body;
 
 use Room11\HTTP\Body;
 
@@ -26,14 +26,24 @@ class ExceptionHtmlBody implements Body
         $this->text = $fullText;
         $this->statusCode = $statusCode;
     }
-
+    
     /**
-     * Send the output to the client
+     * Responsible for outputting entity body data to STDOUT
      */
-    public function __invoke()
+    public function sendData()
     {
         echo $this->text;
     }
+
+    /**
+     * Get the body data as a string. This might be non-conformant
+     * @return string
+     */
+    public function getData()
+    {
+        return $this->text;
+    }
+    
     
     public function getStatusCode()
     {

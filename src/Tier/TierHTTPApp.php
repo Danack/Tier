@@ -4,7 +4,7 @@
 namespace Tier;
 
 use Auryn\Injector;
-use Room11\HTTP\Request;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
  * Class TierHTTPApp
@@ -26,7 +26,12 @@ class TierHTTPApp extends TierApp
      * @var ExceptionResolver
      */
     protected $exceptionResolver;
-    
+
+    /**
+     * @param InjectionParams $injectionParams
+     * @param Injector $injector
+     * @param ExceptionResolver $exceptionResolver
+     */
     public function __construct(
         InjectionParams $injectionParams,
         Injector $injector = null,
@@ -49,24 +54,36 @@ class TierHTTPApp extends TierApp
     public function createStandardExceptionResolver()
     {
         $exceptionResolver = new ExceptionResolver();
+        // Create the exception handlers. More generic exceptions
+        // are placed later in the order, so as to allow the more
+        // specific exception handlers to handle exceptions.
         $exceptionResolver->addExceptionHandler(
             'Jig\JigException',
-            'Tier\processJigException',
+            ['Tier\Tier', 'processJigException'],
+            ExceptionResolver::ORDER_MIDDLE
+        );
+        $exceptionResolver->addExceptionHandler(
+            'Auryn\InjectionException',
+            ['Tier\Tier', 'processInjectionException'],
             ExceptionResolver::ORDER_MIDDLE
         );
         $exceptionResolver->addExceptionHandler(
             'Auryn\InjectorException',
-            'Tier\processInjectorException',
+            ['Tier\Tier', 'processInjectorException'],
             ExceptionResolver::ORDER_LAST - 2
         );
+        
+        $fallbackHandler = ['Tier\Tier', 'processException']; 
+        // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
-            'Auryn\InjectionException',
-            'Tier\processInjectionException',
-            ExceptionResolver::ORDER_MIDDLE
+            'Throwable',
+            $fallbackHandler,
+            ExceptionResolver::ORDER_LAST
         );
+        // This will only be triggered on PHP 5.6
         $exceptionResolver->addExceptionHandler(
             'Exception',
-            'Tier\processException',
+            $fallbackHandler,
             ExceptionResolver::ORDER_LAST
         );
 
@@ -74,67 +91,83 @@ class TierHTTPApp extends TierApp
     }
     
     /**
+     * Add a tier to be called before the body is generated.
      * @param $callable
      */
-    public function addPreCallable($callable)
+    public function addPreCallable(Executable $callable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_BODY, $callable);
     }
 
     /**
-     * @param Executable $tier
+     * 
+     * @param Executable $executable
      */
-    public function addGenerateBodyExecutable(Executable $tier)
+    public function addGenerateBodyExecutable(Executable $executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $tier);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $executable);
     }
 
     /**
-     * @param $callable
+     * @param $executable
      */
-    public function addSendCallable($callable)
+    public function addSendCallable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $executable);
     }
 
     /**
-     * @param $callable
+     * @param $executable
      */
-    public function addBeforeSendCallable($callable)
+    public function addBeforeSendCallable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $executable);
     }
 
     /**
-     * @param $callable
+     * @param $executable
      */
-    public function addPostCallable($callable)
+    public function addPostCallable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $callable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $executable);
     }
     
-        /**
+    /**
      * @param Request $request
      */
     public function execute(Request $request)
     {
         try {
-            $this->injector->alias('Room11\HTTP\Request', get_class($request));
+            $this->injector->alias(
+                'Psr\Http\Message\ServerRequestInterface',
+                get_class($request)
+            );
             $this->injector->share($request);
             $this->executeInternal();
         }
-        catch (\Exception $e) {
-            list($handler, $exceptionClass) = $this->exceptionResolver->getExceptionHandler(
-                $e,
-                'processException'
-            );
-
-            $injector = clone $this->injector;
-            if (strcasecmp($exceptionClass, get_class($e)) !== 0) {
-                $injector->alias($exceptionClass, get_class($e));
-            }
-            $injector->share($e);
-            $injector->execute($handler);
+        catch (\Throwable $t) {
+            $this->processException($t);
         }
+        catch (\Exception $e) {
+            $this->processException($e);
+        }
+    }
+
+    /**
+     * Actually handle the exception.
+     */
+    private function processException($e)
+    {
+        list($handler, $exceptionClass) = $this->exceptionResolver->getExceptionHandler(
+            $e,
+            'processException'
+        );
+
+        $injector = clone $this->injector;
+        if (strcasecmp($exceptionClass, get_class($e)) !== 0) {
+            $injector->alias($exceptionClass, get_class($e));
+        }
+        $injector->share($e);
+        $injector->execute($handler);
     }
 }

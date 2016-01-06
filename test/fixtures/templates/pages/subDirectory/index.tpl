@@ -1,0 +1,1 @@
+This is the sub-directory index template.
