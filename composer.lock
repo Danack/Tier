@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9ffc4adb3ef67250d83bbb780f74b4f6",
+    "hash": "f9b9f35cf6ec7042e96ab372b5c266a2",
     "packages": [
         {
             "name": "psr/http-message",
@@ -782,22 +782,23 @@
         },
         {
             "name": "room11/http",
-            "version": "0.0.7",
+            "version": "0.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/HTTP.git",
-                "reference": "71d9083db796900ba49e663e09a2c671bddeb1eb"
+                "reference": "615caae40aa47e82638b8b42eb347592e0b7e4eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/HTTP/zipball/71d9083db796900ba49e663e09a2c671bddeb1eb",
-                "reference": "71d9083db796900ba49e663e09a2c671bddeb1eb",
+                "url": "https://api.github.com/repos/Danack/HTTP/zipball/615caae40aa47e82638b8b42eb347592e0b7e4eb",
+                "reference": "615caae40aa47e82638b8b42eb347592e0b7e4eb",
                 "shasum": ""
             },
             "require-dev": {
                 "phpunit/phpunit": "^4.8.5",
                 "rdlowrey/auryn": "^1.0.2",
-                "squizlabs/php_codesniffer": "^2.0.0"
+                "squizlabs/php_codesniffer": "^2.0.0",
+                "zendframework/zend-diactoros": "^1.3.2"
             },
             "type": "library",
             "autoload": {
@@ -822,7 +823,7 @@
                 "interface",
                 "room11"
             ],
-            "time": "2016-01-06 02:14:41"
+            "time": "2016-01-07 18:06:04"
         },
         {
             "name": "squizlabs/php_codesniffer",

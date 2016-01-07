@@ -351,9 +351,7 @@ class TierResponse implements ResponseInterface
     {
         $instance = clone $this;
         $allHeaders = $instance->headersSet->getAllHeaders();
-        
         $newHeaders = [];
-        
         foreach ($allHeaders as $existingName => $existingValues) {
             if (strcasecmp($existingName, $name) === 0) {
                 continue;
@@ -362,7 +360,6 @@ class TierResponse implements ResponseInterface
                 $newHeaders[$existingName] = $existingValues;
             }
         }
-
         $instance->headersSet = HeadersSet::fromArray($newHeaders);
 
         return $instance;
