@@ -4,8 +4,9 @@ namespace Tier\Body;
 
 use Room11\Caching\LastModifiedStrategy;
 use Room11\HTTP\Body\FileBody;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Room11\HTTP\RequestHeaders;
 use Room11\HTTP\Body\EmptyBody;
+use Tier\Body\FileGenerator;
 
 /**
  * Class CachingGeneratingFileResponseFactory
@@ -19,15 +20,15 @@ class CachingGeneratingFileBodyFactory
 {
     private $caching;
     
-    /** @var Request  */
-    private $request;
+    /** @var RequestHeaders  */
+    private $requestHeaders;
     
     public function __construct(
-        Request $request,
+        RequestHeaders $requestHeaders,
         LastModifiedStrategy $caching
     ) {
         $this->caching = $caching;
-        $this->request = $request;
+        $this->requestHeaders = $requestHeaders;
     }
 
     /**
@@ -44,14 +45,15 @@ class CachingGeneratingFileBodyFactory
             return false;
         }
         
-        if ($this->request->hasHeader('If-Modified-Since') === false) {
+        if ($this->requestHeaders->hasHeader('If-Modified-Since') === false) {
             return false;
         }
     
-        $header = $this->request->getHeader('If-Modified-Since');
+        $header = $this->requestHeaders->getHeader('If-Modified-Since');
         $clientModifiedTime = @strtotime($header);
         
         if ($clientModifiedTime === false) {
+            //Failed to parse time string.
             return false;
         }
     
@@ -63,34 +65,32 @@ class CachingGeneratingFileBodyFactory
     }
 
     /**
-     * @param $fileNameToServe
      * @param $contentType
      * @param callable $fileGenerator The callable that generates the file.
      * @param array $headers
      * @return \Room11\HTTP\Body
      */
     public function create(
-        $fileNameToServe,
         $contentType,
-        callable $fileGenerator,
+        FileGenerator $fileGenerator,
         $headers = []
     ) {
+        $lastModifiedTime = $fileGenerator->getModifiedTime();
         
         $isNotModified = $this->checkNotModified(
-            @filemtime($fileNameToServe)
+            $lastModifiedTime
         );
 
         if ($isNotModified === true) {
             return new EmptyBody(304);
         }
 
-        $fileGenerator();
-
-        $cachingHeaders = $this->caching->getHeaders(filemtime($fileNameToServe));
+        $filename = $fileGenerator->generate();
+        $cachingHeaders = $this->caching->getHeaders($lastModifiedTime);
         $headers = array_merge($headers, $cachingHeaders);
 
         return new FileBody(
-            $fileNameToServe,
+            $filename,
             $contentType,
             $headers
         );

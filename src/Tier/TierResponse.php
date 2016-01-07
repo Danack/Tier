@@ -5,7 +5,6 @@ namespace Tier;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-
 use Psr\Http\Message\RequestInterface as Request;
 use Room11\HTTP\Body;
 use Room11\HTTP\HeadersSet;
@@ -29,17 +28,22 @@ class TierResponse implements ResponseInterface
     
     /** @var Body  */
     private $body;
+
+    private $overRidingProtocol = null;
     
-    /** @var string[]  */
-    private $headersToSend = [];
+    private $overridingReasonPhrase = '';
     
+    private $overridingStatusCode = null;
     
-        /**
+    /** @var  StreamInterface */
+    private $overridingStreamInterface = null;
+    
+    /**
      * Map of standard HTTP status code/reason phrases
      *
      * @var array
      */
-    private $phrases = [
+    public static $phrases = [
         // INFORMATIONAL CODES
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -112,39 +116,21 @@ class TierResponse implements ResponseInterface
         Body $body
     ) {
         $this->request = $request;
-        $this->headersSet = $headersSet;
         $this->body = $body;
+        $this->headersSet = $headersSet->merge($this->body->getHeadersSet());
 
-        $bodyHeaders = $this->body->getHeaders();
-        $headers = $this->headersSet->getAllHeaders();
-
-        foreach ($bodyHeaders as $field => $values) {
-            if (is_array($values) === true) {
-                foreach ($values as $value) {
-                    $this->headersToSend[$field][] = $value;
-                }
-            }
-            else {
-                $this->headersToSend[$field][] = $values;
-            }
-        }
-
-        foreach ($headers as $field => $values) {
-            if (is_array($values) === true) {
-                foreach ($values as $value) {
-                    $this->headersToSend[$field][] = (string)$value;
-                }
-            }
-            else {
-                $this->headersToSend[$field][] = (string)$values;
-            }
-        }
-
-        if (array_key_exists("Date", $this->headersToSend) === false) {
-            $this->headersToSend["Date"][] = gmdate("D, d M Y H:i:s", time())." UTC";
+        if ($this->headersSet->hasHeaders("Date") === false) {
+            $this->headersSet->addHeader("Date", gmdate("D, d M Y H:i:s", time())." UTC");
         }
     }
     
+    public function __clone()
+    {
+        $this->request = clone $this->request;
+        $this->headersSet = clone $this->headersSet;
+        $this->body = clone $this->body;
+    }
+
     /**
      * Retrieves the HTTP protocol version as a string.
      *
@@ -154,6 +140,10 @@ class TierResponse implements ResponseInterface
      */
     public function getProtocolVersion()
     {
+        if ($this->overRidingProtocol !== null) {
+            return $this->overRidingProtocol;
+        }
+
         return $this->request->getProtocolVersion();
     }
 
@@ -172,7 +162,10 @@ class TierResponse implements ResponseInterface
      */
     public function withProtocolVersion($version)
     {
-        throw new \Exception("Not implemented");
+        $instance = clone $this;
+        $instance->overRidingProtocol = $version;
+
+        return $instance;
     }
 
     /**
@@ -202,7 +195,7 @@ class TierResponse implements ResponseInterface
      */
     public function getHeaders()
     {
-        return $this->headersToSend;
+        return $this->headersSet->getAllHeaders();
     }
 
     /**
@@ -215,7 +208,7 @@ class TierResponse implements ResponseInterface
      */
     public function hasHeader($name)
     {
-        return array_key_exists($name, $this->headersToSend);
+        return $this->headersSet->hasHeaders($name);
     }
 
     /**
@@ -234,7 +227,7 @@ class TierResponse implements ResponseInterface
      */
     public function getHeader($name)
     {
-        return $this->headersToSend[$name];
+        return $this->headersSet->getHeaders($name);
     }
 
     /**
@@ -258,12 +251,13 @@ class TierResponse implements ResponseInterface
      */
     public function getHeaderLine($name)
     {
-        $value = $this->getHeader($name);
-        if (empty($value) === true) {
+        if ($this->headersSet->hasHeaders($name) === false) {
             return '';
         }
 
-        return implode(',', $value);
+        $values = $this->getHeader($name);
+
+        return implode(',', $values);
     }
 
     /**
@@ -283,8 +277,30 @@ class TierResponse implements ResponseInterface
      */
     public function withHeader($name, $value)
     {
-        //Urrgh - The SapiStreamEmitter requires this..
-        return $this;
+        $instance = clone $this;
+        $allHeaders = $instance->headersSet->getAllHeaders();
+        
+        $newHeaders = [];
+        
+        foreach ($allHeaders as $existingName => $existingValues) {
+            if (strcasecmp($existingName, $name) === 0) {
+                continue;
+            }
+            else {
+                $newHeaders[$existingName] = $existingValues;
+            }
+        }
+        
+        if (is_array($value) === true) {
+            $newHeaders[$name] = $value;
+        }
+        else {
+            $newHeaders[$name] = [(string)$value];
+        }
+        
+        $instance->headersSet = HeadersSet::fromArray($newHeaders);
+
+        return $instance;
     }
 
     /**
@@ -305,7 +321,18 @@ class TierResponse implements ResponseInterface
      */
     public function withAddedHeader($name, $value)
     {
-        throw new \Exception("Not implemented");
+        $instance = clone $this;
+        
+        if (is_array($value) === true) {
+            foreach ($value as $fieldValue) {
+                $instance->headersSet->addHeader($name, (string)$fieldValue);
+            }
+        }
+        else {
+            $instance->headersSet->addHeader($name, (string)$value);
+        }
+
+        return $instance;
     }
 
     /**
@@ -322,7 +349,23 @@ class TierResponse implements ResponseInterface
      */
     public function withoutHeader($name)
     {
-        // TODO: Implement withoutHeader() method.
+        $instance = clone $this;
+        $allHeaders = $instance->headersSet->getAllHeaders();
+        
+        $newHeaders = [];
+        
+        foreach ($allHeaders as $existingName => $existingValues) {
+            if (strcasecmp($existingName, $name) === 0) {
+                continue;
+            }
+            else {
+                $newHeaders[$existingName] = $existingValues;
+            }
+        }
+
+        $instance->headersSet = HeadersSet::fromArray($newHeaders);
+
+        return $instance;
     }
 
     /**
@@ -332,6 +375,10 @@ class TierResponse implements ResponseInterface
      */
     public function getBody()
     {
+        if ($this->overridingStreamInterface !== null) {
+            return $this->overridingStreamInterface;
+        }
+        
         $contents = $this->body->getData();
         $body = new Stream('php://temp', 'wb+');
         $body->write($contents);
@@ -355,7 +402,10 @@ class TierResponse implements ResponseInterface
      */
     public function withBody(StreamInterface $body)
     {
-        throw new \Exception("Not implemented");
+        $instance = clone $this;
+        $instance->overridingStreamInterface = $body;
+        
+        return $instance;
     }
 
     /**
@@ -368,6 +418,10 @@ class TierResponse implements ResponseInterface
      */
     public function getStatusCode()
     {
+        if ($this->overridingStatusCode !== null) {
+            return $this->overridingStatusCode;
+        }
+
         return $this->body->getStatusCode();
     }
 
@@ -393,7 +447,11 @@ class TierResponse implements ResponseInterface
      */
     public function withStatus($code, $reasonPhrase = '')
     {
-        throw new \Exception("Not implemented");
+        $instance = clone $this;
+        $instance->overridingStatusCode = $code;
+        $instance->overridingReasonPhrase = $reasonPhrase;
+        
+        return $instance;
     }
 
     /**
@@ -411,6 +469,10 @@ class TierResponse implements ResponseInterface
      */
     public function getReasonPhrase()
     {
+        if ($this->overridingReasonPhrase !== '') {
+            return $this->overridingReasonPhrase;
+        }
+        
         $bodyReasonPhrase = $this->body->getReasonPhrase();
         if ($bodyReasonPhrase !== null) {
             return $bodyReasonPhrase;
@@ -418,8 +480,8 @@ class TierResponse implements ResponseInterface
         
         $statusCode = $this->getStatusCode();
         
-        if (isset($this->phrases[$statusCode]) === true) {
-            return $this->phrases[$statusCode];
+        if (isset(self::$phrases[$statusCode]) === true) {
+            return self::$phrases[$statusCode];
         }
 
         return "";

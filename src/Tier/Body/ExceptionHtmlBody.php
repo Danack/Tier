@@ -3,6 +3,7 @@
 namespace Tier\Body;
 
 use Room11\HTTP\Body;
+use Room11\HTTP\HeadersSet;
 
 /**
  * Class ExceptionHtmlBody
@@ -18,6 +19,9 @@ class ExceptionHtmlBody implements Body
     private $statusCode;
     private $reasonPhrase;
     
+    /** @var HeadersSet */
+    private $headersSet;
+    
     public function __construct($exceptionString, $statusCode, $reasonPhrase = null)
     {
         $fullText = $this->getBeforeText();
@@ -27,6 +31,10 @@ class ExceptionHtmlBody implements Body
         $this->text = $fullText;
         $this->statusCode = $statusCode;
         $this->reasonPhrase = $reasonPhrase;
+
+        $this->headersSet = new HeadersSet();
+        $this->headersSet->addHeader('Content-Type', 'text/html; charset=UTF-8; charset=utf-8');
+        $this->headersSet->addHeader('Content-Length', strlen($this->text));
     }
 
     public function getReasonPhrase()
@@ -57,14 +65,11 @@ class ExceptionHtmlBody implements Body
     }
 
     /**
-     * @return array
+     * @return HeadersSet
      */
-    public function getHeaders()
+    public function getHeadersSet()
     {
-        return [
-            'Content-Type' => 'text/html; charset=UTF-8; charset=utf-8',
-            'Content-Length' => strlen($this->text)
-        ];
+        return $this->headersSet;
     }
 
     /**
