@@ -142,8 +142,7 @@ class InjectionParams
 
     /**
      * @param Injector $injector
-     * @param InjectionParams $injectionParams
-     * @throws \Auryn\InjectorException
+     * @internal param InjectionParams $injectionParams
      */
     public function addToInjector(Injector $injector)
     {

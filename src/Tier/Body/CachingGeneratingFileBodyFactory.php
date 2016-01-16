@@ -66,7 +66,7 @@ class CachingGeneratingFileBodyFactory
 
     /**
      * @param $contentType
-     * @param callable $fileGenerator The callable that generates the file.
+     * @param callable|FileGenerator $fileGenerator The callable that generates the file.
      * @param array $headers
      * @return \Room11\HTTP\Body
      */

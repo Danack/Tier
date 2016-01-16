@@ -16,11 +16,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class TierHTTPApp extends TierApp
 {
     const TIER_INITIAL = 10;
+
     const TIER_BEFORE_BODY = 20;
     const TIER_GENERATE_BODY = 30;
-    const TIER_BEFORE_SEND = 40;
-    const TIER_SEND = 50;
-    const TIER_AFTER_SEND = 60;
+    const TIER_AFTER_BODY = 40;
+
+    const TIER_BEFORE_RESPONSE = 50;
+    const TIER_GENERATE_RESPONSE = 60;
+    const TIER_AFTER_RESPONSE = 70;
+
+    const TIER_BEFORE_SEND = 80;
+    const TIER_SEND = 90;
+    const TIER_AFTER_SEND = 100;
 
     /**
      * @var ExceptionResolver
@@ -89,12 +96,20 @@ class TierHTTPApp extends TierApp
 
         return $exceptionResolver;
     }
+
+    /**
+     * @param $callable
+     */
+    public function addInitialExecutable($callable)
+    {
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_INITIAL, $callable);
+    }
     
     /**
      * Add a tier to be called before the body is generated.
      * @param $callable
      */
-    public function addPreCallable(Executable $callable)
+    public function addBeforeGenerateBodyExecutable($callable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_BODY, $callable);
     }
@@ -102,23 +117,48 @@ class TierHTTPApp extends TierApp
     /**
      * @param Executable $executable
      */
-    public function addGenerateBodyExecutable(Executable $executable)
+    public function addGenerateBodyExecutable($executable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $executable);
     }
 
     /**
-     * @param $executable
+     * Add a tier to be called before the body is generated.
+     * @param $callable
      */
-    public function addSendCallable($executable)
+    public function addAfterGenerateBodyExecutable($callable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $executable);
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_BODY, $callable);
     }
 
     /**
      * @param $executable
      */
-    public function addBeforeSendCallable($executable)
+    public function addBeforeGenerateResponseExecutable($executable)
+    {
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_RESPONSE, $executable);
+    }
+
+    /**
+     * @param $executable
+     */
+    public function addGenerateResponseExecutable($executable)
+    {
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_RESPONSE, $executable);
+    }
+
+    /**
+     * @param $executable
+     */
+    public function addAfterGenerateResponseExecutable($executable)
+    {
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_RESPONSE, $executable);
+    }
+
+    /**
+     * @param $executable
+     */
+    public function addBeforeSendExecutable($executable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $executable);
     }
@@ -126,7 +166,15 @@ class TierHTTPApp extends TierApp
     /**
      * @param $executable
      */
-    public function addPostCallable($executable)
+    public function addSendExecutable($executable)
+    {
+        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $executable);
+    }
+
+    /**
+     * @param $executable
+     */
+    public function addAfterSendExecutable($executable)
     {
         $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $executable);
     }
@@ -154,19 +202,20 @@ class TierHTTPApp extends TierApp
 
     /**
      * Actually handle the exception.
+     * @param $exception
      */
-    private function processException($e)
+    private function processException($exception)
     {
         list($handler, $exceptionClass) = $this->exceptionResolver->getExceptionHandler(
-            $e,
+            $exception,
             'processException'
         );
 
         $injector = clone $this->injector;
-        if (strcasecmp($exceptionClass, get_class($e)) !== 0) {
-            $injector->alias($exceptionClass, get_class($e));
+        if (strcasecmp($exceptionClass, get_class($exception)) !== 0) {
+            $injector->alias($exceptionClass, get_class($exception));
         }
-        $injector->share($e);
+        $injector->share($exception);
         $injector->execute($handler);
     }
 }

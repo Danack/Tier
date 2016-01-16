@@ -39,6 +39,7 @@ class Executable
      * @param $callable
      * @param InjectionParams $injectionParams
      * @param null $setupCallable
+     * @param null $skipIfProduced
      */
     public function __construct(
         $callable,
