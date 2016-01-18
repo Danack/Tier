@@ -138,7 +138,7 @@ HTML;
             $alias['Jig\JigBase'] = $className;
             $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
 
-            return new Executable('Tier\createHtmlBody', $injectionParams);
+            return new Executable(['Tier\Tier', 'createHtmlBody'], $injectionParams);
         };
 
         return new Executable($fn);
@@ -269,6 +269,8 @@ HTML;
         $body = $ie->getMessage()."\n\n";
         $body .= "Dependency chain is:\n\n";
         $body .= implode("\n", $ie->getDependencyChain());
+        $body .= "Stack trace:\n";
+        $body .= Tier::getExceptionString($ie);
         $body = new ExceptionHtmlBody($body, 500);
         self::sendRawBodyResponse($body);
 
