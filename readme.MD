@@ -13,3 +13,11 @@ The real name for the "pattern" is breaking the execution of a program up into i
 
 This is why the 'framework' is called Tier, as it allows you to "arrange in layers" . Each block of execution builds up information to be used by subsequent execution blocks.
 
+
+
+
+### PHP built-in server
+
+```
+php -S localhost:8000 -t test/app/public
+```

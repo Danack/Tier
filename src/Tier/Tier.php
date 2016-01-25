@@ -306,6 +306,20 @@ HTML;
         return \Tier\TierApp::PROCESS_END;
     }
 
+    /**
+     * @param \Exception $e
+     * @return int
+     * @return int
+     */
+    public static function processThrowable(\Throwable $e)
+    {
+        $exceptionString = Tier::getExceptionString($e);
+        $body = new ExceptionHtmlBody($exceptionString, 500);
+        self::sendRawBodyResponse($body);
+
+        return \Tier\TierApp::PROCESS_END;
+    }
+
 
     /**
      * @param Body $body

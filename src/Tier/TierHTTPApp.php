@@ -5,6 +5,7 @@ namespace Tier;
 
 use Auryn\Injector;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Tier\Context\ExceptionContext;
 
 /**
  * Class TierHTTPApp
@@ -79,18 +80,17 @@ class TierHTTPApp extends TierApp
             ['Tier\Tier', 'processInjectorException'],
             ExceptionResolver::ORDER_LAST - 2
         );
-        
-        $fallbackHandler = ['Tier\Tier', 'processException'];
+
         // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
             'Throwable',
-            $fallbackHandler,
+            ['Tier\Tier', 'processThrowable'],
             ExceptionResolver::ORDER_LAST
         );
         // This will only be triggered on PHP 5.6
         $exceptionResolver->addExceptionHandler(
             'Exception',
-            $fallbackHandler,
+            ['Tier\Tier', 'processException'],
             ExceptionResolver::ORDER_LAST
         );
 
@@ -206,16 +206,40 @@ class TierHTTPApp extends TierApp
      */
     private function processException($exception)
     {
-        list($handler, $exceptionClass) = $this->exceptionResolver->getExceptionHandler(
+        //TODO - we are now failing. Replace error handler with instant
+        //shutdown handler.
+        $fallBackHandler = ['Tier\Tier', 'processException'];
+        if (class_exists('\Throwable') === true) {
+            $fallBackHandler = ['Tier\Tier', 'processThrowable'];
+        }
+
+        $handler = $this->exceptionResolver->getExceptionHandler(
             $exception,
-            'processException'
+            $fallBackHandler
         );
 
-        $injector = clone $this->injector;
-        if (strcasecmp($exceptionClass, get_class($exception)) !== 0) {
-            $injector->alias($exceptionClass, get_class($exception));
+//        if (is_a($exception, 'Exception') === true) {
+//            $exceptionContext = ExceptionContext::fromException($exception);
+//        }
+//        else {
+//            $exceptionContext = ExceptionContext::fromThrowable($exception);
+//        }
+
+        try {
+//            $injector = clone $this->injector;
+//            $injector->share($exceptionContext);
+//            $injector->execute($handler);
+            call_user_func($handler, $exception);
         }
-        $injector->share($exception);
-        $injector->execute($handler);
+        catch (\Exception $e) {
+            //Fatal error shutdown
+            echo $e->getMessage();
+            exit(-1);
+        }
+        catch (\Throwable $e) {
+            //Fatal error shutdown
+            echo $e->getMessage();
+            exit(-1);
+        }
     }
 }

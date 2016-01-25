@@ -28,21 +28,19 @@ class ExceptionResolverTest extends BaseTestCase
         );
 
         $fooException = new FooException();
-        $handlerInfo = $exceptionResolver->getExceptionHandler(
+        $handler = $exceptionResolver->getExceptionHandler(
             $fooException,
             $defaultHandler
         );
         
-        list($handler, $classname) = $handlerInfo;
+
         $this->assertEquals("Foo handler", $handler());
-        
         $barException = new BarException();
-        $handlerInfo = $exceptionResolver->getExceptionHandler(
+        $handler = $exceptionResolver->getExceptionHandler(
             $barException,
             $defaultHandler
         );
-        list($handler, $classname) = $handlerInfo;
-        
+
         $this->assertEquals("Default handler", $handler());
     }
     

@@ -9,14 +9,50 @@ use Tier\Executable;
 use Tier\InjectionParams;
 use Room11\HTTP\Body\TextBody;
 
-class Router
+class JigRouter
 {
     /** @var \Jig\JigConfig  */
     private $jigConfig;
     
-    public function __construct(Dispatcher $dispatcher)
-    {
+    public function __construct(
+        JigConfig $jigConfig,
+        Dispatcher $dispatcher,
+        TierJig $tierJig
+    ) {
+        $this->jigConfig = $jigConfig;
         $this->dispatcher = $dispatcher;
+        $this->tierJig = $tierJig;
+    }
+
+
+    /**
+     * Check if a template with the given name exists in the 'pages' sub-directory of the templates
+     * directory.
+     * @param $templateName
+     * @return bool|string false if the template does not exist, otherwise the normalised name
+     * of the template.
+     */
+    private function templateExists($templateName)
+    {
+        if (substr($templateName, -1) === '/') {
+            $templateName .= "index";
+        }
+        $templateName = str_replace('..', '', $templateName);
+        $templateNormalisedName = 'pages'.$templateName;
+        $templatePathname = $this->jigConfig->getTemplatePath($templateNormalisedName);
+     
+        if (file_exists($templatePathname) === true) {
+            return $templateNormalisedName;
+        }
+
+        $indexName = $templateNormalisedName."/index";
+
+        $templatePathname = $this->jigConfig->getTemplatePath($indexName);
+        if (file_exists($templatePathname) === true) {
+            return $indexName;
+        }
+    
+        return false;
     }
 
     /**
@@ -39,6 +75,11 @@ class Router
         else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             //TODO - need to embed allowedMethods....theoretically.
             return new Executable([$this, 'serve405ErrorPage']);
+        }
+    
+        $templateName = $this->templateExists($path, $this->jigConfig);
+        if ($templateName !== false) {
+            return $this->tierJig->createJigExecutable($templateName);
         }
     
         return new Executable([$this, 'serve404ErrorPage']);

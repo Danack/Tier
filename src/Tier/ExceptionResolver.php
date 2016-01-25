@@ -61,12 +61,12 @@ class ExceptionResolver
         ksort($this->exceptionHandlers);
         foreach ($this->exceptionHandlers as $priority => $exceptionHandlerList) {
             foreach ($exceptionHandlerList as $classname => $handler) {
-                if ($e instanceof $classname) {
-                    return [$handler, $classname];
+                if (is_a($e, $classname) === true) {
+                    return $handler;
                 }
             }
         }
         
-        return [$defaultHandler, 'Exception'];
+        return $defaultHandler;
     }
 }
