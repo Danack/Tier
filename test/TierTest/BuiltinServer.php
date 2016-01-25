@@ -3,7 +3,7 @@
 
 namespace TierTest;
 
-class BuiltInServer
+class BuiltinServer
 {
     private $address;
     

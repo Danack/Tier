@@ -8,7 +8,7 @@ use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
 use Tier\TierApp;
 use TierTest\BaseTestCase;
-use TierTest\BuiltInServer;
+use TierTest\BuiltinServer;
 
 /**
  * @requires extension pcntl
@@ -19,7 +19,7 @@ class ServerTest extends BaseTestCase
     /** @var  InjectionParams */
     private $injectionParams;
     
-    /** @var  BuiltInServer */
+    /** @var  BuiltinServer */
     private static $server = null;
     
     public function setup()
@@ -46,7 +46,7 @@ class ServerTest extends BaseTestCase
             return;
         }
 
-        self::$server = new BuiltInServer(8000, $path);
+        self::$server = new BuiltinServer(8000, $path);
         self::$server->startServer(8000);
     }
     
