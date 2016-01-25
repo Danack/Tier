@@ -169,15 +169,24 @@ HTML;
         }
     }
     
-    public static function tierExceptionHandler(\Exception $ex)
+    public static function tierExceptionHandler($ex)
     {
+        // if (is_a($ex, 'Exception') == false && is_a($ex, 'Throwable') == false) {}
         self::clearOutputBuffer();
         $body = new ExceptionHtmlBody(self::getExceptionString($ex), 500);
         self::sendRawBodyResponse($body);
     }
 
-    public static function getExceptionString(\Exception $ex)
+    /**
+     * @param $ex \Exception|\Throwable
+     * @return string
+     */
+    public static function getExceptionString($ex)
     {
+//        if (is_a($ex, 'Exception') == false && is_a($ex, 'Throwable') == false) {
+//            exit
+//        }
+
         $string = '';
 
         while ($ex !== null) {
