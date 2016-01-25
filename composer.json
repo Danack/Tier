@@ -18,7 +18,8 @@
     },
     "autoload-dev": {
         "psr-0": {
-            "TierTest": "test/"
+            "TierTest": "test/",
+            "Fixtures": "test/fixtures"
         }
     },
     "require-dev": {
