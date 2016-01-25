@@ -56,8 +56,9 @@ class ExceptionResolver
      * @param $defaultHandler
      * @return callable
      */
-    public function getExceptionHandler(\Exception $e, $defaultHandler)
+    public function getExceptionHandler($e, $defaultHandler)
     {
+        //\Exception
         ksort($this->exceptionHandlers);
         foreach ($this->exceptionHandlers as $priority => $exceptionHandlerList) {
             foreach ($exceptionHandlerList as $classname => $handler) {
