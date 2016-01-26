@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "ade92ae9f0c81e826b4678e3ad952016",
+    "hash": "091a937c12ea0714cedd7a4bdf2f2b39",
     "packages": [
         {
             "name": "psr/http-message",
@@ -782,16 +782,16 @@
         },
         {
             "name": "room11/http",
-            "version": "0.0.9",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/HTTP.git",
-                "reference": "615caae40aa47e82638b8b42eb347592e0b7e4eb"
+                "reference": "073cac67a33d0cb855e99b31917310bee83bc2fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/HTTP/zipball/615caae40aa47e82638b8b42eb347592e0b7e4eb",
-                "reference": "615caae40aa47e82638b8b42eb347592e0b7e4eb",
+                "url": "https://api.github.com/repos/Danack/HTTP/zipball/073cac67a33d0cb855e99b31917310bee83bc2fb",
+                "reference": "073cac67a33d0cb855e99b31917310bee83bc2fb",
                 "shasum": ""
             },
             "require-dev": {
@@ -823,7 +823,7 @@
                 "interface",
                 "room11"
             ],
-            "time": "2016-01-07 18:06:04"
+            "time": "2016-01-21 13:47:23"
         },
         {
             "name": "squizlabs/php_codesniffer",
