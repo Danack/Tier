@@ -38,6 +38,15 @@ class InjectionParams
         return new static([], [], [], $vars);
     }
 
+    public static function fromShareObjects($params) 
+    {
+        $instance = new static();
+        foreach ($params as $interface => $object) {
+            $instance->aliases[$interface] = get_class($object);
+            $instance->shares[] = $object;
+        }
+    }
+    
     public function alias($original, $alias)
     {
         $this->aliases[$original] = $alias;

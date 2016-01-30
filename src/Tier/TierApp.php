@@ -109,7 +109,7 @@ class TierApp
                 }
 
                 // TODO - if we need to allow user handlers this is the place they would go
-                $finished = $this->processResult($result);
+                $finished = $this->processResult($result, $tier);
                 
                 if ($finished === self::PROCESS_END_STAGE) {
                     break;
@@ -147,7 +147,7 @@ class TierApp
      * @throws TierException
      * @return int
      */
-    private function processResult($result)
+    private function processResult($result, Executable $executable)
     {
          // If it's a new Tier to run, setup the next loop.
         if ($result instanceof Executable) {
@@ -158,13 +158,18 @@ class TierApp
             count($result) !== 0) {
             //It's an array of tiers to run.
             foreach ($result as $tier) {
-                if (($tier instanceof Executable) === false) {
-                    throw new InvalidReturnException(
-                        self::RETURN_VALUE,
-                        $result
-                    );
-                }
+                if (($tier instanceof Executable) === true) {
                 $this->executableListByTier->addNextStageTier($tier);
+                    continue;
+            }
+                else if (is_callable($tier) == true) {
+                    $newExecutable = new Executable($tier);
+                    $this->executableListByTier->addNextStageTier($newExecutable);
+                    continue;
+                }
+
+                throw InvalidReturnException::getWrongTypeException($result, $executable);
+
             }
             return self::PROCESS_CONTINUE;
         }
@@ -195,7 +200,7 @@ class TierApp
         }
 
         // Otherwise it's an error
-        throw InvalidReturnException::getWrongTypeException($result);
+        throw InvalidReturnException::getWrongTypeException($result, $executable);
     }
 
     /**

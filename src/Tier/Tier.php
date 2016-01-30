@@ -3,6 +3,7 @@
 namespace Tier;
 
 use Auryn\InjectionException;
+use Auryn\Injector;
 use Auryn\InjectorException;
 use Jig\Jig;
 use Jig\JigBase;
@@ -137,6 +138,34 @@ HTML;
             $alias = [];
             $alias['Jig\JigBase'] = $className;
             $injectionParams = new InjectionParams($sharedObjects, $alias, [], []);
+
+            return new Executable(['Tier\Tier', 'createHtmlBody'], $injectionParams);
+        };
+
+        return new Executable($fn);
+    }
+
+    /**
+     * Helper function to allow template rendering to be easier.
+     * @param $templateName
+     * @param array $sharedObjects
+     * @return Executable
+     */
+    public static function renderTemplateExecutable(
+        $templateName,
+        InjectionParams $injectionParams = null
+    ) {
+        if ($injectionParams === null) {
+            $injectionParams = new InjectionParams();
+        }
+        
+        $fn = function (Jig $jigRender) use ($templateName, $injectionParams) {
+            $className = $jigRender->compile($templateName);
+            $injectionParams->alias('Jig\JigBase', $className);
+            $fn = function (Injector $injector) use ($className) {
+                return $injector->make($className);
+            };
+            $injectionParams->delegate('Jig\JigBase', $fn);
 
             return new Executable(['Tier\Tier', 'createHtmlBody'], $injectionParams);
         };

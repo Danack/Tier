@@ -32,9 +32,10 @@ class Router
         if ($dispatcherResult === \FastRoute\Dispatcher::FOUND) {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
-            $params = InjectionParams::fromParams($vars);
+            $injectionParams = InjectionParams::fromParams($vars);
+            $injectionParams->share(new \Tier\JigBridge\RouteInfo($vars));
     
-            return new Executable($handler, $params, null);
+            return new Executable($handler, $injectionParams, null);
         }
         else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             //TODO - need to embed allowedMethods....theoretically.
