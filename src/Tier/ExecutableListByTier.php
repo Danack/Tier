@@ -76,8 +76,23 @@ class ExecutableListByTier implements \Iterator
      * @param $tierOrder
      * @param $executable Executable|callable
      */
-    public function addExecutable($tierOrder, $executable)
+    public function addExecutable($tierOrder, $callableOrExecutable)
     {
+        if (is_a($callableOrExecutable, 'Tier\Executable') === true) {
+            $executable = $callableOrExecutable;
+        }
+        else if (is_callable($callableOrExecutable) === true) {
+            $executable = new Executable($callableOrExecutable);
+        }
+        else {
+            $message = sprintf(
+                'Executable or callable required, instead have: %s',
+                substr(var_export($callableOrExecutable, true), 0, 50)
+            );
+            
+            throw new TierException($message);
+        }
+        
         if (isset($this->executableListByTier[$tierOrder]) === false) {
             $this->executableListByTier[$tierOrder] = new ExecutableList();
         }

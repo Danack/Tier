@@ -38,7 +38,7 @@ class InjectionParams
         return new static([], [], [], $vars);
     }
 
-    public static function fromShareObjects($params) 
+    public static function fromShareObjects($params)
     {
         $instance = new static();
         foreach ($params as $interface => $object) {
@@ -151,7 +151,6 @@ class InjectionParams
 
     /**
      * @param Injector $injector
-     * @internal param InjectionParams $injectionParams
      */
     public function addToInjector(Injector $injector)
     {

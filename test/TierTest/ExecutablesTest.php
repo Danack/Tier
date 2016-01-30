@@ -44,9 +44,13 @@ class ExecutablesTest extends BaseTestCase
         
         foreach ($execListByTier as $tier => $execList) {
             $order[] = $tier;
-            foreach ($execList as $position => $exec) {
-                /** @var $exec callable */
-                $exec();
+            foreach ($execList as $position => $executable) {
+                $callable = $executable->getCallable();
+                if (is_callable($callable) === false) {
+                    $this->fail("Callable returned by executable apparently isn't.");
+                }
+                
+                call_user_func($callable);
                 $execPosition[] = $position;
             }
         }

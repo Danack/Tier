@@ -48,7 +48,7 @@ class ExecutableList implements \Iterator
         return isset($this->list[$this->position]);
     }
 
-    public function addExecutable($executable)
+    public function addExecutable(Executable $executable)
     {
         $this->list[] = $executable;
     }

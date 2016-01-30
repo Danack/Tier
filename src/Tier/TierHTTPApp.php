@@ -218,20 +218,11 @@ class TierHTTPApp extends TierApp
             $fallBackHandler
         );
 
-//        if (is_a($exception, 'Exception') === true) {
-//            $exceptionContext = ExceptionContext::fromException($exception);
-//        }
-//        else {
-//            $exceptionContext = ExceptionContext::fromThrowable($exception);
-//        }
-
         try {
-//            $injector = clone $this->injector;
-//            $injector->share($exceptionContext);
-//            $injector->execute($handler);
             call_user_func($handler, $exception);
         }
         catch (\Exception $e) {
+            // The exception handler function also threw? Just exit.
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);

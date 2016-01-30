@@ -157,19 +157,18 @@ class TierApp
         if (is_array($result) === true &&
             count($result) !== 0) {
             //It's an array of tiers to run.
-            foreach ($result as $tier) {
-                if (($tier instanceof Executable) === true) {
-                $this->executableListByTier->addNextStageTier($tier);
+            foreach ($result as $executableOrCallable) {
+                if (($executableOrCallable instanceof Executable) === true) {
+                    $this->executableListByTier->addNextStageTier($executableOrCallable);
                     continue;
-            }
-                else if (is_callable($tier) == true) {
-                    $newExecutable = new Executable($tier);
+                }
+                else if (is_callable($executableOrCallable) === true) {
+                    $newExecutable = new Executable($executableOrCallable);
                     $this->executableListByTier->addNextStageTier($newExecutable);
                     continue;
                 }
 
                 throw InvalidReturnException::getWrongTypeException($result, $executable);
-
             }
             return self::PROCESS_CONTINUE;
         }

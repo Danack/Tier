@@ -32,9 +32,9 @@ class TierStageTest extends BaseTestCase
                 
         $injector = new Injector();
         
-        foreach ($tiersByStage as $appStage => $tiersForStage) {
-            foreach ($tiersForStage as $tier) {
-                $injector->execute($tier);
+        foreach ($tiersByStage as $appStage => $executablesForTier) {
+            foreach ($executablesForTier as $executable) {
+                $injector->execute($executable->getCallable());
             }
         }
 
