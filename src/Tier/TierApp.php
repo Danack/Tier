@@ -56,10 +56,10 @@ class TierApp
 
     /**
      * Whether to throw an exception if processsing ends without the PROCESS_END constant
-     * being returned. This would only be appropriate to use for a small number of applications. 
+     * being returned. This would only be appropriate to use for a small number of applications.
      * @var bool
      */
-    protected $warnOnSilentProcessingEnd = false;
+    public $warnOnSilentProcessingEnd = false;
 
     const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
 

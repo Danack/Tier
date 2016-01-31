@@ -61,15 +61,18 @@ class TierAppTest extends BaseTestCase
         $this->assertEquals('bar', $fooDebug);
     }
 
-    public function testWrongReturnType_DefaultReturn()
+    public function testWrongReturnType_DefaultReturnExecutable()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
         $fn1 = function () {
-            //The default return of null should be detected as an error.
+            // As this is processed as an executable.
+            // The default return of null should be detected as an error.
         };
         
-        $tierApp->addExecutable(0, $fn1);
+        $executable = new Executable($fn1);
+        
+        $tierApp->addExecutable(0, $executable);
         try {
             $tierApp->executeInternal();
         }
@@ -80,6 +83,22 @@ class TierAppTest extends BaseTestCase
 
         $this->fail("InvalidReturnException was not thrown.");
     }
+    
+    
+    public function testCallableAllowedToReturnNull()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+        $fn1 = function () {
+            // Because this is added as a callable, not an exception
+            // The default return of null is allowed.
+        };
+        
+        $tierApp->addExecutable(0, $fn1);
+        $tierApp->executeInternal();
+    }
+
+    
 
     public function testWrongReturnType_ObjectReturn()
     {
@@ -204,14 +223,26 @@ class TierAppTest extends BaseTestCase
         $tierApp->addExecutable(0, $fn);
         $tierApp->executeInternal();
     }
-    
-    
-    public function testMissingProcessEnd()
+
+    public function testSilentOnMissingProcessEnd()
     {
         $injectionParams = new InjectionParams();
         $tierApp = new TierApp($injectionParams);
-        //$this->setExpectedException('Tier\TierException', 'Too many tiers');
 
+        $fn = function() {
+            return TierApp::PROCESS_CONTINUE;
+        };
+
+        $tierApp->addExecutable(0, $fn);
+        $tierApp->executeInternal();
+    }
+
+    public function testExceptionOnMissingProcessEnd()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+        $tierApp->warnOnSilentProcessingEnd = true;
+        
         $fn = function() {
             return TierApp::PROCESS_CONTINUE;
         };
@@ -220,8 +251,7 @@ class TierAppTest extends BaseTestCase
         $this->setExpectedException('Tier\TierException', 'TierApp::PROCESS_END');
         $tierApp->executeInternal();
     }
-    
-    
+
     public function testCoverage1()
     {
         $injectionParams = new InjectionParams();

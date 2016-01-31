@@ -37,7 +37,7 @@ class Executable
 
     /**
      * For executables that are created directly from callable, having to return a
-     * Tier::PROCESS_* constant is a burden. 
+     * Tier::PROCESS_* constant is a burden.
      * @var bool
      */
     private $allowedToReturnNull = false;
