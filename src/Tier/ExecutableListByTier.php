@@ -83,6 +83,7 @@ class ExecutableListByTier implements \Iterator
         }
         else if (is_callable($callableOrExecutable) === true) {
             $executable = new Executable($callableOrExecutable);
+            $executable->setAllowedToReturnNull(true);
         }
         else {
             $message = sprintf(

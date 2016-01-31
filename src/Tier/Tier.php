@@ -376,6 +376,6 @@ HTML;
         $response = new TierResponse($request, $headerSet, $body);
         
         $emitterInterface->emit($response);
-        return \Tier\TierApp::PROCESS_END;
+        return \Tier\TierApp::PROCESS_CONTINUE;
     }
 }

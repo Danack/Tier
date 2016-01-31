@@ -36,10 +36,12 @@ class TierApp
     //
     // Running of the application should continue.
     const PROCESS_CONTINUE = 1;
+
     // The current tier of the appliction has finished and should move to the next one.
     // This is useful for things like a caching service to indicate that the response
     // has been served from cache and the main processing body doesn't need to be run.
     const PROCESS_END_STAGE = 2;
+
     // Application has finished running
     const PROCESS_END = 3;
 
@@ -51,6 +53,13 @@ class TierApp
      * @var array[string]
      */
     protected $expectedProducts = [];
+
+    /**
+     * Whether to throw an exception if processsing ends without the PROCESS_END constant
+     * being returned. This would only be appropriate to use for a small number of applications. 
+     * @var bool
+     */
+    protected $warnOnSilentProcessingEnd = false;
 
     const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
 
@@ -108,7 +117,6 @@ class TierApp
                     $result = $this->injector->execute($tier);
                 }
 
-                // TODO - if we need to allow user handlers this is the place they would go
                 $finished = $this->processResult($result, $tier);
                 
                 if ($finished === self::PROCESS_END_STAGE) {
@@ -120,7 +128,9 @@ class TierApp
             }
         }
         
-        throw new TierException("Processing did not result in a TierApp::PROCESS_END");
+        if ($this->warnOnSilentProcessingEnd === true) {
+            throw new TierException("Processing did not result in a TierApp::PROCESS_END");
+        }
     }
 
     public static function executeExecutable(Executable $tier, Injector $injector)
@@ -140,12 +150,13 @@ class TierApp
     }
 
 
-
     /**
-     * @param $result
-     * @throws InvalidReturnException
-     * @throws TierException
+     * @param $result The result produced by running the previous executable.
+     * @param Executable $executable The executable that was just run to produce
+     * the result.
      * @return int
+     * @throws TierException
+     * @throws \Auryn\ConfigException
      */
     private function processResult($result, Executable $executable)
     {
@@ -154,6 +165,11 @@ class TierApp
             $this->executableListByTier->addNextStageTier($result);
             return self::PROCESS_CONTINUE;
         }
+        
+        if ($result === null && $executable->isAllowedToReturnNull() === true) {
+            return self::PROCESS_CONTINUE;
+        }
+
         if (is_array($result) === true &&
             count($result) !== 0) {
             //It's an array of tiers to run.
@@ -172,6 +188,7 @@ class TierApp
             }
             return self::PROCESS_CONTINUE;
         }
+
         if ($result === false) {
             // The executed tier wasn't able to handle it e.g. a caching layer
             // There should be another tier to execute in this stage.

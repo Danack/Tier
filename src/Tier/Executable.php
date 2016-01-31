@@ -36,6 +36,13 @@ class Executable
     private $skipIfProduced;
 
     /**
+     * For executables that are created directly from callable, having to return a
+     * Tier::PROCESS_* constant is a burden. 
+     * @var bool
+     */
+    private $allowedToReturnNull = false;
+
+    /**
      * @param $callable
      * @param InjectionParams $injectionParams
      * @param null $setupCallable
@@ -53,6 +60,19 @@ class Executable
         $this->skipIfProduced = $skipIfProduced;
     }
 
+    public function setAllowedToReturnNull($isAllowed)
+    {
+        $this->allowedToReturnNull = $isAllowed;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isAllowedToReturnNull()
+    {
+        return $this->allowedToReturnNull;
+    }
+    
     /**
      * @return callable|mixed
      */
