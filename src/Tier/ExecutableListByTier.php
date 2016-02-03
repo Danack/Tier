@@ -127,7 +127,7 @@ class ExecutableListByTier implements \Iterator
             $tierNumber = $nextStage;
         }
 
-        if ($tierNumber <= $this->currentTier) {
+        if ($tierNumber < $this->currentTier) {
             $message = sprintf(
                 "Cannot add executable to tier %d as current tier is %d",
                 $tierNumber,
