@@ -10,7 +10,7 @@ use Auryn\Injector;
  */
 class TierApp
 {
-    /** @var int How many tiers/callables have been executed */
+    /** @var int How many tiers/executables have been executed */
     protected $internalExecutions = 0;
 
     /** @var int Max limit for number of tiers/callables to execute.
@@ -105,7 +105,7 @@ class TierApp
                 if ($tier instanceof Executable) {
                     //Some executables shouldn't be run if a certain product
                     //has already been made. This allows very easy caching layers.
-                    $skipIfProduced = $tier->getSkipIfProduced();
+                    $skipIfProduced = $tier->getSkipIfExpectedProductProduced();
                     if ($skipIfProduced !== null &&
                         $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
                         continue;
@@ -162,7 +162,7 @@ class TierApp
     {
          // If it's a new Tier to run, setup the next loop.
         if ($result instanceof Executable) {
-            $this->executableListByTier->addNextStageTier($result);
+            $this->executableListByTier->addExecutable($result);
             return self::PROCESS_CONTINUE;
         }
         
@@ -175,12 +175,12 @@ class TierApp
             //It's an array of tiers to run.
             foreach ($result as $executableOrCallable) {
                 if (($executableOrCallable instanceof Executable) === true) {
-                    $this->executableListByTier->addNextStageTier($executableOrCallable);
+                    $this->executableListByTier->addExecutable($executableOrCallable);
                     continue;
                 }
                 else if (is_callable($executableOrCallable) === true) {
                     $newExecutable = new Executable($executableOrCallable);
-                    $this->executableListByTier->addNextStageTier($newExecutable);
+                    $this->executableListByTier->addExecutable($newExecutable);
                     continue;
                 }
 
@@ -256,6 +256,6 @@ class TierApp
      */
     public function addExecutable($tier, $executable)
     {
-        $this->executableListByTier->addExecutable($tier, $executable);
+        $this->executableListByTier->addExecutableToTier($tier, $executable);
     }
 }

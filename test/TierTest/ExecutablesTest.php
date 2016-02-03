@@ -2,10 +2,40 @@
 
 namespace TierTest;
 
+use Tier\Executable;
 use Tier\ExecutableListByTier;
+use Tier\TierException;
 
 class ExecutablesTest extends BaseTestCase
 {
+
+    public function testExecutableAddedPreviousTier()
+    {
+        $executableListByTier = new ExecutableListByTier();
+
+        $fn2 = function () {
+            $this->fail("This should never be reached.");
+        };
+        
+        $fn1 = function() use (&$executableListByTier, $fn2) {
+            $executable = new Executable($fn2);
+            $executable->setTierNumber(4);
+            $executableListByTier->addExecutable($executable);
+        };
+
+        $executableListByTier->addExecutableToTier(5, $fn1);
+
+        $this->setExpectedException('Tier\TierException', TierException::INCORRECT_VALUE);
+
+        foreach ($executableListByTier as $tier => $executableList) {
+            $order[] = $tier;
+            foreach ($executableList as $position => $executable) {
+                $callable = $executable->getCallable();
+                call_user_func($callable);
+            }
+        }
+    }
+
     public function testExecutable()
     {
         $execListByTier = new ExecutableListByTier();
@@ -28,23 +58,23 @@ class ExecutablesTest extends BaseTestCase
         $fn2 = function() use (&$count, &$fn2Count, $execListByTier, $fn2b) {
             $fn2Count = $count;
             $count++;
-            $execListByTier->addNextStageTier($fn2b);
+            $execListByTier->addExecutable(new Executable($fn2b));
         };
         $fn3 = function() use (&$count, &$fn3Count) {
             $fn3Count = $count;
             $count++;
         };
 
-        $execListByTier->addExecutable(15, $fn3);
-        $execListByTier->addExecutable(5, $fn1);
-        $execListByTier->addExecutable(10, $fn2);
+        $execListByTier->addExecutableToTier(15, $fn3);
+        $execListByTier->addExecutableToTier(5, $fn1);
+        $execListByTier->addExecutableToTier(10, $fn2);
 
         $order = [];
         $execPosition = [];
         
-        foreach ($execListByTier as $tier => $execList) {
+        foreach ($execListByTier as $tier => $executableList) {
             $order[] = $tier;
-            foreach ($execList as $position => $executable) {
+            foreach ($executableList as $position => $executable) {
                 $callable = $executable->getCallable();
                 if (is_callable($callable) === false) {
                     $this->fail("Callable returned by executable apparently isn't.");

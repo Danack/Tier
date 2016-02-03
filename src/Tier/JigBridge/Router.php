@@ -3,17 +3,14 @@
 namespace Tier\JigBridge;
 
 use FastRoute\Dispatcher;
-use Jig\JigConfig;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Tier\Executable;
-use Tier\InjectionParams;
 use Room11\HTTP\Body\TextBody;
+use Tier\Executable;
+use Tier\TierHTTPApp;
+use Tier\InjectionParams;
 
 class Router
 {
-    /** @var \Jig\JigConfig  */
-    private $jigConfig;
-    
     public function __construct(Dispatcher $dispatcher)
     {
         $this->dispatcher = $dispatcher;
@@ -34,15 +31,24 @@ class Router
             $vars = $routeInfo[2];
             $injectionParams = InjectionParams::fromParams($vars);
             $injectionParams->share(new \Tier\JigBridge\RouteInfo($vars));
-    
-            return new Executable($handler, $injectionParams, null);
+
+            $executable = new Executable($handler, $injectionParams, null);
+            $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
+
+            return $executable;
         }
         else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             //TODO - need to embed allowedMethods....theoretically.
-            return new Executable([$this, 'serve405ErrorPage']);
+            $executable = new Executable([$this, 'serve405ErrorPage']);
+            $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
+
+            return $executable;
         }
-    
-        return new Executable([$this, 'serve404ErrorPage']);
+
+        $executable = new Executable([$this, 'serve404ErrorPage']);
+        $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
+
+        return $executable;
     }
 
     public static function serve404ErrorPage()

@@ -33,7 +33,12 @@ class Executable
      */
     private $injectionParams;
 
-    private $skipIfProduced;
+    /**
+     * If a class of this type has already been produced by an executable
+     * (i.e. returned from an executable) then skip running this executable.
+     * @var null|string
+     */
+    private $skipIfExpectedProductProduced;
 
     /**
      * For executables that are created directly from callable, having to return a
@@ -42,6 +47,12 @@ class Executable
      */
     private $allowedToReturnNull = false;
 
+    /**
+     * Which tier the executable should be run in.
+     * @var null
+     */
+    private $tierNumber = null;
+    
     /**
      * @param $callable
      * @param InjectionParams $injectionParams
@@ -57,9 +68,12 @@ class Executable
         $this->callable = $callable;
         $this->injectionParams = $injectionParams;
         $this->setupCallable = $setupCallable;
-        $this->skipIfProduced = $skipIfProduced;
+        $this->skipIfExpectedProductProduced = $skipIfProduced;
     }
 
+    /**
+     * @param $isAllowed
+     */
     public function setAllowedToReturnNull($isAllowed)
     {
         $this->allowedToReturnNull = $isAllowed;
@@ -97,8 +111,24 @@ class Executable
         return $this->injectionParams;
     }
 
-    public function getSkipIfProduced()
+    public function getSkipIfExpectedProductProduced()
     {
-        return $this->skipIfProduced;
+        return $this->skipIfExpectedProductProduced;
+    }
+
+    /**
+     * @return null
+     */
+    public function getTierNumber()
+    {
+        return $this->tierNumber;
+    }
+
+    /**
+     * @param null $tierNumber
+     */
+    public function setTierNumber($tierNumber)
+    {
+        $this->tierNumber = $tierNumber;
     }
 }

@@ -21,14 +21,14 @@ class TierStageTest extends BaseTestCase
 
         $fn0 = function () use (&$functionsCalled, $tiersByStage, $fn2) {
             $functionsCalled[0] = true;
-            $tiersByStage->addExecutable(4, $fn2);
+            $tiersByStage->addExecutableToTier(4, $fn2);
         };
         $fn1 = function () use (&$functionsCalled) {
             $functionsCalled[1] = true;
         };
         
-        $tiersByStage->addExecutable(2, $fn0);
-        $tiersByStage->addExecutable(2, $fn1);
+        $tiersByStage->addExecutableToTier(2, $fn0);
+        $tiersByStage->addExecutableToTier(2, $fn1);
                 
         $injector = new Injector();
         

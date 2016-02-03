@@ -76,7 +76,7 @@ class ExecutableListByTier implements \Iterator
      * @param $tierOrder
      * @param $executable Executable|callable
      */
-    public function addExecutable($tierOrder, $callableOrExecutable)
+    public function addExecutableToTier($tierOrder, $callableOrExecutable)
     {
         if (is_a($callableOrExecutable, 'Tier\Executable') === true) {
             $executable = $callableOrExecutable;
@@ -103,11 +103,29 @@ class ExecutableListByTier implements \Iterator
     }
 
     /**
-     * @param $tier
+     * Add an executable in the tier it wants to be run in, or the
+     * next stage if no tier is set.
+     * @param Executable $executable
+     * @throws TierException
      */
-    public function addNextStageTier($tier)
+    public function addExecutable(Executable $executable)
     {
+        $tierNumber = $executable->getTierNumber();
         $nextStage = $this->currentTier + 1;
-        $this->addExecutable($nextStage, $tier);
+
+        if ($tierNumber === null) {
+            $tierNumber = $nextStage;
+        }
+
+        if ($tierNumber <= $this->currentTier) {
+            $message = sprintf(
+                "Cannot add executable to tier %d as current tier is %d",
+                $tierNumber,
+                $this->currentTier
+            );
+            throw new TierException($message, TierException::INCORRECT_VALUE);
+        }
+
+        $this->addExecutableToTier($tierNumber, $executable);
     }
 }

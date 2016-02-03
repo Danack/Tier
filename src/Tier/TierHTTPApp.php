@@ -16,19 +16,26 @@ use Tier\Context\ExceptionContext;
  */
 class TierHTTPApp extends TierApp
 {
-    const TIER_INITIAL = 10;
+    
+    // The numerical order of tiers. These values should be separated by
+    // at least self::$internalExecutions
+    const TIER_INITIAL = 100;
+    
+    const TIER_BEFORE_ROUTING = 200;
+    const TIER_ROUTING = 300;
+    const TIER_AFTER_ROUTING = 400;
 
-    const TIER_BEFORE_BODY = 20;
-    const TIER_GENERATE_BODY = 30;
-    const TIER_AFTER_BODY = 40;
+    const TIER_BEFORE_BODY = 500;
+    const TIER_GENERATE_BODY = 600;
+    const TIER_AFTER_BODY = 700;
 
-    const TIER_BEFORE_RESPONSE = 50;
-    const TIER_GENERATE_RESPONSE = 60;
-    const TIER_AFTER_RESPONSE = 70;
+    const TIER_BEFORE_RESPONSE = 800;
+    const TIER_GENERATE_RESPONSE = 900;
+    const TIER_AFTER_RESPONSE = 1000;
 
-    const TIER_BEFORE_SEND = 80;
-    const TIER_SEND = 90;
-    const TIER_AFTER_SEND = 100;
+    const TIER_BEFORE_SEND = 1100;
+    const TIER_SEND = 1200;
+    const TIER_AFTER_SEND = 1300;
 
     /**
      * @var ExceptionResolver
@@ -102,8 +109,24 @@ class TierHTTPApp extends TierApp
      */
     public function addInitialExecutable($callable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_INITIAL, $callable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_INITIAL, $callable);
     }
+
+    public function addBeforeRoutingExecutable($executable)
+    {
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_ROUTING, $executable);
+    }
+    
+    public function addRoutingExecutable($executable)
+    {
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_ROUTING, $executable);
+    }
+    
+    public function addAfterRoutingExecutable($executable)
+    {
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_ROUTING, $executable);
+    }
+    
     
     /**
      * Add a tier to be called before the body is generated.
@@ -111,7 +134,7 @@ class TierHTTPApp extends TierApp
      */
     public function addBeforeGenerateBodyExecutable($callable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_BODY, $callable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_BODY, $callable);
     }
 
     /**
@@ -119,7 +142,7 @@ class TierHTTPApp extends TierApp
      */
     public function addGenerateBodyExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_BODY, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_GENERATE_BODY, $executable);
     }
 
     /**
@@ -128,7 +151,7 @@ class TierHTTPApp extends TierApp
      */
     public function addAfterGenerateBodyExecutable($callable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_BODY, $callable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_BODY, $callable);
     }
 
     /**
@@ -136,7 +159,7 @@ class TierHTTPApp extends TierApp
      */
     public function addBeforeGenerateResponseExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_RESPONSE, $executable);
     }
 
     /**
@@ -144,7 +167,7 @@ class TierHTTPApp extends TierApp
      */
     public function addGenerateResponseExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_GENERATE_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_GENERATE_RESPONSE, $executable);
     }
 
     /**
@@ -152,7 +175,7 @@ class TierHTTPApp extends TierApp
      */
     public function addAfterGenerateResponseExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_RESPONSE, $executable);
     }
 
     /**
@@ -160,7 +183,7 @@ class TierHTTPApp extends TierApp
      */
     public function addBeforeSendExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_BEFORE_SEND, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_SEND, $executable);
     }
 
     /**
@@ -168,7 +191,7 @@ class TierHTTPApp extends TierApp
      */
     public function addSendExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_SEND, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_SEND, $executable);
     }
 
     /**
@@ -176,7 +199,7 @@ class TierHTTPApp extends TierApp
      */
     public function addAfterSendExecutable($executable)
     {
-        $this->executableListByTier->addExecutable(TierHTTPApp::TIER_AFTER_SEND, $executable);
+        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_SEND, $executable);
     }
     
     /**
