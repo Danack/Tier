@@ -6,8 +6,24 @@ use Tier\Executable;
 use Tier\ExecutableListByTier;
 use Tier\TierException;
 
-class ExecutablesTest extends BaseTestCase
+class ExecutableListByTierTest extends BaseTestCase
 {
+    
+    public function testExecutableOutOfRange()
+    {
+        $executableListByTier = new ExecutableListByTier();
+
+        $fn1 = function () {
+            $this->fail("This should never be reached.");
+        };
+
+        $this->setExpectedException('Tier\TierException', TierException::INCORRECT_VALUE);
+        $executableListByTier->addExecutableToTier(
+            ExecutableListByTier::TIER_NUMBER_LIMIT + 1,
+            $fn1
+        );
+    }
+    
 
     public function testExecutableAddedPreviousTier()
     {

@@ -12,6 +12,8 @@ namespace Tier;
 class ExecutableListByTier implements \Iterator
 {
     private $currentTier = -1;
+    
+    const TIER_NUMBER_LIMIT = 1000000;
 
     /**
      * @var ExecutableList[]
@@ -52,7 +54,7 @@ class ExecutableListByTier implements \Iterator
             }
         }
 
-        $this->currentTier = 100000000;
+        $this->currentTier = self::TIER_NUMBER_LIMIT;
     }
 
     /**
@@ -69,7 +71,7 @@ class ExecutableListByTier implements \Iterator
      */
     public function valid()
     {
-        return ($this->currentTier < 1000);
+        return ($this->currentTier < self::TIER_NUMBER_LIMIT);
     }
 
     /**
@@ -78,6 +80,14 @@ class ExecutableListByTier implements \Iterator
      */
     public function addExecutableToTier($tierOrder, $callableOrExecutable)
     {
+        if ($tierOrder >= self::TIER_NUMBER_LIMIT) {
+            $message = sprintf(
+                "Cannot add tier past ExecutableListByTier::TIER_NUMBER_LIMIT which is %d",
+                self::TIER_NUMBER_LIMIT
+            );
+            throw new TierException($message, TierException::INCORRECT_VALUE);
+        }
+
         if (is_a($callableOrExecutable, 'Tier\Executable') === true) {
             $executable = $callableOrExecutable;
         }
