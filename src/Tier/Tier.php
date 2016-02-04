@@ -12,7 +12,6 @@ use Room11\HTTP\Body;
 use Room11\HTTP\Body\HtmlBody;
 use Room11\HTTP\HeadersSet;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
 use Tier\Body\ExceptionHtmlBody;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\Response\EmitterInterface;
@@ -51,28 +50,29 @@ class Tier
         }
     }
 
-    public static function tierErrorHandler($errno, $errstr, $errfile, $errline)
+    public static function tierErrorHandler($errorNumber, $errorMessage, $errorFile, $errorLine)
     {
         if (error_reporting() === 0) {
             // Error reporting has be silenced
             return true;
         }
-        if ($errno === E_DEPRECATED) {
+        if ($errorNumber === E_DEPRECATED) {
             return true; //Don't care - deprecated warnings are generally not useful
         }
 
-        if ($errno === E_CORE_ERROR || $errno === E_ERROR) {
+        if ($errorNumber === E_CORE_ERROR || $errorNumber === E_ERROR) {
             // For these two types, PHP is shutting down anyway. Return false
             // to allow shutdown to continue
             return false;
         }
 
-        $message = "Error: [$errno] $errstr in file $errfile on line $errline<br />\n";
+        $message = "Error: [$errorNumber] $errorMessage in file $errorFile on line $errorLine<br />\n";
         throw new \Exception($message);
     }
 
     public static function tierShutdownFunction()
     {
+        self::clearOutputBuffer();
         $fatals = [
             E_ERROR,
             E_PARSE,
@@ -200,7 +200,6 @@ HTML;
     
     public static function tierExceptionHandler($ex)
     {
-        // if (is_a($ex, 'Exception') == false && is_a($ex, 'Throwable') == false) {}
         self::clearOutputBuffer();
         $body = new ExceptionHtmlBody(self::getExceptionString($ex), 500);
         self::sendRawBodyResponse($body);
@@ -212,10 +211,6 @@ HTML;
      */
     public static function getExceptionString($ex)
     {
-//        if (is_a($ex, 'Exception') == false && is_a($ex, 'Throwable') == false) {
-//            exit
-//        }
-
         $string = '';
 
         while ($ex !== null) {

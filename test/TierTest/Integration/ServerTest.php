@@ -9,6 +9,7 @@ use Room11\HTTP\Request\CLIRequest;
 use Tier\TierApp;
 use TierTest\BaseTestCase;
 use TierTest\BuiltinServer;
+use TierTest\Controller\BasicController;
 
 /**
  * @requires extension pcntl
@@ -87,7 +88,7 @@ class ServerTest extends BaseTestCase
         return [$statusCode, $contents];
     }
     
-    public static function serverTests()
+    public static function serverTestsContains()
     {
         return array(
             array('/', 'Hello world', 200),
@@ -97,14 +98,40 @@ class ServerTest extends BaseTestCase
         );
     }
 
+
     /**
-    * @dataProvider serverTests
+    * @dataProvider serverTestsContains
     */
-    public function testBuiltinServer($path, $expectedText, $expectedStatus)
+    public function testBuiltinServerContainsResponses($path, $expectedText, $expectedStatus)
     {
         list($status, $contents) = $this->getURL($path);
 
         $this->assertEquals($expectedStatus, $status);
         $this->assertContains($expectedText, $contents);
+    }
+    
+        
+    public static function serverTestsDoesNotContain()
+    {
+        return array(
+            array('/cleanupException', BasicController::$notShownText, 500),
+        );
+    }
+    
+    /**
+    * @dataProvider serverTestsDoesNotContain
+    */
+    public function testBuiltinServerExactResponse($path, $notExpectedText, $expectedStatus)
+    {
+        list($status, $contents) = $this->getURL($path);
+
+        $this->assertEquals($expectedStatus, $status);
+
+        $outputBufferedString = strpos($contents, $notExpectedText);
+        
+        $errorMessage = "Body contains string that should have been cleared by output buffer";
+        $errorMessage .= '['.substr($contents, 0, 300).']';
+        
+        $this->assertFalse($outputBufferedString, $errorMessage);
     }
 }

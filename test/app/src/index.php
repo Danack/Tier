@@ -4,6 +4,7 @@
 use Tier\Executable;
 use Tier\Tier;
 use Tier\TierHTTPApp;
+use Room11\HTTP\Request\CLIRequest;
 
 ini_set('display_errors', 'on');
 
@@ -21,7 +22,14 @@ require_once "appFunctions.php";
 require_once "routes.php";
 
 
-$request = Tier::createRequestFromGlobals();
+if (strcasecmp(PHP_SAPI, 'cli') === 0) {
+    $request = new CLIRequest('/cleanupException', 'example.com');
+}
+else {
+    $request = Tier::createRequestFromGlobals();
+}
+
+
 
 // Create the first Tier that needs to be run.
 $routingExecutable = new Executable(

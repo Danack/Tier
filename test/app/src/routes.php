@@ -12,8 +12,8 @@ function routesFunction(FastRoute\RouteCollector $r)
  
 
     $r->addRoute('GET', "/throwException", ['TierTest\Controller\BasicController', 'throwException']);
-
-    
     $r->addRoute('GET', "/unknownDependency", ['TierTest\Controller\BasicController', 'unknownDependency']);
     
+    $r->addRoute('GET', '/cleanupException', ['TierTest\Controller\BasicController', 'testOutputBufferingIsCleared']);
+
 }

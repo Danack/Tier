@@ -5,9 +5,14 @@ namespace TierTest\Controller;
 use Tier\JigBridge\TierJig;
 use Room11\HTTP\Body\TextBody;
 use Fixtures\UnknownInterface;
+use Tier\Tier;
+use Tier\TierApp;
 
 class BasicController
 {
+    public static $notShownText = 'Not shown text';
+    
+    
     public function helloWorld()
     {
         return new TextBody("Hello world");
@@ -31,5 +36,14 @@ class BasicController
     public function introduction(TierJig $tierJig)
     {
         return $tierJig->createJigExecutable('pages/index');
+    }
+    
+    
+    public function testOutputBufferingIsCleared()
+    {
+        ob_start();
+        echo \TierTest\Controller\BasicController::$notShownText;
+
+        throw new \Exception("Throwing exception");
     }
 }

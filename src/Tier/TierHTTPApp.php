@@ -229,6 +229,7 @@ class TierHTTPApp extends TierApp
      */
     private function processException($exception)
     {
+        Tier::clearOutputBuffer();
         //TODO - we are now failing. Replace error handler with instant
         //shutdown handler.
         $fallBackHandler = ['Tier\Tier', 'processException'];
@@ -245,12 +246,14 @@ class TierHTTPApp extends TierApp
             call_user_func($handler, $exception);
         }
         catch (\Exception $e) {
+            Tier::clearOutputBuffer();
             // The exception handler function also threw? Just exit.
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);
         }
         catch (\Throwable $e) {
+            Tier::clearOutputBuffer();
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);
