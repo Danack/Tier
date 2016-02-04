@@ -18,6 +18,8 @@ use Zend\Diactoros\Response\EmitterInterface;
 
 class Tier
 {
+    public static $initialOBLevel = 0;
+
     /**
      * @return \Psr\Http\Message\RequestInterface
      */
@@ -192,7 +194,7 @@ HTML;
         //Need to ob_end_clean as many times as required because
         //otherwise partial content gets sent to the client.
         $obClearCount = 0;
-        while (ob_get_level() > 0) {
+        while (ob_get_level() > self::$initialOBLevel) {
             ob_end_clean();
             $obClearCount++;
         }

@@ -208,6 +208,8 @@ class TierHTTPApp extends TierApp
     public function execute(Request $request)
     {
         try {
+            Tier::$initialOBLevel = ob_get_level();
+
             $this->injector->alias(
                 'Psr\Http\Message\ServerRequestInterface',
                 get_class($request)
