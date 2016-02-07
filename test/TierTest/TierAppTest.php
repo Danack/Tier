@@ -415,4 +415,29 @@ class TierAppTest extends BaseTestCase
         $this->setExpectedException('Tier\TierException');
         $tierApp->addExpectedProduct('StdClass');
     }
+    
+    
+    public function testReturnInjectionParams()
+    {
+        $injectionParams = new InjectionParams();
+        $tierApp = new TierApp($injectionParams);
+        
+        
+        $addInjectionParamsFn = function() {
+            $injectionParams = new InjectionParams();
+            $injectionParams->alias('Fixtures\FooInterface', 'Fixtures\FooImplementation');
+
+            return $injectionParams;
+        };
+        
+        // When tier tries to instantiate this, it will fail if the alias
+        // hasn't been added.
+        $requiresInterfaceFn = function (\Fixtures\FooInterface $foo) {
+            return TierApp::PROCESS_END;
+        };
+
+        $tierApp->addExecutable(10, $addInjectionParamsFn);
+        $tierApp->addExecutable(20, $requiresInterfaceFn);
+        $tierApp->executeInternal();
+    }
 }

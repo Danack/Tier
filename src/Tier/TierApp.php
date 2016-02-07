@@ -3,6 +3,7 @@
 namespace Tier;
 
 use Auryn\Injector;
+use Tier\InjectionParams;
 
 /**
  * Class TierApp
@@ -151,7 +152,7 @@ class TierApp
 
 
     /**
-     * @param $result The result produced by running the previous executable.
+     * @param $result mixed The result produced by running the previous executable.
      * @param Executable $executable The executable that was just run to produce
      * the result.
      * @return int
@@ -160,7 +161,13 @@ class TierApp
      */
     private function processResult($result, Executable $executable)
     {
-         // If it's a new Tier to run, setup the next loop.
+        // If it's a new Tier to run, setup the next loop.
+        if ($result instanceof InjectionParams) {
+            $result->addToInjector($this->injector);
+            return self::PROCESS_CONTINUE;
+        }
+
+        // If it's a new Tier to run, setup the next loop.
         if ($result instanceof Executable) {
             $this->executableListByTier->addExecutable($result);
             return self::PROCESS_CONTINUE;
