@@ -49,14 +49,14 @@ class TierApp
     /**
      * The expected products are the names of objects that the application is expected to
      * produce. They will automatically be shared to be made available for processing by
-     * later Tiers. For example in a webserver application, a response body would be an
+     * later Tiers. For example in a web-server application, a response body would be an
      * appropriate expected result.
      * @var array[string]
      */
     protected $expectedProducts = [];
 
     /**
-     * Whether to throw an exception if processsing ends without the PROCESS_END constant
+     * Whether to throw an exception if processing ends without the PROCESS_END constant
      * being returned. This would only be appropriate to use for a small number of applications.
      * @var bool
      */
@@ -87,7 +87,7 @@ class TierApp
     /**
      * @throws TierException
      */
-    public function executeInternal()
+    protected function executeInternal()
     {
         // Create and share these as they need to be the same
         // across the application

@@ -14,7 +14,7 @@ use Tier\Context\ExceptionContext;
  * instance methods (e.g. 'Foo::bar') but these do not pass the callable param test.
  * @package Tier
  */
-class TierHTTPApp extends TierApp
+class TierCLIApp extends TierApp
 {
     
     // The numerical order of tiers. These values should be separated by
@@ -60,44 +60,42 @@ class TierHTTPApp extends TierApp
         $this->exceptionResolver = $exceptionResolver;
     }
 
+
+    
     /**
      * Create an ExceptionResolver and attach a set of useful exception handlers
      * for HTTP apps.
      * @return ExceptionResolver
      * @throws TierException
      */
-    public function createStandardExceptionResolver()
+    public static function createStandardExceptionResolver()
     {
         $exceptionResolver = new ExceptionResolver();
         // Create the exception handlers. More generic exceptions
         // are placed later in the order, so as to allow the more
         // specific exception handlers to handle exceptions.
-        $exceptionResolver->addExceptionHandler(
-            'Jig\JigException',
-            ['Tier\Tier', 'processJigException'],
-            ExceptionResolver::ORDER_MIDDLE
-        );
-        $exceptionResolver->addExceptionHandler(
-            'Auryn\InjectionException',
-            ['Tier\Tier', 'processInjectionException'],
-            ExceptionResolver::ORDER_MIDDLE
-        );
-        $exceptionResolver->addExceptionHandler(
-            'Auryn\InjectorException',
-            ['Tier\Tier', 'processInjectorException'],
-            ExceptionResolver::ORDER_LAST - 2
-        );
 
-        // This will only be triggered on PHP 7
+
         $exceptionResolver->addExceptionHandler(
-            'Throwable',
-            ['Tier\Tier', 'processThrowable'],
+            'Tier\InvalidReturnException',
+            ['Tier\CLIFunction', 'handleInvalidReturnException'],
             ExceptionResolver::ORDER_LAST
         );
+        
+        
+
+        
+        // This will only be triggered on PHP 7
+        $exceptionResolver->addExceptionHandler(
+            'Exception',
+            ['Tier\CLIFunction', 'handleException'],
+            ExceptionResolver::ORDER_LAST
+        );
+
         // This will only be triggered on PHP 5.6
         $exceptionResolver->addExceptionHandler(
             'Exception',
-            ['Tier\Tier', 'processException'],
+            ['Tier\CLIFunction', 'handleException'],
             ExceptionResolver::ORDER_LAST
         );
 
@@ -202,19 +200,12 @@ class TierHTTPApp extends TierApp
         $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_SEND, $executable);
     }
     
-    /**
-     * @param Request $request
-     */
-    public function execute(Request $request)
+
+    public function execute()
     {
         try {
             Tier::$initialOBLevel = ob_get_level();
-
-            $this->injector->alias(
-                'Psr\Http\Message\ServerRequestInterface',
-                get_class($request)
-            );
-            $this->injector->share($request);
+//            $this->injector->share($request);
             $this->executeInternal();
         }
         catch (\Throwable $t) {

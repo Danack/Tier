@@ -346,6 +346,25 @@ HTML;
      * @return int
      * @return int
      */
+    public static function processExceptionCLI(\Exception $e)
+    {
+        $exceptionString = Tier::getExceptionString($e);
+        echo $exceptionString;
+        exit(-1);
+        
+//        $body = new ExceptionHtmlBody($exceptionString, 500);
+//        self::sendRawBodyResponse($body);
+
+        return \Tier\TierApp::PROCESS_END;
+    }
+
+    
+    
+    /**
+     * @param \Exception $e
+     * @return int
+     * @return int
+     */
     public static function processThrowable(\Throwable $e)
     {
         $exceptionString = Tier::getExceptionString($e);
