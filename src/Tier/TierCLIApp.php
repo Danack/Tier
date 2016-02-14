@@ -6,17 +6,14 @@ namespace Tier;
 use Auryn\Injector;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tier\Context\ExceptionContext;
+use Tier\OutputBufferCleaner;
 
 /**
- * Class TierHTTPApp
+ * Class TierCLIApp
  *
- * None of the 'callable' parameters can have a 'callable' type as Tier also supports
- * instance methods (e.g. 'Foo::bar') but these do not pass the callable param test.
- * @package Tier
  */
 class TierCLIApp extends TierApp
 {
-    
     // The numerical order of tiers. These values should be separated by
     // at least self::$internalExecutions
     const TIER_INITIAL = 100;
@@ -25,22 +22,21 @@ class TierCLIApp extends TierApp
     const TIER_ROUTING = 300;
     const TIER_AFTER_ROUTING = 400;
 
-    const TIER_BEFORE_BODY = 500;
-    const TIER_GENERATE_BODY = 600;
-    const TIER_AFTER_BODY = 700;
+    const TIER_BEFORE_OUTPUT = 500;
+    const TIER_GENERATE_OUTPUT = 600;
+    const TIER_AFTER_OUTPUT = 700;
 
-    const TIER_BEFORE_RESPONSE = 800;
-    const TIER_GENERATE_RESPONSE = 900;
-    const TIER_AFTER_RESPONSE = 1000;
-
-    const TIER_BEFORE_SEND = 1100;
-    const TIER_SEND = 1200;
-    const TIER_AFTER_SEND = 1300;
+    const TIER_BEFORE_CLEANUP = 800;
+    const TIER_CLEANUP = 900;
+    const TIER_AFTER_CLEANUP = 1000;
 
     /**
      * @var ExceptionResolver
      */
     protected $exceptionResolver;
+    
+    /** @var OutputBufferCleaner(); */
+    private $outputBufferCleaner;
 
     /**
      * @param InjectionParams $injectionParams
@@ -60,8 +56,6 @@ class TierCLIApp extends TierApp
         $this->exceptionResolver = $exceptionResolver;
     }
 
-
-    
     /**
      * Create an ExceptionResolver and attach a set of useful exception handlers
      * for HTTP apps.
@@ -74,17 +68,12 @@ class TierCLIApp extends TierApp
         // Create the exception handlers. More generic exceptions
         // are placed later in the order, so as to allow the more
         // specific exception handlers to handle exceptions.
-
-
         $exceptionResolver->addExceptionHandler(
             'Tier\InvalidReturnException',
             ['Tier\CLIFunction', 'handleInvalidReturnException'],
             ExceptionResolver::ORDER_LAST
         );
-        
-        
 
-        
         // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
             'Exception',
@@ -107,106 +96,78 @@ class TierCLIApp extends TierApp
      */
     public function addInitialExecutable($callable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_INITIAL, $callable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_INITIAL, $callable);
     }
 
     public function addBeforeRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_ROUTING, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_ROUTING, $executable);
     }
     
     public function addRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_ROUTING, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_ROUTING, $executable);
     }
     
     public function addAfterRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_ROUTING, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_ROUTING, $executable);
     }
     
-    
-    /**
-     * Add a tier to be called before the body is generated.
-     * @param $callable
-     */
-    public function addBeforeGenerateBodyExecutable($callable)
-    {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_BODY, $callable);
-    }
 
     /**
-     * @param Executable $executable
+     * @param $executable
      */
-    public function addGenerateBodyExecutable($executable)
+    public function addBeforeGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_GENERATE_BODY, $executable);
-    }
-
-    /**
-     * Add a tier to be called before the body is generated.
-     * @param $callable
-     */
-    public function addAfterGenerateBodyExecutable($callable)
-    {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_BODY, $callable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_OUTPUT, $executable);
     }
 
     /**
      * @param $executable
      */
-    public function addBeforeGenerateResponseExecutable($executable)
+    public function addGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_GENERATE_OUTPUT, $executable);
     }
 
     /**
      * @param $executable
      */
-    public function addGenerateResponseExecutable($executable)
+    public function addAfterGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_GENERATE_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_OUTPUT, $executable);
     }
 
     /**
      * @param $executable
      */
-    public function addAfterGenerateResponseExecutable($executable)
+    public function addBeforeCleanupExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_RESPONSE, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_CLEANUP, $executable);
+    }
+    /**
+     * @param $executable
+     */
+    public function addCleanupExecutable($executable)
+    {
+        $this->executableListByTier->addExecutableToTier(self::TIER_CLEANUP, $executable);
     }
 
     /**
      * @param $executable
      */
-    public function addBeforeSendExecutable($executable)
+    public function addAfterCleanupExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_BEFORE_SEND, $executable);
+        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_CLEANUP, $executable);
     }
-
-    /**
-     * @param $executable
-     */
-    public function addSendExecutable($executable)
-    {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_SEND, $executable);
-    }
-
-    /**
-     * @param $executable
-     */
-    public function addAfterSendExecutable($executable)
-    {
-        $this->executableListByTier->addExecutableToTier(TierHTTPApp::TIER_AFTER_SEND, $executable);
-    }
-    
 
     public function execute()
     {
         try {
-            Tier::$initialOBLevel = ob_get_level();
-//            $this->injector->share($request);
+            $this->outputBufferCleaner = new OutputBufferCleaner();
             $this->executeInternal();
+            $this->outputBufferCleaner->checkOutputBufferCleared();
         }
         catch (\Throwable $t) {
             $this->processException($t);
@@ -222,7 +183,7 @@ class TierCLIApp extends TierApp
      */
     private function processException($exception)
     {
-        Tier::clearOutputBuffer();
+        $this->outputBufferCleaner->clearOutputBuffer();
         //TODO - we are now failing. Replace error handler with instant
         //shutdown handler.
         $fallBackHandler = ['Tier\Tier', 'processException'];
@@ -239,14 +200,14 @@ class TierCLIApp extends TierApp
             call_user_func($handler, $exception);
         }
         catch (\Exception $e) {
-            Tier::clearOutputBuffer();
+            $this->outputBufferCleaner->clearOutputBuffer();
             // The exception handler function also threw? Just exit.
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);
         }
         catch (\Throwable $e) {
-            Tier::clearOutputBuffer();
+            $this->outputBufferCleaner->clearOutputBuffer();
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);

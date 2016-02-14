@@ -4,9 +4,6 @@
 namespace TierTest\Integration;
 
 use Tier\InjectionParams;
-use Tier\TierHTTPApp;
-use Room11\HTTP\Request\CLIRequest;
-use Tier\TierApp;
 use TierTest\BaseTestCase;
 use TierTest\BuiltinServer;
 use TierTest\Controller\BasicController;
@@ -126,9 +123,7 @@ class ServerTest extends BaseTestCase
         list($status, $contents) = $this->getURL($path);
 
         $this->assertEquals($expectedStatus, $status);
-
         $outputBufferedString = strpos($contents, $notExpectedText);
-        
         $errorMessage = "Body contains string that should have been cleared by output buffer";
         $errorMessage .= '['.substr($contents, 0, 300).']';
         

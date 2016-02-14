@@ -87,7 +87,7 @@ class TierApp
     /**
      * @throws TierException
      */
-    protected function executeInternal()
+    public function executeInternal()
     {
         // Create and share these as they need to be the same
         // across the application

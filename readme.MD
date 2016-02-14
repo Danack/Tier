@@ -23,3 +23,8 @@ cd TierJigSkeleton/
 composer install
 php -S localhost:8000 -t public
 ```
+
+# Running built in test
+
+
+php -S localhost:8000 -t ./test/app/public

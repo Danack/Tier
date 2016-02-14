@@ -2,6 +2,7 @@
 
 namespace TierTest;
 
+use Tier\HTTPFunction;
 use Tier\Tier;
 use Room11\HTTP\Body\TextBody;
 use Room11\HTTP\Request\CLIRequest;
@@ -23,7 +24,7 @@ class TierTest extends BaseTestCase
         $emitter = new TextEmitter();
 
         ob_start();
-        Tier::sendBodyResponse($body, $request, $headersSet, $emitter);
+        HTTPFunction::sendBodyResponse($body, $request, $headersSet, $emitter);
         $contents = ob_get_contents();
         ob_end_clean();
         

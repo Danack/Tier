@@ -6,17 +6,16 @@ namespace Tier;
 use Auryn\Injector;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Tier\Context\ExceptionContext;
+use Tier\OutputBufferCleaner;
 
 /**
  * Class TierHTTPApp
  *
- * None of the 'callable' parameters can have a 'callable' type as Tier also supports
- * instance methods (e.g. 'Foo::bar') but these do not pass the callable param test.
- * @package Tier
+ * An implementation of a TierApp that is targeted at processing PSR7
+ * ServerRequestInterface requests.
  */
 class TierHTTPApp extends TierApp
 {
-    
     // The numerical order of tiers. These values should be separated by
     // at least self::$internalExecutions
     const TIER_INITIAL = 100;
@@ -37,9 +36,10 @@ class TierHTTPApp extends TierApp
     const TIER_SEND = 1200;
     const TIER_AFTER_SEND = 1300;
 
-    /**
-     * @var ExceptionResolver
-     */
+    /** @var OutputBufferCleaner(); */
+    private $outputBufferCleaner;
+    
+    /** @var ExceptionResolver */
     protected $exceptionResolver;
 
     /**
@@ -74,30 +74,30 @@ class TierHTTPApp extends TierApp
         // specific exception handlers to handle exceptions.
         $exceptionResolver->addExceptionHandler(
             'Jig\JigException',
-            ['Tier\Tier', 'processJigException'],
+            ['Tier\HTTPFunction', 'processJigException'],
             ExceptionResolver::ORDER_MIDDLE
         );
         $exceptionResolver->addExceptionHandler(
             'Auryn\InjectionException',
-            ['Tier\Tier', 'processInjectionException'],
+            ['Tier\HTTPFunction', 'processInjectionException'],
             ExceptionResolver::ORDER_MIDDLE
         );
         $exceptionResolver->addExceptionHandler(
             'Auryn\InjectorException',
-            ['Tier\Tier', 'processInjectorException'],
+            ['Tier\HTTPFunction', 'processInjectorException'],
             ExceptionResolver::ORDER_LAST - 2
         );
 
         // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
             'Throwable',
-            ['Tier\Tier', 'processThrowable'],
+            ['Tier\HTTPFunction', 'processThrowable'],
             ExceptionResolver::ORDER_LAST
         );
         // This will only be triggered on PHP 5.6
         $exceptionResolver->addExceptionHandler(
             'Exception',
-            ['Tier\Tier', 'processException'],
+            ['Tier\HTTPFunction', 'processException'],
             ExceptionResolver::ORDER_LAST
         );
 
@@ -207,15 +207,16 @@ class TierHTTPApp extends TierApp
      */
     public function execute(Request $request)
     {
-        try {
-            Tier::$initialOBLevel = ob_get_level();
+        $this->outputBufferCleaner = new OutputBufferCleaner();
 
+        try {
             $this->injector->alias(
                 'Psr\Http\Message\ServerRequestInterface',
                 get_class($request)
             );
             $this->injector->share($request);
             $this->executeInternal();
+            $this->outputBufferCleaner->checkOutputBufferCleared();
         }
         catch (\Throwable $t) {
             $this->processException($t);
@@ -231,12 +232,13 @@ class TierHTTPApp extends TierApp
      */
     private function processException($exception)
     {
-        Tier::clearOutputBuffer();
+        $this->outputBufferCleaner->clearOutputBuffer();
         //TODO - we are now failing. Replace error handler with instant
         //shutdown handler.
-        $fallBackHandler = ['Tier\Tier', 'processException'];
+
+        $fallBackHandler = ['Tier\CLIFunction', 'handleException'];
         if (class_exists('Throwable') === true) {
-            $fallBackHandler = ['Tier\Tier', 'processThrowable'];
+            $fallBackHandler = ['Tier\Tier', 'handleThrowable'];
         }
 
         $handler = $this->exceptionResolver->getExceptionHandler(
@@ -248,14 +250,14 @@ class TierHTTPApp extends TierApp
             call_user_func($handler, $exception);
         }
         catch (\Exception $e) {
-            Tier::clearOutputBuffer();
+            $this->outputBufferCleaner->clearOutputBuffer();
             // The exception handler function also threw? Just exit.
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);
         }
         catch (\Throwable $e) {
-            Tier::clearOutputBuffer();
+            $this->outputBufferCleaner->clearOutputBuffer();
             //Fatal error shutdown
             echo $e->getMessage();
             exit(-1);
