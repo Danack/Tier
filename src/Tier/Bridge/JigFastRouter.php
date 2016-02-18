@@ -1,15 +1,26 @@
 <?php
 
-namespace Tier\JigBridge;
+namespace Tier\Bridge;
 
 use FastRoute\Dispatcher;
 use Jig\JigConfig;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Room11\HTTP\Body\TextBody;
+use Tier\Bridge\RouteParams;
 use Tier\Executable;
 use Tier\InjectionParams;
-use Room11\HTTP\Body\TextBody;
 
-class JigRouter
+/**
+ * Matches a request to a route and returns an Executable from the route's callable.
+ *
+ * If no route is found, tries to match the path  of the request to a template. If a
+ * template is found, an executable that renders that template is returned.
+ *
+ * If no route is matched and no template matches a 404 response body is generated.
+ * If a route is matched but with a non-allowed HTTP method a 405 response body is
+ * returned.
+ */
+class JigFastRouter
 {
     /** @var \Jig\JigConfig  */
     private $jigConfig;
@@ -23,7 +34,6 @@ class JigRouter
         $this->dispatcher = $dispatcher;
         $this->tierJig = $tierJig;
     }
-
 
     /**
      * Check if a template with the given name exists in the 'pages' sub-directory of the templates
@@ -41,12 +51,13 @@ class JigRouter
         $templateNormalisedName = 'pages'.$templateName;
         $templatePathname = $this->jigConfig->getTemplatePath($templateNormalisedName);
      
+        // Does the path match the file name of a template?
         if (file_exists($templatePathname) === true) {
             return $templateNormalisedName;
         }
 
+        // Does the path with '/index' added match the file name of a template?
         $indexName = $templateNormalisedName."/index";
-
         $templatePathname = $this->jigConfig->getTemplatePath($indexName);
         if (file_exists($templatePathname) === true) {
             return $indexName;
@@ -68,8 +79,11 @@ class JigRouter
         if ($dispatcherResult === \FastRoute\Dispatcher::FOUND) {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
+            // Share the params once as parameters so they can
+            // be injected by name
             $injectionParams = InjectionParams::fromParams($vars);
-            $injectionParams->share(new \Tier\JigBridge\RouteInfo($vars));
+            // and then share them as a type
+            $injectionParams->share(new \Tier\Bridge\RouteParams($vars));
     
             return new Executable($handler, $injectionParams, null);
         }
@@ -86,12 +100,12 @@ class JigRouter
         return new Executable([$this, 'serve404ErrorPage']);
     }
 
-    public static function serve404ErrorPage()
+    public function serve404ErrorPage()
     {
         return new TextBody('Route not found.', 404);
     }
     
-    public static function serve405ErrorPage()
+    public function serve405ErrorPage()
     {
         return new TextBody('Method not allowed for route.', 405);
     }

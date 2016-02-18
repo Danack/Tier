@@ -3,7 +3,7 @@
 
 use Tier\Executable;
 use Tier\HTTPFunction;
-use Tier\Tier;
+use Tier\TierFunction;
 use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
 
@@ -31,7 +31,7 @@ else {
 
 // Create the first Tier that needs to be run.
 $routingExecutable = new Executable(
-    ['Tier\JigBridge\Router', 'routeRequest'],
+    ['Tier\Bridge\FastRouter', 'routeRequest'],
     null,
     null,
     'Room11\HTTP\Body' //skip if this has already been produced

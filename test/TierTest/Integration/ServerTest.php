@@ -92,6 +92,7 @@ class ServerTest extends BaseTestCase
             array('/throwException', 'Exception: \'Testing exception handler\'', 500),
             array('/unknownDependency', 'Injection definition required for interface Fixtures\UnknownInterface', 500),
             array('/instantiateUnknownClass', 'Class \'TierTest\Controller\ThisClassDoesNotExist\' not found', 500),
+            array('/renderTemplateExecutable', 'This is the renderTemplateExecutable template.', 200),
         );
     }
 

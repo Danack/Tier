@@ -22,7 +22,7 @@ function routesFunction(\FastRoute\RouteCollector $r)
     $r->addRoute('GET', '/introduction', ['TierTest\Controller\BasicController', 'introduction']);
 }
 
-class JigRouterTest extends BaseTestCase
+class JigFastRouterTest extends BaseTestCase
 {
     /** @var  \Auryn\Injector */
     private $injector;
@@ -30,32 +30,20 @@ class JigRouterTest extends BaseTestCase
     public function setup()
     {
         parent::setup();
-        // Create a JigConfig object
-        $jigConfig = new JigConfig(
-            __DIR__."/../../fixtures/templates/", //directory the source templates are in
-            __DIR__."/../../var/generatedTemplates/", //directory the generated PHP code will be written to.
-            Jig::COMPILE_CHECK_MTIME // How to check if the templates need compiling.
-        );
-
-        $this->injector = new Injector();
-        $this->injector->alias('Jig\Escaper', 'Jig\Bridge\ZendEscaperBridge');
-        $this->injector->delegate('FastRoute\Dispatcher', 'TierTest\JigBridge\createDispatcher');
-        $this->injector->share('FastRoute\Dispatcher');
-        $this->injector->share($jigConfig);
+        $this->injector = createInjector();
     }
-
 
     public function testRoutingToIndex()
     {
         $request = new CLIRequest("/index", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $result = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
         $this->assertInstanceOf('Tier\Executable', $result);
         
         /** @var $result \Tier\Executable */
         $this->assertEquals(
-            ['Tier\JigBridge\TierJig', 'createHtmlBody'],
+            ['Tier\Bridge\TierJig', 'createHtmlBody'],
             $result->getCallable()
         );
 
@@ -75,12 +63,12 @@ class JigRouterTest extends BaseTestCase
         $request = new CLIRequest("/", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $result = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
         $this->assertInstanceOf('Tier\Executable', $result);
         
         /** @var $result \Tier\Executable */
         $this->assertEquals(
-            ['Tier\JigBridge\TierJig', 'createHtmlBody'],
+            ['Tier\Bridge\TierJig', 'createHtmlBody'],
             $result->getCallable()
         );
 
@@ -101,12 +89,12 @@ class JigRouterTest extends BaseTestCase
         $request = new CLIRequest("/subDirectory?withSomeParam=foo", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $result = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
         $this->assertInstanceOf('Tier\Executable', $result);
         
         /** @var $result \Tier\Executable */
         $this->assertEquals(
-            ['Tier\JigBridge\TierJig', 'createHtmlBody'],
+            ['Tier\Bridge\TierJig', 'createHtmlBody'],
             $result->getCallable()
         );
 
@@ -123,7 +111,7 @@ class JigRouterTest extends BaseTestCase
         $request = new CLIRequest("/introduction", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $result = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
         $this->assertInstanceOf('Tier\Executable', $result);
         /** @var $result \Tier\Executable */
         $this->assertEquals(
@@ -138,7 +126,7 @@ class JigRouterTest extends BaseTestCase
         $request = new CLIRequest("/thisdoesnotexist", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $result = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
 
         
         $body = TierApp::executeExecutable($result, $this->injector);
@@ -158,7 +146,7 @@ class JigRouterTest extends BaseTestCase
         $request = new CLIRequest("/introduction", 'example.com', 'POST');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $renderCallable = $this->injector->execute('Tier\JigBridge\JigRouter::routeRequest');
+        $renderCallable = $this->injector->execute('Tier\Bridge\JigFastRouter::routeRequest');
         $body = TierApp::executeExecutable($renderCallable, $this->injector);
         $this->assertInstanceOf('Room11\HTTP\Body\TextBody', $body);
         /** @var $body \Room11\HTTP\Body\HtmlBody */

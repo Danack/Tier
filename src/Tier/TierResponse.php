@@ -12,7 +12,8 @@ use Zend\Diactoros\Stream;
 
 /**
  * Class TierResponse
- * @package Tier
+ *
+ * An implementation of
  *
  * The mutation methods are not implemented as the response is only created
  * momentarily before sending, and there are no 'hooks' to modify the response.

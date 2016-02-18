@@ -2,6 +2,12 @@
 
 namespace Tier;
 
+/**
+ * Class OutputBufferCleaner
+ * Helper class to track output buffer level and clean up to the initial level.
+ * This is used to prevent PHP from displaying the contents of the output buffer
+ * on any program error.
+ */
 class OutputBufferCleaner
 {
     private $initialOBLevel;

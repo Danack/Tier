@@ -45,6 +45,8 @@ class InjectionParams
             $instance->aliases[$interface] = get_class($object);
             $instance->shares[] = $object;
         }
+
+        return $instance;
     }
     
     public function alias($original, $alias)

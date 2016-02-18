@@ -5,6 +5,11 @@ namespace Tier\Body;
 use Room11\Caching\LastModifiedStrategy;
 use Room11\HTTP\Body\FileBody;
 
+/**
+ * Class CachingFileBodyFactory
+ * Factory class that can generate FileBody's with caching headers set
+ * based on a last modified strategy.
+ */
 class CachingFileBodyFactory
 {
     private $caching;

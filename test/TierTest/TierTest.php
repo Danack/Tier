@@ -3,7 +3,7 @@
 namespace TierTest;
 
 use Tier\HTTPFunction;
-use Tier\Tier;
+use Tier\TierFunction;
 use Room11\HTTP\Body\TextBody;
 use Room11\HTTP\Request\CLIRequest;
 use Room11\HTTP\HeadersSet;
@@ -34,7 +34,7 @@ class TierTest extends BaseTestCase
     public function testExceptionToString()
     {
         $exception = new \Exception("This is a testException");
-        $string = Tier::getExceptionString($exception);
+        $string = TierFunction::getExceptionString($exception);
         //TODO - some assertions.
 
         if (class_exists('\EngineException', false) === true) {
@@ -42,7 +42,7 @@ class TierTest extends BaseTestCase
                 $foo = new \NonExistentClass();
             }
             catch (\Throwable $t) {
-                $string = Tier::getExceptionString($exception);
+                $string = TierFunction::getExceptionString($exception);
             }
         }
     }

@@ -26,5 +26,8 @@ php -S localhost:8000 -t public
 
 # Running built in test
 
+Some of the tests depend on PHP's built-in server. This is run automatically as part of the test suite if PCNTL is availble. For debugging purposes, you may wish to run this server manually which can be done with:
 
+```
 php -S localhost:8000 -t ./test/app/public
+```

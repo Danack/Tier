@@ -2,6 +2,10 @@
 
 namespace Tier;
 
+/**
+ * Class CLIFunction
+ * Set of utility functions for CLI applications.
+ */
 class CLIFunction
 {
     public static function setupErrorHandlers()
@@ -120,9 +124,7 @@ class CLIFunction
             $ire->getMessage()
         );
         echo $message;
-        //echo \Tier\Tier::getExceptionString($e);
         exit(-2);
-    
     }
     
     public static function handleThrowable(\Throwable $t)
@@ -133,7 +135,7 @@ class CLIFunction
             $e->getMessage()
         );
         echo $message;
-        echo \Tier\Tier::getExceptionString($e);
+        echo \Tier\TierFunction::getExceptionString($e);
         exit(-2);
     }
     
@@ -145,7 +147,7 @@ class CLIFunction
             $e->getMessage()
         );
         echo $message;
-        echo \Tier\Tier::getExceptionString($e);
+        echo \Tier\TierFunction::getExceptionString($e);
         exit(-2);
     }
 }

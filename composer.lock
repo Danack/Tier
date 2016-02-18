@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "091a937c12ea0714cedd7a4bdf2f2b39",
+    "hash": "f06785e5c7a44d07fe19046e37b7100e",
     "packages": [
         {
             "name": "psr/http-message",
@@ -170,16 +170,16 @@
     "packages-dev": [
         {
             "name": "danack/jig",
-            "version": "0.20.6",
+            "version": "0.21.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/Jig.git",
-                "reference": "4da41664c78e9e451b6a5ef4d9f8e1409f8b81ca"
+                "reference": "b11106bc7d634add9873bf246eda1dadb059ed7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/Jig/zipball/4da41664c78e9e451b6a5ef4d9f8e1409f8b81ca",
-                "reference": "4da41664c78e9e451b6a5ef4d9f8e1409f8b81ca",
+                "url": "https://api.github.com/repos/Danack/Jig/zipball/b11106bc7d634add9873bf246eda1dadb059ed7a",
+                "reference": "b11106bc7d634add9873bf246eda1dadb059ed7a",
                 "shasum": ""
             },
             "require": {
@@ -217,7 +217,7 @@
                 "template",
                 "view"
             ],
-            "time": "2016-01-20 22:06:28"
+            "time": "2016-02-07 13:16:27"
         },
         {
             "name": "mockery/mockery",
@@ -782,16 +782,16 @@
         },
         {
             "name": "room11/http",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/HTTP.git",
-                "reference": "073cac67a33d0cb855e99b31917310bee83bc2fb"
+                "reference": "573a87d2280cb85a1a918af9e695d38034298252"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/HTTP/zipball/073cac67a33d0cb855e99b31917310bee83bc2fb",
-                "reference": "073cac67a33d0cb855e99b31917310bee83bc2fb",
+                "url": "https://api.github.com/repos/Danack/HTTP/zipball/573a87d2280cb85a1a918af9e695d38034298252",
+                "reference": "573a87d2280cb85a1a918af9e695d38034298252",
                 "shasum": ""
             },
             "require-dev": {
@@ -823,7 +823,7 @@
                 "interface",
                 "room11"
             ],
-            "time": "2016-01-21 13:47:23"
+            "time": "2016-02-08 23:25:35"
         },
         {
             "name": "squizlabs/php_codesniffer",

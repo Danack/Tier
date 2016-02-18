@@ -5,8 +5,6 @@ namespace Tier;
 
 use Auryn\Injector;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Tier\Context\ExceptionContext;
-use Tier\OutputBufferCleaner;
 
 /**
  * Class TierHTTPApp

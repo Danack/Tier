@@ -23,7 +23,7 @@
         }
     },
     "require-dev": {
-        "danack/jig": "^0.20.4",
+        "danack/jig": "^0.21.2",
         "mockery/mockery": "0.9.1",
         "nikic/fast-route": "0.3.0",
         "phpunit/phpunit": "3.7.*",

@@ -7,6 +7,8 @@ $shares = [
     'Jig\Jig',
     'Jig\JigConverter',
     'App\Config',
+    new \Jig\JigTemplatePath(__DIR__."/../../fixtures/templates/"),
+    new \Jig\JigCompilePath(__DIR__."/../../var/generatedTemplates/"),
 ];
     
 
@@ -22,7 +24,7 @@ $aliases = [
 
 // Delegate the creation of types to callables.
 $delegates = [
-    //'Jig\JigConfig' => 'createJigConfig',
+    'Jig\JigConfig' => 'createJigConfig',
     //'Room11\Caching\LastModifiedStrategy' => 'createCaching',
     'FastRoute\Dispatcher' => 'createDispatcher',
 ];

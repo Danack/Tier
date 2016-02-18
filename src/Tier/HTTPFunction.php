@@ -4,7 +4,6 @@ namespace Tier;
 
 use Auryn\InjectorException;
 use Auryn\InjectionException;
-use Jig\JigBase;
 use Jig\JigException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Room11\HTTP\Body;
@@ -14,6 +13,10 @@ use Tier\Body\ExceptionHtmlBody;
 use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\ServerRequestFactory;
 
+/**
+ * Class HTTPFunction
+ * Set of utility functions for HTTP applications.
+ */
 class HTTPFunction
 {
     /**
@@ -121,22 +124,9 @@ HTML;
         }
     }
 
-    /**
-     * @param JigBase $template
-     * @return HtmlBody
-     * @throws \Exception
-     * @throws \Jig\JigException
-     */
-    public static function createHtmlBody(JigBase $template)
-    {
-        $text = $template->render();
-
-        return new HtmlBody($text);
-    }
-
     public static function tierExceptionHandler($ex)
     {
-        $body = new ExceptionHtmlBody(Tier::getExceptionString($ex), 500);
+        $body = new ExceptionHtmlBody(TierFunction::getExceptionString($ex), 500);
         self::sendRawBodyResponse($body);
     }
 
@@ -198,7 +188,7 @@ HTML;
      */
     public static function processInjectorException(InjectorException $ie)
     {
-        $exceptionString = Tier::getExceptionString($ie);
+        $exceptionString = TierFunction::getExceptionString($ie);
         $body = new ExceptionHtmlBody($exceptionString, 500);
         self::sendRawBodyResponse($body);
 
@@ -212,7 +202,7 @@ HTML;
      */
     public static function processException(\Exception $e)
     {
-        $exceptionString = Tier::getExceptionString($e);
+        $exceptionString = TierFunction::getExceptionString($e);
         $body = new ExceptionHtmlBody($exceptionString, 500);
         self::sendRawBodyResponse($body);
 
@@ -226,7 +216,7 @@ HTML;
      */
     public static function processJigException(JigException $je)
     {
-        $exceptionString = Tier::getExceptionString($je);
+        $exceptionString = TierFunction::getExceptionString($je);
         $body = new ExceptionHtmlBody($exceptionString, 500);
         self::sendRawBodyResponse($body);
     }
@@ -241,7 +231,7 @@ HTML;
         $body .= "Dependency chain is:\n\n";
         $body .= implode("\n", $ie->getDependencyChain());
         $body .= "Stack trace:\n";
-        $body .= Tier::getExceptionString($ie);
+        $body .= TierFunction::getExceptionString($ie);
         $body = new ExceptionHtmlBody($body, 500);
         self::sendRawBodyResponse($body);
     }
@@ -253,7 +243,7 @@ HTML;
      */
     public static function processThrowable(\Throwable $e)
     {
-        $exceptionString = Tier::getExceptionString($e);
+        $exceptionString = TierFunction::getExceptionString($e);
         $body = new ExceptionHtmlBody($exceptionString, 500);
         self::sendRawBodyResponse($body);
     }
