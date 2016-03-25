@@ -72,6 +72,7 @@ class CachingGeneratingFileBodyFactory
      */
     public function create(
         $contentType,
+        $downloadFilename,
         FileGenerator $fileGenerator,
         $headers = []
     ) {
@@ -91,6 +92,7 @@ class CachingGeneratingFileBodyFactory
 
         return new FileBody(
             $filename,
+            $downloadFilename,
             $contentType,
             $headers
         );

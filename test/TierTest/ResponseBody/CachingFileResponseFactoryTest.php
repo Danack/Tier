@@ -12,6 +12,7 @@ use Room11\Caching\LastModifiedStrategy;
 //use Tier\Body\CachingFileBodyFactory;
 use Tier\Body\CachingFileBodyFactory;
 use Mockery;
+use Room11\HTTP\RequestHeaders\ArrayRequestHeaders;
 
 class CachingFileResponseFactoryTest extends BaseTestCase
 {
@@ -23,9 +24,11 @@ class CachingFileResponseFactoryTest extends BaseTestCase
             ->once()
             ->andReturn([]);
         
+        $requestHeaders = new ArrayRequestHeaders([]);
         
-        $cachingFileResponse = new CachingFileBodyFactory($mockStrategy);
+        $cachingFileResponse = new CachingFileBodyFactory($requestHeaders,  $mockStrategy);
         $cachingFileResponse->create(__FILE__, "text/plain", []);
-
     }
+
+    //@TODO - this needs way more tests.
 }

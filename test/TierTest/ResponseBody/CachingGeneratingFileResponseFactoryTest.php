@@ -13,9 +13,19 @@ use Room11\HTTP\RequestHeaders\ArrayRequestHeaders;
 use Tier\Body\CallableFileGenerator;
 use Tier\Body\CachingGeneratingFileBodyFactory;
 use Mockery;
+use Room11\HTTP\HeadersSet;
 
 class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
 {
+        
+    private function checkContentDispositionFilename(HeadersSet $headersSet, $filename)
+    {       
+        $this->assertTrue($headersSet->hasHeaders("Content-Disposition"));
+        $headers = $headersSet->getHeaders("Content-Disposition");
+        $this->assertInternalType('array', $headers);
+        $this->assertContains($filename, $headers[0]);
+    }
+
     public function testEmptyRequestHeaders()
     {
         $mockStrategy = Mockery::mock('Room11\Caching\LastModifiedStrategy');
@@ -42,9 +52,12 @@ class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
             $fileGenerator,
             time() - 10
         );
+        
+        $filename = "foo.txt";
 
         $body = $cachingFileResponse->create(
             "text/plain",
+            $filename,
             $fileGenerator
         );
         /** @var $body \Room11\HTTP\Body\FileBody */
@@ -54,8 +67,8 @@ class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
         );
         $this->assertEquals(200, $body->getStatusCode());
         $this->assertTrue($isCalled, "File generator wasn't called");
+        $this->checkContentDispositionFilename($body->getHeadersSet(), $filename);
     }
-    
 
     public function testHeadersSentNotModified()
     {
@@ -86,9 +99,12 @@ class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
             $fileGenerator,
             time() - 1000
         );
+        
+        $filename = "foo.txt";
 
         $body = $cachingFileResponse->create(
             "text/plain",
+            $filename,
             $fileGenerator
         );
         /** @var $body \Room11\HTTP\Body\FileBody */
@@ -133,8 +149,11 @@ class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
             time() - 10
         );
 
+        $filename = "foo.txt";
+        
         $body = $cachingFileResponse->create(
             "text/plain",
+            $filename,
             $fileGenerator
         );
         /** @var $body \Room11\HTTP\Body\FileBody */
@@ -147,5 +166,6 @@ class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
 
         $headersSet = $body->getHeadersSet();
         $this->assertTrue($headersSet->hasHeaders("Last-modified"));
+        $this->checkContentDispositionFilename($body->getHeadersSet(), $filename);
     }
 }
