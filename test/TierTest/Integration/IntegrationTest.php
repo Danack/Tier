@@ -8,6 +8,7 @@ use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
 use Tier\TierApp;
 use TierTest\BaseTestCase;
+use Auryn\Injector;
 
 class IntegrationTest extends BaseTestCase
 {
@@ -37,9 +38,9 @@ class IntegrationTest extends BaseTestCase
     public function testExecutableOrder()
     {
         // Create the Tier application
-        $app = new TierHTTPApp($this->injectionParams);
+        $app = new TierHTTPApp($this->injectionParams, new Injector());
         $callCount = 0;
-        
+
         $fn = function ($stage, $expectedCallCount, $returnValue) use (&$callCount) {
             return function () use (&$callCount, $stage, $expectedCallCount, $returnValue) {
                 if ($callCount !== $expectedCallCount) {

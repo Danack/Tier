@@ -103,7 +103,7 @@ class ExecutableListByTier implements \Iterator
             
             throw new TierException($message);
         }
-        
+
         if (isset($this->executableListByTier[$tierOrder]) === false) {
             $this->executableListByTier[$tierOrder] = new ExecutableList();
         }
@@ -112,6 +112,14 @@ class ExecutableListByTier implements \Iterator
         ksort($this->executableListByTier);
     }
 
+    public function setTierShouldLoop($tierOrder)
+    {
+        if (isset($this->executableListByTier[$tierOrder]) === false) {
+            $this->executableListByTier[$tierOrder] = new ExecutableList();
+        }
+        $this->executableListByTier[$tierOrder]->setShouldLoop(true);
+    }
+    
     /**
      * Add an executable in the tier it wants to be run in, or the
      * next stage if no tier is set.

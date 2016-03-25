@@ -1,11 +1,12 @@
 <?php
 
-
+use Auryn\Injector;
 use Tier\Executable;
 use Tier\HTTPFunction;
 use Tier\TierFunction;
 use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
+
 
 ini_set('display_errors', 'on');
 
@@ -38,7 +39,8 @@ $routingExecutable = new Executable(
 );
 
 // Create the Tier application
-$app = new TierHTTPApp($injectionParams);
+$injector = new Injector();
+$app = new TierHTTPApp($injectionParams, $injector);
 
 // Make the body that is generated be shared by TierApp
 $app->addExpectedProduct('Room11\HTTP\Body');

@@ -17,6 +17,8 @@ class TierCLIApp extends TierApp
     const TIER_BEFORE_ROUTING = 200;
     const TIER_ROUTING = 300;
     const TIER_AFTER_ROUTING = 400;
+    
+    const TIER_LOOP = 450;
 
     const TIER_BEFORE_OUTPUT = 500;
     const TIER_GENERATE_OUTPUT = 600;
@@ -31,6 +33,7 @@ class TierCLIApp extends TierApp
      */
     protected $exceptionResolver;
     
+    
     /** @var OutputBufferCleaner(); */
     private $outputBufferCleaner;
 
@@ -41,15 +44,27 @@ class TierCLIApp extends TierApp
      */
     public function __construct(
         InjectionParams $injectionParams,
-        Injector $injector = null,
+        Injector $injector,
         ExceptionResolver $exceptionResolver = null
     ) {
-        parent::__construct($injectionParams, $injector);
+        parent::__construct(
+            $injectionParams,
+            $injector
+        );
             
         if ($exceptionResolver === null) {
             $exceptionResolver = $this->createStandardExceptionResolver();
         }
         $this->exceptionResolver = $exceptionResolver;
+        
+        // The looping tier, loops.
+        $this->executableListByTier->setTierShouldLoop(self::TIER_LOOP);
+    }
+
+    protected function sanityCheckLoopProcesing()
+    {
+        // Have a default timeout for CLI apps?
+        // Otherwise nothing to do.
     }
 
     /**

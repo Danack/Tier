@@ -5,6 +5,7 @@ namespace Tier;
 
 use Auryn\Injector;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Tier\Callback\MaxLoopCallback;
 
 /**
  * Class TierHTTPApp
@@ -47,16 +48,17 @@ class TierHTTPApp extends TierApp
      */
     public function __construct(
         InjectionParams $injectionParams,
-        Injector $injector = null,
+        Injector $injector,
         ExceptionResolver $exceptionResolver = null
     ) {
-        parent::__construct($injectionParams, $injector);
-            
+        parent::__construct($injectionParams, $injector, new MaxLoopCallback());
         if ($exceptionResolver === null) {
             $exceptionResolver = $this->createStandardExceptionResolver();
         }
         $this->exceptionResolver = $exceptionResolver;
     }
+
+
 
     /**
      * Create an ExceptionResolver and attach a set of useful exception handlers

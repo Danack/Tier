@@ -11,14 +11,6 @@ use Tier\InjectionParams;
  */
 class TierApp
 {
-    /** @var int How many tiers/executables have been executed */
-    protected $internalExecutions = 0;
-
-    /** @var int Max limit for number of tiers/callables to execute.
-     * Prevents problems with applications getting stuck in a loop.
-     */
-    public $maxInternalExecutions = 20;
-    
     /**
      * @var \Tier\ExecutableListByTier
      */
@@ -45,6 +37,9 @@ class TierApp
 
     // Application has finished running
     const PROCESS_END = 3;
+    
+    // Application should finish looping, and move onto the shut-down routines
+    const PROCESS_END_LOOPING = 4;
 
     /**
      * The expected products are the names of objects that the application is expected to
@@ -64,25 +59,38 @@ class TierApp
 
     const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
 
+    /** @var \callable|null */
+    protected $loopCallback;
+
     /**
      * @param InjectionParams $injectionParams
      * @param Injector $injector
+     * @param callable $loopCallback
      */
     public function __construct(
         InjectionParams $injectionParams,
-        Injector $injector = null
+        Injector $injector,
+        callable $loopCallback
     ) {
-        $this->initialInjectionParams = $injectionParams;
-
-        if ($injector === null) {
-            $this->injector = new Injector();
-        }
-        else {
-            $this->injector = $injector;
-        }
-        
+        $this->initialInjectionParams = $injectionParams; 
+        $this->injector = $injector;
         $this->executableListByTier = new ExecutableListByTier();
+        $this->loopCallback = $loopCallback;
     }
+
+    /**
+     * @return ExecutableList[]
+     */
+    private function iterateTiers()
+    {
+        foreach ($this->executableListByTier as $appStage => $executableList) {
+            yield $appStage => $executableList;
+            while($executableList->shouldLoop() == true) {
+                yield $appStage => $executableList;
+            }
+        }
+    }
+
 
     /**
      * @throws TierException
@@ -93,33 +101,28 @@ class TierApp
         // across the application
         $this->injector->share($this->injector); //yolo
         $this->initialInjectionParams->addToInjector($this->injector);
-        foreach ($this->executableListByTier as $appStage => $tiersForStage) {
-            foreach ($tiersForStage as $tier) {
-                //Check we haven't got caught in a redirect loop
-                $this->internalExecutions++;
-                if ($this->internalExecutions > $this->maxInternalExecutions) {
-                    $message = "Too many tiers executed. You probably have a recursion error in your application.";
-                    throw new TierException($message);
+
+        foreach ($this->iterateTiers() as $appStage => $executableList) {
+            foreach ($executableList as $executable) {
+                if ($this->loopCallback) {
+                    $callback = $this->loopCallback; 
+                    $callback();
                 }
 
-                /** @var $tier Executable  */
-                if ($tier instanceof Executable) {
-                    //Some executables shouldn't be run if a certain product
-                    //has already been made. This allows very easy caching layers.
-                    $skipIfProduced = $tier->getSkipIfExpectedProductProduced();
-                    if ($skipIfProduced !== null &&
-                        $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
-                        continue;
-                    }
-
-                    $result = self::executeExecutable($tier, $this->injector);
-                }
-                else {
-                    $result = $this->injector->execute($tier);
+                //Some executables shouldn't be run if a certain product
+                //has already been made. This allows very easy caching layers.
+                $skipIfProduced = $executable->getSkipIfExpectedProductProduced();
+                if ($skipIfProduced !== null &&
+                    $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
+                    continue;
                 }
 
-                $finished = $this->processResult($result, $tier);
+                $result = self::executeExecutable($executable, $this->injector);
+                $finished = $this->processResult($result, $executable);
                 
+                if ($finished === self::PROCESS_END_LOOPING) {
+                    $executableList->setShouldLoop(false);
+                }
                 if ($finished === self::PROCESS_END_STAGE) {
                     break;
                 }
@@ -128,7 +131,7 @@ class TierApp
                 }
             }
         }
-        
+
         if ($this->warnOnSilentProcessingEnd === true) {
             throw new TierException("Processing did not result in a TierApp::PROCESS_END");
         }
@@ -159,7 +162,7 @@ class TierApp
      * @throws TierException
      * @throws \Auryn\ConfigException
      */
-    private function processResult($result, Executable $executable)
+    protected function processResult($result, Executable $executable)
     {
         // If it's a new Tier to run, setup the next loop.
         if ($result instanceof InjectionParams) {
@@ -218,7 +221,9 @@ class TierApp
 
         if ($result === self::PROCESS_END_STAGE ||
             $result === self::PROCESS_CONTINUE ||
-            $result === self::PROCESS_END) {
+            $result === self::PROCESS_END ||
+            $result === self::PROCESS_END_LOOPING
+        ) {
             return $result;
         }
 

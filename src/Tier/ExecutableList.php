@@ -13,6 +13,8 @@ class ExecutableList implements \Iterator
 {
     private $position = 0;
 
+    private $shouldLoop = false;
+    
     /**
      * @var Executable[]
      */
@@ -23,6 +25,9 @@ class ExecutableList implements \Iterator
         $this->position = 0;
     }
 
+    /**
+     * @return Executable
+     */
     public function current()
     {
         return $this->list[$this->position];
@@ -52,5 +57,15 @@ class ExecutableList implements \Iterator
     public function addExecutable(Executable $executable)
     {
         $this->list[] = $executable;
+    }
+
+    public function setShouldLoop($shouldLoop)
+    {
+        $this->shouldLoop = $shouldLoop;
+    }
+
+    public function shouldLoop()
+    {
+        return $this->shouldLoop;
     }
 }
