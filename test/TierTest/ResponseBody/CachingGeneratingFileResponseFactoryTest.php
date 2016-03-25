@@ -2,13 +2,7 @@
 
 namespace TierTest\ResponseBody;
 
-use Auryn\Injector;
 use TierTest\BaseTestCase;
-use Jig\JigConfig;
-use Jig\Jig;
-use FastRoute\RouteCollector;
-use Room11\HTTP\Request\CLIRequest;
-use Room11\Caching\LastModifiedStrategy;
 use Room11\HTTP\RequestHeaders\ArrayRequestHeaders;
 use Tier\Body\CallableFileGenerator;
 use Tier\Body\CachingGeneratingFileBodyFactory;
@@ -17,9 +11,8 @@ use Room11\HTTP\HeadersSet;
 
 class CachingGeneratingFileResponseFactoryTest extends BaseTestCase
 {
-        
     private function checkContentDispositionFilename(HeadersSet $headersSet, $filename)
-    {       
+    {
         $this->assertTrue($headersSet->hasHeaders("Content-Disposition"));
         $headers = $headersSet->getHeaders("Content-Disposition");
         $this->assertInternalType('array', $headers);

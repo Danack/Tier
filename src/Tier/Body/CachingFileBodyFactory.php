@@ -42,9 +42,8 @@ class CachingFileBodyFactory
         }
     
         $header = $this->requestHeaders->getHeader('If-Modified-Since');
-        
 
-        if (is_array($header) == true) {
+        if (is_array($header) === true) {
             $header = $header[0];
         }
         

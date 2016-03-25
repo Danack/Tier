@@ -7,7 +7,6 @@ use Tier\TierFunction;
 use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
 
-
 ini_set('display_errors', 'on');
 
 $autoloader = require __DIR__.'/../../../vendor/autoload.php';

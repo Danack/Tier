@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Tier\Callback;
 
 class NullCallback

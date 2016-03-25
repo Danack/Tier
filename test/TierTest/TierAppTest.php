@@ -11,7 +11,6 @@ use Tier\TierException;
 use Tier\InvalidReturnException;
 use Auryn\Injector;
 
-
 class TierAppTest extends BaseTestCase
 {
     public function testContinueContinues()

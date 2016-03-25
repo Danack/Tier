@@ -26,7 +26,7 @@ class CachingFileResponseFactoryTest extends BaseTestCase
         
         $requestHeaders = new ArrayRequestHeaders([]);
         
-        $cachingFileResponse = new CachingFileBodyFactory($requestHeaders,  $mockStrategy);
+        $cachingFileResponse = new CachingFileBodyFactory($requestHeaders, $mockStrategy);
         $cachingFileResponse->create(__FILE__, "text/plain", []);
     }
 

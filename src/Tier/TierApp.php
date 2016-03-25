@@ -60,7 +60,7 @@ class TierApp
     const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
 
     /** @var \callable|null */
-    protected $loopCallback;
+    protected $loopCallback = null;
 
     /**
      * @param InjectionParams $injectionParams
@@ -72,7 +72,7 @@ class TierApp
         Injector $injector,
         callable $loopCallback
     ) {
-        $this->initialInjectionParams = $injectionParams; 
+        $this->initialInjectionParams = $injectionParams;
         $this->injector = $injector;
         $this->executableListByTier = new ExecutableListByTier();
         $this->loopCallback = $loopCallback;
@@ -85,7 +85,7 @@ class TierApp
     {
         foreach ($this->executableListByTier as $appStage => $executableList) {
             yield $appStage => $executableList;
-            while($executableList->shouldLoop() == true) {
+            while ($executableList->shouldLoop() === true) {
                 yield $appStage => $executableList;
             }
         }
@@ -104,8 +104,8 @@ class TierApp
 
         foreach ($this->iterateTiers() as $appStage => $executableList) {
             foreach ($executableList as $executable) {
-                if ($this->loopCallback) {
-                    $callback = $this->loopCallback; 
+                if ($this->loopCallback !== null) {
+                    $callback = $this->loopCallback;
                     $callback();
                 }
 
