@@ -16,11 +16,6 @@ class TierApp
      */
     protected $executableListByTier;
 
-    /**
-     * @var \Tier\InjectionParams
-     */
-    protected $initialInjectionParams = null;
-
     /** @var Injector The DIC that runs the app */
     protected $injector;
 
@@ -63,16 +58,13 @@ class TierApp
     protected $loopCallback = null;
 
     /**
-     * @param InjectionParams $injectionParams
      * @param Injector $injector
      * @param callable $loopCallback
      */
     public function __construct(
-        InjectionParams $injectionParams,
         Injector $injector,
         callable $loopCallback
     ) {
-        $this->initialInjectionParams = $injectionParams;
         $this->injector = $injector;
         $this->executableListByTier = new ExecutableListByTier();
         $this->loopCallback = $loopCallback;
@@ -100,7 +92,6 @@ class TierApp
         // Create and share these as they need to be the same
         // across the application
         $this->injector->share($this->injector); //yolo
-        $this->initialInjectionParams->addToInjector($this->injector);
 
         foreach ($this->iterateTiers() as $appStage => $executableList) {
             foreach ($executableList as $executable) {

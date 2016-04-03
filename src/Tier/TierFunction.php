@@ -2,8 +2,6 @@
 
 namespace Tier;
 
-use Room11\HTTP\Body;
-
 class TierFunction
 {
 

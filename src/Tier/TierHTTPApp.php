@@ -42,23 +42,19 @@ class TierHTTPApp extends TierApp
     protected $exceptionResolver;
 
     /**
-     * @param InjectionParams $injectionParams
      * @param Injector $injector
      * @param ExceptionResolver $exceptionResolver
      */
     public function __construct(
-        InjectionParams $injectionParams,
         Injector $injector,
         ExceptionResolver $exceptionResolver = null
     ) {
-        parent::__construct($injectionParams, $injector, new MaxLoopCallback());
+        parent::__construct($injector, new MaxLoopCallback());
         if ($exceptionResolver === null) {
             $exceptionResolver = $this->createStandardExceptionResolver();
         }
         $this->exceptionResolver = $exceptionResolver;
     }
-
-
 
     /**
      * Create an ExceptionResolver and attach a set of useful exception handlers

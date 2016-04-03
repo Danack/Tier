@@ -19,36 +19,42 @@ class CLIFunction
         };
 
         register_shutdown_function($shutdownFunction);
-        set_exception_handler(['Tier\CLIFunction', 'exceptionHandler']);
+        
+        if (class_exists('Throwable', false) == true) {
+            set_exception_handler(['Tier\CLIFunction', 'handleThrowable']);
+        }
+        else {
+            set_exception_handler(['Tier\CLIFunction', 'handleException']);
+        }
         set_error_handler(['Tier\CLIFunction', 'errorHandler']);
     }
     
-    public static function exceptionHandler(\Exception $ex)
-    {
-        //TODO - need to ob_end_clean as many times as required because
-        //otherwise partial content gets sent to the client.
-        while ($ex !== null) {
-            echo "Exception ".get_class($ex).': '.$ex->getMessage()."<br/>";
-    
-            foreach ($ex->getTrace() as $tracePart) {
-                if (isset($tracePart['file']) === true && isset($tracePart['line']) === true) {
-                    echo $tracePart['file']." ".$tracePart['line']."<br/>";
-                }
-                else if (isset($tracePart["function"]) === true) {
-                    echo $tracePart["function"] . "<br/>";
-                }
-                else {
-                    var_dump($tracePart);
-                }
-            }
-            $ex = $ex->getPrevious();
-            if ($ex !== null) {
-                echo "Previously ";
-            }
-        };
-        
-        exit(-1);
-    }
+//    public static function exceptionHandler(\Exception $ex)
+//    {
+//        //TODO - need to ob_end_clean as many times as required because
+//        //otherwise partial content gets sent to the client.
+//        while ($ex !== null) {
+//            echo "Exception ".get_class($ex).': '.$ex->getMessage()."<br/>";
+//    
+//            foreach ($ex->getTrace() as $tracePart) {
+//                if (isset($tracePart['file']) === true && isset($tracePart['line']) === true) {
+//                    echo $tracePart['file']." ".$tracePart['line']."<br/>";
+//                }
+//                else if (isset($tracePart["function"]) === true) {
+//                    echo $tracePart["function"] . "<br/>";
+//                }
+//                else {
+//                    var_dump($tracePart);
+//                }
+//            }
+//            $ex = $ex->getPrevious();
+//            if ($ex !== null) {
+//                echo "Previously ";
+//            }
+//        };
+//        
+//        exit(-1);
+//    }
 
     public static function fatalErrorShutdownHandler()
     {
@@ -132,10 +138,10 @@ class CLIFunction
         $message = sprintf(
             "Unexpected exception of type %s running Deployer`: %s".PHP_EOL,
             get_class($t),
-            $e->getMessage()
+            $t->getMessage()
         );
         echo $message;
-        echo \Tier\TierFunction::getExceptionString($e);
+        echo \Tier\TierFunction::getExceptionString($t);
         exit(-2);
     }
     

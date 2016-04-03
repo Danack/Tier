@@ -4,6 +4,8 @@ namespace Tier;
 
 use Auryn\Injector;
 
+use Tier\Callback\NullCallback;
+
 /**
  * Class TierCLIApp
  *
@@ -43,13 +45,12 @@ class TierCLIApp extends TierApp
      * @param ExceptionResolver $exceptionResolver
      */
     public function __construct(
-        InjectionParams $injectionParams,
         Injector $injector,
         ExceptionResolver $exceptionResolver = null
     ) {
         parent::__construct(
-            $injectionParams,
-            $injector
+            $injector,
+            new NullCallback() 
         );
             
         if ($exceptionResolver === null) {
@@ -87,8 +88,8 @@ class TierCLIApp extends TierApp
 
         // This will only be triggered on PHP 7
         $exceptionResolver->addExceptionHandler(
-            'Exception',
-            ['Tier\CLIFunction', 'handleException'],
+            'Throwable',
+            ['Tier\CLIFunction', 'handleThrowable'],
             ExceptionResolver::ORDER_LAST
         );
 
@@ -197,9 +198,9 @@ class TierCLIApp extends TierApp
         $this->outputBufferCleaner->clearOutputBuffer();
         //TODO - we are now failing. Replace error handler with instant
         //shutdown handler.
-        $fallBackHandler = ['Tier\Tier', 'processException'];
+        $fallBackHandler = ['Tier\CLIFunction', 'handleException'];
         if (class_exists('Throwable') === true) {
-            $fallBackHandler = ['Tier\Tier', 'processThrowable'];
+            $fallBackHandler = ['Tier\CLIFunction', 'handleThrowable'];
         }
 
         $handler = $this->exceptionResolver->getExceptionHandler(
