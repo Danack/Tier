@@ -1,6 +1,6 @@
 {
     "name": "danack/tier",
-    "description": "An example of how to implement an application using DI with tiers",
+    "description": "An 'framework' application using DI with tiers for full 'Dependency inversion'.",
     "keywords": ["DI", "Auryn", "application", "example"],
 
     "license": "MIT",
@@ -33,7 +33,8 @@
         
     },
     "require":{
-        "rdlowrey/auryn": "^1.0.2",
+        "php": "^5.5 | ^7",
+        "rdlowrey/auryn": "^1.4.0",
         "zendframework/zend-diactoros": "^1.3.2"
     }
 }

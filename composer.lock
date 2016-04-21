@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d9d8b1159cb840a56f3309ee50684b0a",
+    "hash": "659d3e5e1839d04129178f9b9df38554",
     "packages": [
         {
             "name": "psr/http-message",
@@ -782,16 +782,16 @@
         },
         {
             "name": "room11/http",
-            "version": "0.2.0",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Danack/HTTP.git",
-                "reference": "e33a450175d52b9dab498f6acc67a493ca90af39"
+                "reference": "c4e19668b21de0c00bfaa1e0d1a18175764fd966"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Danack/HTTP/zipball/e33a450175d52b9dab498f6acc67a493ca90af39",
-                "reference": "e33a450175d52b9dab498f6acc67a493ca90af39",
+                "url": "https://api.github.com/repos/Danack/HTTP/zipball/c4e19668b21de0c00bfaa1e0d1a18175764fd966",
+                "reference": "c4e19668b21de0c00bfaa1e0d1a18175764fd966",
                 "shasum": ""
             },
             "require-dev": {
@@ -823,23 +823,24 @@
                 "interface",
                 "room11"
             ],
-            "time": "2016-03-25 14:31:36"
+            "time": "2016-04-06 22:59:17"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "2.5.1",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "6731851d6aaf1d0d6c58feff1065227b7fda3ba8"
+                "reference": "1bcdf03b068a530ac1962ce671dead356eeba43b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/6731851d6aaf1d0d6c58feff1065227b7fda3ba8",
-                "reference": "6731851d6aaf1d0d6c58feff1065227b7fda3ba8",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/1bcdf03b068a530ac1962ce671dead356eeba43b",
+                "reference": "1bcdf03b068a530ac1962ce671dead356eeba43b",
                 "shasum": ""
             },
             "require": {
+                "ext-simplexml": "*",
                 "ext-tokenizer": "*",
                 "ext-xmlwriter": "*",
                 "php": ">=5.1.2"
@@ -900,20 +901,20 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2016-01-19 23:39:10"
+            "time": "2016-04-03 22:58:34"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.8.3",
+            "version": "v2.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "2a4ee40acb880c56f29fb1b8886e7ffe94f3b995"
+                "reference": "584e52cb8f788a887553ba82db6caacb1d6260bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/2a4ee40acb880c56f29fb1b8886e7ffe94f3b995",
-                "reference": "2a4ee40acb880c56f29fb1b8886e7ffe94f3b995",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/584e52cb8f788a887553ba82db6caacb1d6260bb",
+                "reference": "584e52cb8f788a887553ba82db6caacb1d6260bb",
                 "shasum": ""
             },
             "require": {
@@ -949,7 +950,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-02-23 07:41:20"
+            "time": "2016-03-04 07:54:35"
         },
         {
             "name": "zendframework/zend-escaper",
@@ -1001,6 +1002,8 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^5.5 | ^7"
+    },
     "platform-dev": []
 }
