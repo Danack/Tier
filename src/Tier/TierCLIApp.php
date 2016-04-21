@@ -50,7 +50,7 @@ class TierCLIApp extends TierApp
     ) {
         parent::__construct(
             $injector,
-            new NullCallback() 
+            new NullCallback()
         );
             
         if ($exceptionResolver === null) {

@@ -39,7 +39,11 @@ $routingExecutable = new Executable(
 
 // Create the Tier application
 $injector = new Injector();
-$app = new TierHTTPApp($injectionParams, $injector);
+
+/** @var $injectionParams \Tier\InjectionParams */
+$injectionParams->addToInjector($injector);
+
+$app = new TierHTTPApp($injector);
 
 // Make the body that is generated be shared by TierApp
 $app->addExpectedProduct('Room11\HTTP\Body');

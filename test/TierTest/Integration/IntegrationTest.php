@@ -15,30 +15,36 @@ class IntegrationTest extends BaseTestCase
     /** @var  InjectionParams */
     private $injectionParams;
     
+    /** @var  \Auryn\Injector */
+    private $injector;
+    
     public function setup()
     {
         parent::setup();
-        $shares = [];
-        $aliases = [];
-        $delegates = [];
-        $params = [];
-        $prepares = [];
-        $defines = [];
-
-        $this->injectionParams = new InjectionParams(
-            $shares,
-            $aliases,
-            $delegates,
-            $params,
-            $prepares,
-            $defines
-        );
+//        $shares = [];
+//        $aliases = [];
+//        $delegates = [];
+//        $params = [];
+//        $prepares = [];
+//        $defines = [];
+//
+//        $this->injectionParams = new InjectionParams(
+//            $shares,
+//            $aliases,
+//            $delegates,
+//            $params,
+//            $prepares,
+//            $defines
+//        );
+//        
+//        $this->injector = new Injector();
+//        $this->injectionParams->addToInjector($this->injector);
     }
 
     public function testExecutableOrder()
     {
         // Create the Tier application
-        $app = new TierHTTPApp($this->injectionParams, new Injector());
+        $app = new TierHTTPApp(new Injector());
         $callCount = 0;
 
         $fn = function ($stage, $expectedCallCount, $returnValue) use (&$callCount) {

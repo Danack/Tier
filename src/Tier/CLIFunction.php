@@ -20,7 +20,7 @@ class CLIFunction
 
         register_shutdown_function($shutdownFunction);
         
-        if (class_exists('Throwable', false) == true) {
+        if (class_exists('Throwable', false) === true) {
             set_exception_handler(['Tier\CLIFunction', 'handleThrowable']);
         }
         else {

@@ -15,8 +15,8 @@ class TierAppTest extends BaseTestCase
 {
     public function testContinueContinues()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        //$injectionParams = new InjectionParams();
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         
         $fn1 = function () {
             return false;
@@ -41,9 +41,7 @@ class TierAppTest extends BaseTestCase
      */
     public function testInjectorParamsUsed()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
-
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         //Create the second function first, so it can be use'd
         $fooDebug = null;
         $fn2 = function($foo) use (&$fooDebug) {
@@ -65,8 +63,7 @@ class TierAppTest extends BaseTestCase
 
     public function testWrongReturnType_DefaultReturnExecutable()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $fn1 = function () {
             // As this is processed as an executable.
             // The default return of null should be detected as an error.
@@ -89,8 +86,7 @@ class TierAppTest extends BaseTestCase
     
     public function testCallableAllowedToReturnNull()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $fn1 = function () {
             // Because this is added as a callable, not an exception
             // The default return of null is allowed.
@@ -104,8 +100,7 @@ class TierAppTest extends BaseTestCase
 
     public function testWrongReturnType_ObjectReturn()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $object = new \StdClass;
         $fn1 = function () use ($object) {
             return $object;
@@ -125,8 +120,7 @@ class TierAppTest extends BaseTestCase
 
     public function testWrongReturnType_ScalarReturn()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $fn1 = function () {
             return "This is not an executable";
         };
@@ -139,8 +133,7 @@ class TierAppTest extends BaseTestCase
 
     public function testMultipleExecutablesFinishCurrentStage()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $tierApp->addExpectedProduct('StdClass');
 
         $fn1 = function () {
@@ -178,8 +171,7 @@ class TierAppTest extends BaseTestCase
      */
     public function testMultipleExecutablesFinishCurrentStageWithAliasedResult()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $tierApp->addExpectedProduct('StdClass');
         $fn1 = function () {
             $obj = new \Fixtures\FooResult;
@@ -212,8 +204,7 @@ class TierAppTest extends BaseTestCase
      */
     public function testRecursionError()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new MaxLoopCallback());
+        $tierApp = new TierApp(new Injector(), new MaxLoopCallback());
         $this->setExpectedException('Tier\TierException', 'Too many tiers');
         $fn = null;
         $fn = function() use (&$fn) {
@@ -227,8 +218,7 @@ class TierAppTest extends BaseTestCase
 
     public function testSilentOnMissingProcessEnd()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
 
         $fn = function() {
             return TierApp::PROCESS_CONTINUE;
@@ -240,8 +230,7 @@ class TierAppTest extends BaseTestCase
 
     public function testExceptionOnMissingProcessEnd()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $tierApp->warnOnSilentProcessingEnd = true;
         
         $fn = function() {
@@ -255,9 +244,8 @@ class TierAppTest extends BaseTestCase
 
     public function testCoverage1()
     {
-        $injectionParams = new InjectionParams();
         $injector = new Injector();
-        $tierApp = new TierApp($injectionParams, $injector, new NullCallback());
+        $tierApp = new TierApp($injector, new NullCallback());
 
         $execCalled = false;
         $fn2 = function () use (&$execCalled) {
@@ -283,9 +271,7 @@ class TierAppTest extends BaseTestCase
    
     public function testReturnArray()
     {
-        $injectionParams = new InjectionParams();
-
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
 
         $fn2aCalled = false;
         $fn2bCalled = false;
@@ -329,8 +315,7 @@ class TierAppTest extends BaseTestCase
 
     public function testReturnArrayError()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
 
         $fn1 = function() {
             $executables = [];
@@ -352,8 +337,7 @@ class TierAppTest extends BaseTestCase
     
     public function testProductionSkipsExecutable()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
 
         $fn1 = function() {
             return new \StdClass();
@@ -387,8 +371,7 @@ class TierAppTest extends BaseTestCase
      */
     public function testUnknownExpectedProduct()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
+        $tierApp = new TierApp(new Injector(), new NullCallback());
 
         $fn1 = function() {
             return \Tier\TierApp::PROCESS_CONTINUE;
@@ -408,9 +391,7 @@ class TierAppTest extends BaseTestCase
 
     public function testDuplicateExpectedProduct()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
-        
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $tierApp->addExpectedProduct('StdClass');
         
         $this->setExpectedException('Tier\TierException');
@@ -420,10 +401,7 @@ class TierAppTest extends BaseTestCase
     
     public function testReturnInjectionParams()
     {
-        $injectionParams = new InjectionParams();
-        $tierApp = new TierApp($injectionParams, new Injector(), new NullCallback());
-        
-        
+        $tierApp = new TierApp(new Injector(), new NullCallback());
         $addInjectionParamsFn = function() {
             $injectionParams = new InjectionParams();
             $injectionParams->alias('Fixtures\FooInterface', 'Fixtures\FooImplementation');
