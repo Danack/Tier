@@ -57,9 +57,6 @@ class TierCLIApp extends TierApp
             $exceptionResolver = $this->createStandardExceptionResolver();
         }
         $this->exceptionResolver = $exceptionResolver;
-        
-        // The looping tier, loops.
-        $this->executableListByTier->setTierShouldLoop(self::TIER_LOOP);
     }
 
     protected function sanityCheckLoopProcesing()
