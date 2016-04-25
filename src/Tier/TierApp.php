@@ -75,12 +75,15 @@ class TierApp
      */
     private function iterateTiers()
     {
-        foreach ($this->executableListByTier as $appStage => $executableList) {
-            yield $appStage => $executableList;
-            while ($executableList->shouldLoop() === true) {
-                yield $appStage => $executableList;
-            }
-        }
+        return $this->executableListByTier;
+
+//      yield isn't supported in PHP 5.4
+//        foreach ($this->executableListByTier as $appStage => $executableList) {
+//            yield $appStage => $executableList;
+//            while ($executableList->shouldLoop() === true) {
+//                yield $appStage => $executableList;
+//            }
+//        }
     }
 
 

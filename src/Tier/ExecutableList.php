@@ -61,6 +61,9 @@ class ExecutableList implements \Iterator
 
     public function setShouldLoop($shouldLoop)
     {
+        if ((bool)$shouldLoop === true) {
+            throw new TierException("Looping not supported in Tier5.4 as it requires 'yield'.");
+        }
         $this->shouldLoop = $shouldLoop;
     }
 
