@@ -48,13 +48,13 @@ class FastRouter
         }
         else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             //TODO - need to embed allowedMethods....theoretically.
-            $executable = new Executable('CNData\App\AppFunction::serve405ErrorPage');
+            $executable = new Executable([$this, 'serve405ErrorPage']);
             $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
 
             return $executable;
         }
 
-        $executable = new Executable('CNData\App\AppFunction::serve404ErrorPage');
+        $executable = new Executable([$this, 'serve404ErrorPage']);
         $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
 
         return $executable;
