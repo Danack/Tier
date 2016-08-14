@@ -3,15 +3,14 @@
 namespace TierTest;
 
 use Tier\Executable;
-use Tier\ExecutableListByTier;
+use Tier\ExecutableByTier;
 use Tier\TierException;
 
-class ExecutableListByTierTest extends BaseTestCase
+class ExecutableByTierTest extends BaseTestCase
 {
-    
     public function testExecutableOutOfRange()
     {
-        $executableListByTier = new ExecutableListByTier();
+        $executableListByTier = new ExecutableByTier();
 
         $fn1 = function () {
             $this->fail("This should never be reached.");
@@ -19,7 +18,7 @@ class ExecutableListByTierTest extends BaseTestCase
 
         $this->setExpectedException('Tier\TierException', TierException::INCORRECT_VALUE);
         $executableListByTier->addExecutableToTier(
-            ExecutableListByTier::TIER_NUMBER_LIMIT + 1,
+            ExecutableByTier::TIER_NUMBER_LIMIT + 1,
             $fn1
         );
     }
@@ -27,12 +26,12 @@ class ExecutableListByTierTest extends BaseTestCase
 
     public function testExecutableAddedPreviousTier()
     {
-        $executableListByTier = new ExecutableListByTier();
+        $executableListByTier = new ExecutableByTier();
 
         $fn2 = function () {
             $this->fail("This should never be reached.");
         };
-        
+
         $fn1 = function() use (&$executableListByTier, $fn2) {
             $executable = new Executable($fn2);
             $executable->setTierNumber(4);
@@ -40,21 +39,17 @@ class ExecutableListByTierTest extends BaseTestCase
         };
 
         $executableListByTier->addExecutableToTier(5, $fn1);
-
         $this->setExpectedException('Tier\TierException', TierException::INCORRECT_VALUE);
 
-        foreach ($executableListByTier as $tier => $executableList) {
-            $order[] = $tier;
-            foreach ($executableList as $position => $executable) {
-                $callable = $executable->getCallable();
-                call_user_func($callable);
-            }
+        foreach ($executableListByTier as $tier => $executable) {
+            $callable = $executable->getCallable();
+            call_user_func($callable);
         }
     }
 
     public function testExecutable()
     {
-        $execListByTier = new ExecutableListByTier();
+        $execListByTier = new ExecutableByTier();
 
         $count = 0;
         $fn1Count = null;
@@ -86,19 +81,15 @@ class ExecutableListByTierTest extends BaseTestCase
         $execListByTier->addExecutableToTier(10, $fn2);
 
         $order = [];
-        $execPosition = [];
         
-        foreach ($execListByTier as $tier => $executableList) {
+        foreach ($execListByTier as $tier => $executable) {
             $order[] = $tier;
-            foreach ($executableList as $position => $executable) {
-                $callable = $executable->getCallable();
-                if (is_callable($callable) === false) {
-                    $this->fail("Callable returned by executable apparently isn't.");
-                }
-                
-                call_user_func($callable);
-                $execPosition[] = $position;
+            $callable = $executable->getCallable();
+            if (is_callable($callable) === false) {
+                $this->fail("Callable returned by executable apparently isn't.");
             }
+
+            call_user_func($callable);
         }
         
         //This checks that the fns were run in the correct order.
@@ -109,7 +100,5 @@ class ExecutableListByTierTest extends BaseTestCase
         
         //Check that the things were ordered correctly.
         $this->assertEquals([5, 10, 11, 15], $order);
-        //Check that the executables were the first item in each tier
-        $this->assertEquals([0, 0, 0, 0], $execPosition);
     }
 }

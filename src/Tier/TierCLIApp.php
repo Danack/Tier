@@ -105,22 +105,22 @@ class TierCLIApp extends TierApp
      */
     public function addInitialExecutable($callable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_INITIAL, $callable);
+        $this->executableByTier->addExecutableToTier(self::TIER_INITIAL, $callable);
     }
 
     public function addBeforeRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_ROUTING, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_BEFORE_ROUTING, $executable);
     }
     
     public function addRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_ROUTING, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_ROUTING, $executable);
     }
     
     public function addAfterRoutingExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_ROUTING, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_AFTER_ROUTING, $executable);
     }
     
 
@@ -129,7 +129,7 @@ class TierCLIApp extends TierApp
      */
     public function addBeforeGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_OUTPUT, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_BEFORE_OUTPUT, $executable);
     }
 
     /**
@@ -137,7 +137,7 @@ class TierCLIApp extends TierApp
      */
     public function addGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_GENERATE_OUTPUT, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_GENERATE_OUTPUT, $executable);
     }
 
     /**
@@ -145,7 +145,7 @@ class TierCLIApp extends TierApp
      */
     public function addAfterGenerateOutputExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_OUTPUT, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_AFTER_OUTPUT, $executable);
     }
 
     /**
@@ -153,14 +153,14 @@ class TierCLIApp extends TierApp
      */
     public function addBeforeCleanupExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_BEFORE_CLEANUP, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_BEFORE_CLEANUP, $executable);
     }
     /**
      * @param $executable
      */
     public function addCleanupExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_CLEANUP, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_CLEANUP, $executable);
     }
 
     /**
@@ -168,7 +168,7 @@ class TierCLIApp extends TierApp
      */
     public function addAfterCleanupExecutable($executable)
     {
-        $this->executableListByTier->addExecutableToTier(self::TIER_AFTER_CLEANUP, $executable);
+        $this->executableByTier->addExecutableToTier(self::TIER_AFTER_CLEANUP, $executable);
     }
 
     public function execute()

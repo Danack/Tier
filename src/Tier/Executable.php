@@ -131,4 +131,12 @@ class Executable
     {
         $this->tierNumber = $tierNumber;
     }
+
+    /**
+     * @return bool
+     */
+    public function shouldLoop()
+    {
+        return false;
+    }
 }

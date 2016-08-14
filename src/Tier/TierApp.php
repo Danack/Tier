@@ -12,9 +12,9 @@ use Tier\InjectionParams;
 class TierApp
 {
     /**
-     * @var \Tier\ExecutableListByTier
+     * @var \Tier\ExecutableByTier
      */
-    protected $executableListByTier;
+    protected $executableByTier;
 
     /** @var Injector The DIC that runs the app */
     protected $injector;
@@ -25,16 +25,11 @@ class TierApp
     // Running of the application should continue.
     const PROCESS_CONTINUE = 1;
 
-    // The current tier of the appliction has finished and should move to the next one.
-    // This is useful for things like a caching service to indicate that the response
-    // has been served from cache and the main processing body doesn't need to be run.
-    const PROCESS_END_STAGE = 2;
-
+    // Application should finish looping, and move onto the next executable.
+    const PROCESS_END_LOOPING = 2;
+    
     // Application has finished running
     const PROCESS_END = 3;
-    
-    // Application should finish looping, and move onto the shut-down routines
-    const PROCESS_END_LOOPING = 4;
 
     /**
      * The expected products are the names of objects that the application is expected to
@@ -66,26 +61,9 @@ class TierApp
         callable $loopCallback
     ) {
         $this->injector = $injector;
-        $this->executableListByTier = new ExecutableListByTier();
+        $this->executableByTier = new ExecutableByTier();
         $this->loopCallback = $loopCallback;
     }
-
-    /**
-     * @return ExecutableList[]
-     */
-    private function iterateTiers()
-    {
-        return $this->executableListByTier;
-
-//      yield isn't supported in PHP 5.4
-//        foreach ($this->executableListByTier as $appStage => $executableList) {
-//            yield $appStage => $executableList;
-//            while ($executableList->shouldLoop() === true) {
-//                yield $appStage => $executableList;
-//            }
-//        }
-    }
-
 
     /**
      * @throws TierException
@@ -96,8 +74,9 @@ class TierApp
         // across the application
         $this->injector->share($this->injector); //yolo
 
-        foreach ($this->iterateTiers() as $appStage => $executableList) {
-            foreach ($executableList as $executable) {
+        foreach ($this->executableByTier as $appStage => $executable) {
+            $loop = $executable->shouldLoop();
+            do {
                 if ($this->loopCallback !== null) {
                     $callback = $this->loopCallback;
                     $callback();
@@ -107,23 +86,22 @@ class TierApp
                 //has already been made. This allows very easy caching layers.
                 $skipIfProduced = $executable->getSkipIfExpectedProductProduced();
                 if ($skipIfProduced !== null &&
-                    $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
+                    $this->hasExpectedProductBeenProduced($skipIfProduced) === true
+                ) {
+                    $loop = false;
                     continue;
                 }
 
                 $result = self::executeExecutable($executable, $this->injector);
                 $finished = $this->processResult($result, $executable);
-                
+
                 if ($finished === self::PROCESS_END_LOOPING) {
-                    $executableList->setShouldLoop(false);
-                }
-                if ($finished === self::PROCESS_END_STAGE) {
-                    break;
+                    $loop = false;
                 }
                 if ($finished === self::PROCESS_END) {
                     return;
                 }
-            }
+            } while ($loop === true);
         }
 
         if ($this->warnOnSilentProcessingEnd === true) {
@@ -131,6 +109,11 @@ class TierApp
         }
     }
 
+    /**
+     * @param Executable $tier
+     * @param Injector $injector
+     * @return mixed
+     */
     public static function executeExecutable(Executable $tier, Injector $injector)
     {
         // Setup the information created by the previous Tier.
@@ -146,7 +129,6 @@ class TierApp
         // Call this Tier's callable.
         return $injector->execute($tier->getCallable());
     }
-
 
     /**
      * @param $result mixed The result produced by running the previous executable.
@@ -166,10 +148,11 @@ class TierApp
 
         // If it's a new Tier to run, setup the next loop.
         if ($result instanceof Executable) {
-            $this->executableListByTier->addExecutable($result);
+            $this->executableByTier->addExecutable($result);
             return self::PROCESS_CONTINUE;
         }
         
+        // The executable returned nothing.
         if ($result === null && $executable->isAllowedToReturnNull() === true) {
             return self::PROCESS_CONTINUE;
         }
@@ -179,12 +162,12 @@ class TierApp
             //It's an array of tiers to run.
             foreach ($result as $executableOrCallable) {
                 if (($executableOrCallable instanceof Executable) === true) {
-                    $this->executableListByTier->addExecutable($executableOrCallable);
+                    $this->executableByTier->addExecutable($executableOrCallable);
                     continue;
                 }
                 else if (is_callable($executableOrCallable) === true) {
                     $newExecutable = new Executable($executableOrCallable);
-                    $this->executableListByTier->addExecutable($newExecutable);
+                    $this->executableByTier->addExecutable($newExecutable);
                     continue;
                 }
 
@@ -209,12 +192,12 @@ class TierApp
                 }
                 $this->expectedProducts[$expectedProduct] = true;
                 $this->injector->share($result);
-                return self::PROCESS_END_STAGE;
+                return self::PROCESS_CONTINUE;
             }
         }
 
-        if ($result === self::PROCESS_END_STAGE ||
-            $result === self::PROCESS_CONTINUE ||
+        // It was a control constant.
+        if ($result === self::PROCESS_CONTINUE ||
             $result === self::PROCESS_END ||
             $result === self::PROCESS_END_LOOPING
         ) {
@@ -262,6 +245,6 @@ class TierApp
      */
     public function addExecutable($tier, $executable)
     {
-        $this->executableListByTier->addExecutableToTier($tier, $executable);
+        $this->executableByTier->addExecutableToTier($tier, $executable);
     }
 }

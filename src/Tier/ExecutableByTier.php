@@ -9,16 +9,16 @@ namespace Tier;
  * each tier of the application.
  *
  */
-class ExecutableListByTier implements \Iterator
+class ExecutableByTier implements \Iterator
 {
     private $currentTier = -1;
     
     const TIER_NUMBER_LIMIT = 1000000;
 
     /**
-     * @var ExecutableList[]
+     * @var Executable[]
      */
-    private $executableListByTier;
+    private $executableByTier;
 
     public function __construct()
     {
@@ -26,11 +26,11 @@ class ExecutableListByTier implements \Iterator
     }
 
     /**
-     * @return ExecutableList
+     * @return Executable
      */
     public function current()
     {
-        return $this->executableListByTier[$this->currentTier];
+        return $this->executableByTier[$this->currentTier];
     }
 
     /**
@@ -47,7 +47,7 @@ class ExecutableListByTier implements \Iterator
     public function next()
     {
         //The stages are already sorted by key value
-        foreach ($this->executableListByTier as $stage => $tiers) {
+        foreach ($this->executableByTier as $stage => $tiers) {
             if ($stage > $this->currentTier) {
                 $this->currentTier = $stage;
                 return;
@@ -80,6 +80,10 @@ class ExecutableListByTier implements \Iterator
      */
     public function addExecutableToTier($tierOrder, $callableOrExecutable)
     {
+        if (isset($this->executableByTier[$tierOrder]) === true) {
+            throw new TierException("Executable already set for tier $tierOrder");
+        }
+
         if ($tierOrder >= self::TIER_NUMBER_LIMIT) {
             $message = sprintf(
                 "Cannot add tier past ExecutableListByTier::TIER_NUMBER_LIMIT which is %d",
@@ -104,21 +108,19 @@ class ExecutableListByTier implements \Iterator
             throw new TierException($message);
         }
 
-        if (isset($this->executableListByTier[$tierOrder]) === false) {
-            $this->executableListByTier[$tierOrder] = new ExecutableList();
-        }
-        
-        $this->executableListByTier[$tierOrder]->addExecutable($executable);
-        ksort($this->executableListByTier);
+
+
+        $this->executableByTier[$tierOrder] = $executable;
+        ksort($this->executableByTier);
     }
 
-    public function setTierShouldLoop($tierOrder)
-    {
-        if (isset($this->executableListByTier[$tierOrder]) === false) {
-            $this->executableListByTier[$tierOrder] = new ExecutableList();
-        }
-        $this->executableListByTier[$tierOrder]->setShouldLoop(true);
-    }
+//    public function setTierShouldLoop($tierOrder)
+//    {
+//        if (isset($this->executableByTier[$tierOrder]) === false) {
+//            $this->executableByTier[$tierOrder] = new ExecutableList();
+//        }
+//        $this->executableByTier[$tierOrder]->setShouldLoop(true);
+//    }
     
     /**
      * Add an executable in the tier it wants to be run in, or the

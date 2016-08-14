@@ -3,7 +3,7 @@
 
 namespace TierTest;
 
-use Tier\ExecutableListByTier;
+use Tier\ExecutableByTier;
 use Auryn\Injector;
 
 class TierStageTest extends BaseTestCase
@@ -13,7 +13,7 @@ class TierStageTest extends BaseTestCase
     {
         $functionsCalled = [];
         
-        $tiersByStage = new ExecutableListByTier();
+        $tiersByStage = new ExecutableByTier();
         
         $fn2 = function () use (&$functionsCalled) {
             $functionsCalled[2] = true;
@@ -28,14 +28,11 @@ class TierStageTest extends BaseTestCase
         };
         
         $tiersByStage->addExecutableToTier(2, $fn0);
-        $tiersByStage->addExecutableToTier(2, $fn1);
-                
+        $tiersByStage->addExecutableToTier(3, $fn1);
         $injector = new Injector();
-        
-        foreach ($tiersByStage as $appStage => $executablesForTier) {
-            foreach ($executablesForTier as $executable) {
-                $injector->execute($executable->getCallable());
-            }
+
+        foreach ($tiersByStage as $appStage => $executable) {
+            $injector->execute($executable->getCallable());
         }
 
         $this->assertArrayHasKey(0, $functionsCalled);
