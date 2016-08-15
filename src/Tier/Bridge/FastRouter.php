@@ -64,7 +64,7 @@ class FastRouter
     {
         return new TextBody('Route not found.', 404);
     }
-    
+
     public function serve405ErrorPage()
     {
         return new TextBody('Method not allowed for route.', 405);
