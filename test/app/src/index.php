@@ -1,17 +1,22 @@
 <?php
 
 use Auryn\Injector;
+use Room11\HTTP\Body\TextBody;
 use Tier\Executable;
 use Tier\HTTPFunction;
 use Tier\TierFunction;
 use Tier\TierHTTPApp;
 use Room11\HTTP\Request\CLIRequest;
+use Tier\Exception\RouteNotMatchedException;
+use Tier\Exception\MethodNotAllowedException;
 
 ini_set('display_errors', 'on');
 
 $autoloader = require __DIR__.'/../../../vendor/autoload.php';
 
-HTTPFunction::setupErrorHandlers();
+set_error_handler(['Tier\HTTPFunction', 'tierErrorHandler']);
+
+HTTPFunction::setupShutdownFunction();
 
 ini_set('display_errors', 'off');
 
@@ -48,11 +53,22 @@ $app = new TierHTTPApp($injector);
 // Make the body that is generated be shared by TierApp
 $app->addExpectedProduct('Room11\HTTP\Body');
 
-$app->addGenerateBodyExecutable($routingExecutable);
 
-$app->addSendExecutable(['Tier\HTTPFunction', 'sendBodyResponse']);
+define('TIER_ROUTING', 10);
+define('TIER_GENERATE_RESPONSE', 10);
+define('TIER_BEFORE_SEND', 80);
+define('TIER_SEND', 90);
 
-$app->createStandardExceptionResolver();
+$app->addExecutable(TIER_GENERATE_RESPONSE, $routingExecutable);
 
-// Run it
-$app->execute($request);
+$app->addExecutable(TIER_SEND, ['Tier\HTTPFunction', 'sendBodyResponse']);
+
+
+try {
+    // Run it
+    $app->execute($request);
+}
+catch (\Exception $e) {
+    $body = new TextBody("Exception: '" . $e->getMessage() . "'", 500);
+    HTTPFunction::sendRawBodyResponse($body);
+}

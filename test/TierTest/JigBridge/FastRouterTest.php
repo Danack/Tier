@@ -9,6 +9,7 @@ use Jig\Jig;
 use FastRoute\RouteCollector;
 use Room11\HTTP\Request\CLIRequest;
 use Tier\TierApp;
+use Room11\HTTP\Body\TextBody;
 
 //function createFastRouteDispatcher()
 //{
@@ -60,7 +61,20 @@ class FastRouterTest extends BaseTestCase
         $request = new CLIRequest("/thisdoesnotexist", 'example.com');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $result = $this->injector->execute('Tier\Bridge\FastRouter::routeRequest');
+        $router = $this->injector->make('Tier\Bridge\FastRouter');
+        
+        $fn404ErrorPage = function()  {
+            return new TextBody("Route not found.", 404);
+        };
+        $fn405ErrorPage = function() {
+            return new TextBody("Method not allowed for route.", 405);
+        };
+
+        $result = $router->routeRequest(
+            $request,
+            $fn404ErrorPage,
+            $fn405ErrorPage
+        );
 
         $body = TierApp::executeExecutable($result, $this->injector);
         $this->assertInstanceOf('Room11\HTTP\Body\TextBody', $body);
@@ -71,15 +85,28 @@ class FastRouterTest extends BaseTestCase
         $this->assertContains("Route not found.", $html);
         $this->assertEquals(404, $body->getStatusCode());
     }
-    
-    
+
     public function testRouting405()
     {
         $request = new CLIRequest("/introduction", 'example.com', 'POST');
         $this->injector->alias('Psr\Http\Message\ServerRequestInterface', get_class($request));
         $this->injector->share($request);
-        $renderCallable = $this->injector->execute('Tier\Bridge\FastRouter::routeRequest');
-        $body = TierApp::executeExecutable($renderCallable, $this->injector);
+
+        $router = $this->injector->make('Tier\Bridge\FastRouter');
+        $fn404ErrorPage = function()  {
+            return new TextBody("Route not found.", 404);
+        };
+        $fn405ErrorPage = function() {
+            return new TextBody("Method not allowed for route.", 405);
+        };
+        
+        $result = $router->routeRequest(
+            $request,
+            $fn404ErrorPage,
+            $fn405ErrorPage
+        );
+
+        $body = TierApp::executeExecutable($result, $this->injector);
         $this->assertInstanceOf('Room11\HTTP\Body\TextBody', $body);
         /** @var $body \Room11\HTTP\Body\HtmlBody */
         $html = $body->getData();

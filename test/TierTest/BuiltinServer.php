@@ -121,11 +121,7 @@ class BuiltinServer
             sleep(1);
             return 0;
         }
-//        echo "Command is:\n";
-//        echo $command;
-//        echo "\n";
-        
-    
+
         if (posix_setsid() < 0) {
             echo 'Unable to set the child process as session leader';
             return -1;

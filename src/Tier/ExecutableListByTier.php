@@ -16,9 +16,9 @@ class ExecutableListByTier implements \Iterator
     const TIER_NUMBER_LIMIT = 1000000;
 
     /**
-     * @var ExecutableList[]
+     * @var Executable[]
      */
-    private $executableListByTier;
+    private $executablesByTier = [];
 
     public function __construct()
     {
@@ -26,11 +26,11 @@ class ExecutableListByTier implements \Iterator
     }
 
     /**
-     * @return ExecutableList
+     * @return Executable
      */
     public function current()
     {
-        return $this->executableListByTier[$this->currentTier];
+        return $this->executablesByTier[$this->currentTier];
     }
 
     /**
@@ -46,10 +46,10 @@ class ExecutableListByTier implements \Iterator
      */
     public function next()
     {
-        //The stages are already sorted by key value
-        foreach ($this->executableListByTier as $stage => $tiers) {
-            if ($stage > $this->currentTier) {
-                $this->currentTier = $stage;
+        $keys = array_keys($this->executablesByTier);
+        foreach ($keys as $possibleNextStage) {
+            if ($possibleNextStage > $this->currentTier) {
+                $this->currentTier = $possibleNextStage;
                 return;
             }
         }
@@ -88,7 +88,7 @@ class ExecutableListByTier implements \Iterator
             throw new TierException($message, TierException::INCORRECT_VALUE);
         }
 
-        if (is_a($callableOrExecutable, 'Tier\Executable') === true) {
+        if ($callableOrExecutable instanceof \Tier\Executable) {
             $executable = $callableOrExecutable;
         }
         else if (is_callable($callableOrExecutable) === true) {
@@ -98,28 +98,21 @@ class ExecutableListByTier implements \Iterator
         else {
             $message = sprintf(
                 'Executable or callable required, instead have: %s',
-                substr(var_export($callableOrExecutable, true), 0, 50)
+                gettype($callableOrExecutable)
             );
             
             throw new TierException($message);
         }
 
-        if (isset($this->executableListByTier[$tierOrder]) === false) {
-            $this->executableListByTier[$tierOrder] = new ExecutableList();
+        if (array_key_exists($tierOrder, $this->executablesByTier) === true) {
+            throw new TierException("Executable already set for tier $tierOrder");
         }
+
+        $this->executablesByTier[$tierOrder] = $executable;
+        ksort($this->executablesByTier);
         
-        $this->executableListByTier[$tierOrder]->addExecutable($executable);
-        ksort($this->executableListByTier);
     }
 
-    public function setTierShouldLoop($tierOrder)
-    {
-        if (isset($this->executableListByTier[$tierOrder]) === false) {
-            $this->executableListByTier[$tierOrder] = new ExecutableList();
-        }
-        $this->executableListByTier[$tierOrder]->setShouldLoop(true);
-    }
-    
     /**
      * Add an executable in the tier it wants to be run in, or the
      * next stage if no tier is set.

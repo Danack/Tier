@@ -16,14 +16,21 @@ class OutputBufferCleaner
     {
         $this->initialOBLevel = ob_get_level();
     }
-    
+
+    /**
+     * @throws TierException
+     */
     public function checkOutputBufferCleared()
     {
         if (ob_get_level() !== $this->initialOBLevel) {
+            $this->clearOutputBuffer();
             throw new TierException("Execution of the application resulted in an uncleared output buffer.");
         }
     }
 
+    /**
+     * 
+     */
     public function clearOutputBuffer()
     {
         //Need to ob_end_clean as many times as required because

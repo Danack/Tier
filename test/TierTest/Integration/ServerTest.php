@@ -14,9 +14,6 @@ use TierTest\Controller\BasicController;
  */
 class ServerTest extends BaseTestCase
 {
-    /** @var  InjectionParams */
-    private $injectionParams;
-    
     /** @var  BuiltinServer */
     private static $server = null;
     
@@ -27,7 +24,7 @@ class ServerTest extends BaseTestCase
 
     public static function setUpBeforeClass()
     {
-        // TODO - test this is set appropriatel.
+        // TODO - test this is set appropriate.
         // opcache.save_comments
         
         $path = realpath(__DIR__."/../../../test/app/public");

@@ -3,7 +3,6 @@
 namespace Tier;
 
 use Auryn\Injector;
-use Tier\InjectionParams;
 
 /**
  * Class TierApp
@@ -25,16 +24,11 @@ class TierApp
     // Running of the application should continue.
     const PROCESS_CONTINUE = 1;
 
-    // The current tier of the appliction has finished and should move to the next one.
-    // This is useful for things like a caching service to indicate that the response
-    // has been served from cache and the main processing body doesn't need to be run.
-    const PROCESS_END_STAGE = 2;
-
     // Application has finished running
-    const PROCESS_END = 3;
+    const PROCESS_END = 2;
     
     // Application should finish looping, and move onto the shut-down routines
-    const PROCESS_END_LOOPING = 4;
+    //const PROCESS_END_LOOPING = 4;
 
     /**
      * The expected products are the names of objects that the application is expected to
@@ -52,7 +46,8 @@ class TierApp
      */
     public $warnOnSilentProcessingEnd = false;
 
-    const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
+    //const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, an 'expectedProduct' or an array of Executables.";
+    const RETURN_VALUE = "An Executable must return one of Executable, a TierApp::PROCESS_* constant, or an 'expectedProduct'";
 
     /** @var \callable|null */
     protected $loopCallback = null;
@@ -71,20 +66,6 @@ class TierApp
     }
 
     /**
-     * @return ExecutableList[]
-     */
-    private function iterateTiers()
-    {
-        foreach ($this->executableListByTier as $appStage => $executableList) {
-            yield $appStage => $executableList;
-            while ($executableList->shouldLoop() === true) {
-                yield $appStage => $executableList;
-            }
-        }
-    }
-
-
-    /**
      * @throws TierException
      */
     public function executeInternal()
@@ -93,33 +74,26 @@ class TierApp
         // across the application
         $this->injector->share($this->injector); //yolo
 
-        foreach ($this->iterateTiers() as $appStage => $executableList) {
-            foreach ($executableList as $executable) {
-                if ($this->loopCallback !== null) {
-                    $callback = $this->loopCallback;
-                    $callback();
-                }
+        foreach ($this->executableListByTier as $appStage => $executable) {
+            if ($this->loopCallback !== null) {
+                $callback = $this->loopCallback;
+                $callback();
+            }
 
-                //Some executables shouldn't be run if a certain product
-                //has already been made. This allows very easy caching layers.
-                $skipIfProduced = $executable->getSkipIfExpectedProductProduced();
-                if ($skipIfProduced !== null &&
-                    $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
-                    continue;
-                }
+            //Some executables shouldn't be run if a certain product
+            //has already been made. This allows very easy caching layers.
+            $skipIfProduced = $executable->getSkipIfExpectedProductProduced();
+            if ($skipIfProduced !== null &&
+                $this->hasExpectedProductBeenProduced($skipIfProduced) === true) {
+                continue;
+            }
 
-                $result = self::executeExecutable($executable, $this->injector);
-                $finished = $this->processResult($result, $executable);
-                
-                if ($finished === self::PROCESS_END_LOOPING) {
-                    $executableList->setShouldLoop(false);
-                }
-                if ($finished === self::PROCESS_END_STAGE) {
-                    break;
-                }
-                if ($finished === self::PROCESS_END) {
-                    return;
-                }
+            $result = self::executeExecutable($executable, $this->injector);
+            $finished = $this->processResult($result, $executable);
+
+            if ($finished === self::PROCESS_END) {
+                //echo "This is breaking because of PROCESS_END";
+                return;
             }
         }
 
@@ -128,6 +102,11 @@ class TierApp
         }
     }
 
+    /**
+     * @param Executable $tier
+     * @param Injector $injector
+     * @return mixed
+     */
     public static function executeExecutable(Executable $tier, Injector $injector)
     {
         // Setup the information created by the previous Tier.
@@ -171,24 +150,24 @@ class TierApp
             return self::PROCESS_CONTINUE;
         }
 
-        if (is_array($result) === true &&
-            count($result) !== 0) {
-            //It's an array of tiers to run.
-            foreach ($result as $executableOrCallable) {
-                if (($executableOrCallable instanceof Executable) === true) {
-                    $this->executableListByTier->addExecutable($executableOrCallable);
-                    continue;
-                }
-                else if (is_callable($executableOrCallable) === true) {
-                    $newExecutable = new Executable($executableOrCallable);
-                    $this->executableListByTier->addExecutable($newExecutable);
-                    continue;
-                }
-
-                throw InvalidReturnException::getWrongTypeException($result, $executable);
-            }
-            return self::PROCESS_CONTINUE;
-        }
+//        if (is_array($result) === true &&
+//            count($result) !== 0) {
+//            //It's an array of tiers to run.
+//            foreach ($result as $executableOrCallable) {
+//                if (($executableOrCallable instanceof Executable) === true) {
+//                    $this->executableListByTier->addExecutable($executableOrCallable);
+//                    continue;
+//                }
+//                else if (is_callable($executableOrCallable) === true) {
+//                    $newExecutable = new Executable($executableOrCallable);
+//                    $this->executableListByTier->addExecutable($newExecutable);
+//                    continue;
+//                }
+//
+//                throw InvalidReturnException::getWrongTypeException($result, $executable);
+//            }
+//            return self::PROCESS_CONTINUE;
+//        }
 
         if ($result === false) {
             // The executed tier wasn't able to handle it e.g. a caching layer
@@ -206,14 +185,14 @@ class TierApp
                 }
                 $this->expectedProducts[$expectedProduct] = true;
                 $this->injector->share($result);
-                return self::PROCESS_END_STAGE;
+                return self::PROCESS_CONTINUE;
             }
         }
 
-        if ($result === self::PROCESS_END_STAGE ||
+        if (//$result === self::PROCESS_END_STAGE ||
             $result === self::PROCESS_CONTINUE ||
-            $result === self::PROCESS_END ||
-            $result === self::PROCESS_END_LOOPING
+            $result === self::PROCESS_END 
+            // || $result === self::PROCESS_END_LOOPING
         ) {
             return $result;
         }

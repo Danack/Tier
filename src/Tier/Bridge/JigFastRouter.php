@@ -50,7 +50,7 @@ class JigFastRouter
         $templateName = str_replace('..', '', $templateName);
         $templateNormalisedName = 'pages'.$templateName;
         $templatePathname = $this->jigConfig->getTemplatePath($templateNormalisedName);
-     
+        
         // Does the path match the file name of a template?
         if (file_exists($templatePathname) === true) {
             return $templateNormalisedName;
@@ -76,6 +76,7 @@ class JigFastRouter
         $routeInfo = $this->dispatcher->dispatch($request->getMethod(), $path);
         $dispatcherResult = $routeInfo[0];
         
+
         if ($dispatcherResult === \FastRoute\Dispatcher::FOUND) {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
@@ -84,7 +85,7 @@ class JigFastRouter
             $injectionParams = InjectionParams::fromParams($vars);
             // and then share them as a type
             $injectionParams->share(new \Tier\Bridge\RouteParams($vars));
-    
+
             return new Executable($handler, $injectionParams, null);
         }
         else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {

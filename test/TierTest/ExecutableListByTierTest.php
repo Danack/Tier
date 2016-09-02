@@ -1,14 +1,15 @@
 <?php
 
+
 namespace TierTest;
 
-use Tier\Executable;
 use Tier\ExecutableListByTier;
+use Auryn\Injector;
+use Tier\Executable;
 use Tier\TierException;
 
 class ExecutableListByTierTest extends BaseTestCase
 {
-    
     public function testExecutableOutOfRange()
     {
         $executableListByTier = new ExecutableListByTier();
@@ -43,12 +44,10 @@ class ExecutableListByTierTest extends BaseTestCase
 
         $this->setExpectedException('Tier\TierException', TierException::INCORRECT_VALUE);
 
-        foreach ($executableListByTier as $tier => $executableList) {
+        foreach ($executableListByTier as $tier => $executable) {
             $order[] = $tier;
-            foreach ($executableList as $position => $executable) {
-                $callable = $executable->getCallable();
-                call_user_func($callable);
-            }
+            $callable = $executable->getCallable();
+            call_user_func($callable);
         }
     }
 
@@ -86,19 +85,15 @@ class ExecutableListByTierTest extends BaseTestCase
         $execListByTier->addExecutableToTier(10, $fn2);
 
         $order = [];
-        $execPosition = [];
         
-        foreach ($execListByTier as $tier => $executableList) {
+        foreach ($execListByTier as $tier => $executable) {
             $order[] = $tier;
-            foreach ($executableList as $position => $executable) {
-                $callable = $executable->getCallable();
-                if (is_callable($callable) === false) {
-                    $this->fail("Callable returned by executable apparently isn't.");
-                }
-                
-                call_user_func($callable);
-                $execPosition[] = $position;
+            $callable = $executable->getCallable();
+            if (is_callable($callable) === false) {
+                $this->fail("Callable returned by executable apparently isn't.");
             }
+            
+            call_user_func($callable);
         }
         
         //This checks that the fns were run in the correct order.
@@ -109,7 +104,50 @@ class ExecutableListByTierTest extends BaseTestCase
         
         //Check that the things were ordered correctly.
         $this->assertEquals([5, 10, 11, 15], $order);
-        //Check that the executables were the first item in each tier
-        $this->assertEquals([0, 0, 0, 0], $execPosition);
+    }
+    
+    
+    public function testStageRunning()
+    {
+        $functionsCalled = [];
+        
+        $executableList = new ExecutableListByTier();
+        
+        $fn2 = function () use (&$functionsCalled) {
+            $functionsCalled[2] = true;
+        };
+
+        $fn0 = function () use (&$functionsCalled, $executableList, $fn2) {
+            $functionsCalled[0] = true;
+            $executableList->addExecutableToTier(2, $fn2);
+        };
+        $fn1 = function () use (&$functionsCalled) {
+            $functionsCalled[1] = true;
+        };
+        
+        $fn5 = function () use (&$functionsCalled) {
+            $functionsCalled[5] = true;
+        };
+        
+        $fn6 = function () use (&$functionsCalled) {
+            $functionsCalled[6] = true;
+        };
+        
+        $executableList->addExecutableToTier(0, $fn0);
+        $executableList->addExecutableToTier(1, $fn1);
+        $executableList->addExecutableToTier(6, $fn6);
+        $executableList->addExecutableToTier(5, $fn5);
+        
+
+        foreach ($executableList as $appStage => $executable) {
+            $callable = $executable->getCallable();
+            $callable();
+        }
+
+        $this->assertArrayHasKey(0, $functionsCalled);
+        $this->assertArrayHasKey(1, $functionsCalled);
+        $this->assertArrayHasKey(2, $functionsCalled);
+        $this->assertArrayHasKey(5, $functionsCalled);
+        $this->assertArrayHasKey(6, $functionsCalled);
     }
 }

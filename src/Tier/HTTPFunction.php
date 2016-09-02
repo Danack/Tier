@@ -2,16 +2,13 @@
 
 namespace Tier;
 
-use Auryn\InjectorException;
-use Auryn\InjectionException;
-use Jig\JigException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Room11\HTTP\Body;
-use Room11\HTTP\Body\HtmlBody;
 use Room11\HTTP\HeadersSet;
-use Tier\Body\ExceptionHtmlBody;
 use Zend\Diactoros\Response\EmitterInterface;
 use Zend\Diactoros\ServerRequestFactory;
+use Room11\HTTP\Body\HtmlBody;
+use Room11\HTTP\Body\ExceptionHtmlBody;
 
 /**
  * Class HTTPFunction
@@ -19,6 +16,47 @@ use Zend\Diactoros\ServerRequestFactory;
  */
 class HTTPFunction
 {
+    /**
+     * @param Body $body
+     * @param Request $request
+     * @param HeadersSet $headerSet
+     * @param EmitterInterface $emitterInterface
+     * @return int
+     */
+    public static function sendBodyResponse(
+        Body $body,
+        Request $request,
+        HeadersSet $headerSet,
+        EmitterInterface $emitterInterface
+    ) {
+        $response = new TierResponse($request, $headerSet, $body);
+
+        $emitterInterface->emit($response);
+        flush();
+
+        return \Tier\TierApp::PROCESS_CONTINUE;
+    }
+
+    /**
+     * @param Body $body
+     */
+    public static function sendRawBodyResponse(Body $body)
+    {
+        if (headers_sent() === false) {
+            header_remove();
+            $message = sprintf(
+                "HTTP/1.0 %d %s",
+                $body->getStatusCode(),
+                $body->getReasonPhrase()
+            );
+            header($message, true, $body->getStatusCode());
+        }
+
+        $body->sendData();
+        flush();
+    }
+
+
     /**
      * @return \Psr\Http\Message\RequestInterface
      */
@@ -51,26 +89,10 @@ class HTTPFunction
         }
     }
 
-    public static function tierErrorHandler($errorNumber, $errorMessage, $errorFile, $errorLine)
-    {
-        if (error_reporting() === 0) {
-            // Error reporting has be silenced
-            return true;
-        }
-        if ($errorNumber === E_DEPRECATED) {
-            return true; //Don't care - deprecated warnings are generally not useful
-        }
-
-        if ($errorNumber === E_CORE_ERROR || $errorNumber === E_ERROR) {
-            // For these two types, PHP is shutting down anyway. Return false
-            // to allow shutdown to continue
-            return false;
-        }
-
-        $message = "Error: [$errorNumber] $errorMessage in file $errorFile on line $errorLine<br />\n";
-        throw new \Exception($message);
-    }
-
+    /**
+     * This fatal error shutdown handler will only get called when there is a serious fatal
+     * error with your application.
+     */
     public static function tierShutdownFunction()
     {
         $fatals = [
@@ -124,13 +146,41 @@ HTML;
         }
     }
 
-    public static function tierExceptionHandler($ex)
+
+
+    /**
+     * Converts any non-suppressed warning or error to an exception.
+     * @param $errorNumber
+     * @param $errorMessage
+     * @param $errorFile
+     * @param $errorLine
+     * @return bool
+     * @throws \Exception
+     */
+    public static function tierErrorHandler($errorNumber, $errorMessage, $errorFile, $errorLine)
     {
-        $body = new ExceptionHtmlBody(TierFunction::getExceptionString($ex), 500);
-        self::sendRawBodyResponse($body);
+        if (error_reporting() === 0) {
+            // Error reporting has be silenced
+            return true;
+        }
+        if ($errorNumber === E_DEPRECATED) {
+            return false;
+        }
+
+        if ($errorNumber === E_CORE_ERROR || $errorNumber === E_ERROR) {
+            // For these two types, PHP is shutting down anyway. Return false
+            // to allow shutdown to continue
+            return false;
+        }
+
+        $message = "Error: [$errorNumber] $errorMessage in file $errorFile on line $errorLine<br />\n";
+        throw new \Exception($message);
     }
 
-    public static function setupErrorHandlers()
+    /**
+     * 
+     */
+    public static function setupShutdownFunction()
     {
         $initialOBLevel = ob_get_level();
         $shutdownFunction = function () use ($initialOBLevel) {
@@ -140,111 +190,11 @@ HTML;
             self::tierShutdownFunction();
         };
         register_shutdown_function($shutdownFunction);
-        set_exception_handler(['Tier\HTTPFunction', 'tierExceptionHandler']);
-        set_error_handler(['Tier\HTTPFunction', 'tierErrorHandler']);
     }
 
-    public static function sendRawBodyResponse(Body $body)
-    {
-        if (headers_sent() === false) {
-            header_remove();
-            $message = sprintf(
-                "HTTP/1.0 %d %s",
-                $body->getStatusCode(),
-                $body->getReasonPhrase()
-            );
-            header($message, true, $body->getStatusCode());
-        }
-
-        $body->sendData();
-    }
-
-    /**
-     * @param Body $body
-     * @param Request $request
-     * @param HeadersSet $headerSet
-     * @param EmitterInterface $emitterInterface
-     * @internal param Response $response
-     * @return int
-     */
-    public static function sendBodyResponse(
-        Body $body,
-        Request $request,
-        HeadersSet $headerSet,
-        EmitterInterface $emitterInterface
-    ) {
-        $response = new TierResponse($request, $headerSet, $body);
-
-        $emitterInterface->emit($response);
-        return \Tier\TierApp::PROCESS_CONTINUE;
-    }
-    
-    
-        /**
-     * @param InjectorException $ie
-     * @return int
-     * @return int
-     * @internal param Request $request
-     */
-    public static function processInjectorException(InjectorException $ie)
-    {
-        $exceptionString = TierFunction::getExceptionString($ie);
-        $body = new ExceptionHtmlBody($exceptionString, 500);
-        self::sendRawBodyResponse($body);
-
-        return \Tier\TierApp::PROCESS_END;
-    }
-
-    /**
-     * @param \Exception $e
-     * @return int
-     * @return int
-     */
-    public static function processException(\Exception $e)
-    {
-        $exceptionString = TierFunction::getExceptionString($e);
-        $body = new ExceptionHtmlBody($exceptionString, 500);
-        self::sendRawBodyResponse($body);
-
-        return \Tier\TierApp::PROCESS_END;
-    }
-
-    /**
-     * @param JigException $je
-     * @return int
-     * @return int
-     */
-    public static function processJigException(JigException $je)
-    {
-        $exceptionString = TierFunction::getExceptionString($je);
-        $body = new ExceptionHtmlBody($exceptionString, 500);
-        self::sendRawBodyResponse($body);
-    }
-
-    /**
-     * @param InjectionException $ie
-     * @return int
-     */
-    public static function processInjectionException(InjectionException $ie)
-    {
-        $body = $ie->getMessage()."\n\n";
-        $body .= "Dependency chain is:\n\n";
-        $body .= implode("\n", $ie->getDependencyChain());
-        $body .= "Stack trace:\n";
-        $body .= TierFunction::getExceptionString($ie);
-        $body = new ExceptionHtmlBody($body, 500);
-        self::sendRawBodyResponse($body);
-    }
-
-    /**
-     * @param \Exception $e
-     * @return int
-     * @return int
-     */
-    public static function processThrowable(\Throwable $e)
-    {
-        $exceptionString = TierFunction::getExceptionString($e);
-        $body = new ExceptionHtmlBody($exceptionString, 500);
-        self::sendRawBodyResponse($body);
-    }
+//    /*
+//    public static function setupErrorHandlers()
+//    {
+//        set_error_handler(['Tier\HTTPFunction', 'tierErrorHandler']);
+//    }
 }

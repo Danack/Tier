@@ -9,6 +9,8 @@ use Tier\Executable;
 use Tier\TierHTTPApp;
 use Tier\InjectionParams;
 use Tier\Bridge\RouteParams;
+use Tier\Exception\RouteNotMatchedException;
+use Tier\Exception\MethodNotAllowedException;
 
 /**
  * Matches a request to a route and returns an Executable from the route's callable.
@@ -26,47 +28,49 @@ class FastRouter
      * @param Request $request
      * @return Executable
      */
-    public function routeRequest(Request $request)
-    {
+    public function routeRequest(
+        Request $request,
+        $fn404ErrorPage = null,
+        $fn405ErrorPage = null
+    ) {
         $path = $request->getUri()->getPath();
         $routeInfo = $this->dispatcher->dispatch($request->getMethod(), $path);
         $dispatcherResult = $routeInfo[0];
         
-        if ($dispatcherResult === \FastRoute\Dispatcher::FOUND) {
+        if ($dispatcherResult === Dispatcher::FOUND) {
             $handler = $routeInfo[1];
             $vars = $routeInfo[2];
             // Share the params once as parameters so they can
             // be injected by name
             $injectionParams = InjectionParams::fromParams($vars);
             // and then share them as a type
-            $injectionParams->share(new \Tier\Bridge\RouteParams($vars));
+            $injectionParams->share(new RouteParams($vars));
 
             $executable = new Executable($handler, $injectionParams, null);
-            $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
 
             return $executable;
         }
-        else if ($dispatcherResult === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
-            //TODO - need to embed allowedMethods....theoretically.
-            $executable = new Executable([$this, 'serve405ErrorPage']);
-            $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
+        else if ($dispatcherResult === Dispatcher::METHOD_NOT_ALLOWED) {
+            if ($fn405ErrorPage === null) {
+                $message = sprintf(
+                    "Method '%s' not allowed for path '%s'",
+                    $request->getMethod(),
+                    $path
+                );
+                throw new MethodNotAllowedException($message);
+            }
+
+            $executable = new Executable($fn405ErrorPage);
 
             return $executable;
         }
+        
+        if ($fn404ErrorPage === null) {
+            throw new RouteNotMatchedException("Route not matched for path $path");
+        }
 
-        $executable = new Executable([$this, 'serve404ErrorPage']);
-        $executable->setTierNumber(TierHTTPApp::TIER_GENERATE_BODY);
+        $executable = new Executable($fn404ErrorPage);
 
         return $executable;
-    }
-
-    public function serve404ErrorPage()
-    {
-        return new TextBody('Route not found.', 404);
-    }
-
-    public function serve405ErrorPage()
-    {
-        return new TextBody('Method not allowed for route.', 405);
     }
 }
