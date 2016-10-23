@@ -8,7 +8,7 @@ use Jig\Jig;
 use Jig\JigBase;
 use Room11\HTTP\Body\HtmlBody;
 use Tier\Executable;
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 
 class JigExecutable
 {

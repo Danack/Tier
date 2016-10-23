@@ -29,7 +29,7 @@ class OutputBufferCleaner
     }
 
     /**
-     * 
+     *
      */
     public function clearOutputBuffer()
     {

@@ -178,7 +178,7 @@ HTML;
     }
 
     /**
-     * 
+     *
      */
     public static function setupShutdownFunction()
     {

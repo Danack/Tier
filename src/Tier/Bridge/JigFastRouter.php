@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Room11\HTTP\Body\TextBody;
 use Tier\Bridge\RouteParams;
 use Tier\Executable;
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 
 /**
  * Matches a request to a route and returns an Executable from the route's callable.

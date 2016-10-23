@@ -110,7 +110,6 @@ class ExecutableListByTier implements \Iterator
 
         $this->executablesByTier[$tierOrder] = $executable;
         ksort($this->executablesByTier);
-        
     }
 
     /**

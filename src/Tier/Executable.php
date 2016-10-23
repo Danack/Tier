@@ -2,6 +2,8 @@
 
 namespace Tier;
 
+use AurynConfig\InjectionParams;
+
 /**
  * Class Executable
  *
@@ -29,7 +31,7 @@ class Executable
     private $setupCallable;
     
     /**
-     * @var InjectionParams
+     * @var \AurynConfig\InjectionParams
      */
     private $injectionParams;
 
@@ -55,7 +57,7 @@ class Executable
     
     /**
      * @param $callable
-     * @param InjectionParams $injectionParams
+     * @param \AurynConfig\InjectionParams $injectionParams
      * @param null $setupCallable
      * @param null $skipIfProduced
      */

@@ -3,6 +3,7 @@
 namespace Tier;
 
 use Auryn\Injector;
+use AurynConfig\InjectionParams;
 
 /**
  * Class TierApp
@@ -191,7 +192,7 @@ class TierApp
 
         if (//$result === self::PROCESS_END_STAGE ||
             $result === self::PROCESS_CONTINUE ||
-            $result === self::PROCESS_END 
+            $result === self::PROCESS_END
             // || $result === self::PROCESS_END_LOOPING
         ) {
             return $result;

@@ -63,7 +63,7 @@ class FastRouterTest extends BaseTestCase
         $this->injector->share($request);
         $router = $this->injector->make('Tier\Bridge\FastRouter');
         
-        $fn404ErrorPage = function()  {
+        $fn404ErrorPage = function() {
             return new TextBody("Route not found.", 404);
         };
         $fn405ErrorPage = function() {
@@ -93,7 +93,7 @@ class FastRouterTest extends BaseTestCase
         $this->injector->share($request);
 
         $router = $this->injector->make('Tier\Bridge\FastRouter');
-        $fn404ErrorPage = function()  {
+        $fn404ErrorPage = function() {
             return new TextBody("Route not found.", 404);
         };
         $fn405ErrorPage = function() {

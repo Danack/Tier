@@ -7,7 +7,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Room11\HTTP\Body\TextBody;
 use Tier\Executable;
 use Tier\TierHTTPApp;
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 use Tier\Bridge\RouteParams;
 use Tier\Exception\RouteNotMatchedException;
 use Tier\Exception\MethodNotAllowedException;

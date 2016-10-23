@@ -2,14 +2,14 @@
 
 namespace TierTest;
 
+use Auryn\Injector;
+use AurynConfig\InjectionParams;
 use Tier\Callback\MaxLoopCallback;
 use Tier\Callback\NullCallback;
-use Tier\TierApp;
-use Tier\InjectionParams;
 use Tier\Executable;
+use Tier\TierApp;
 use Tier\TierException;
 use Tier\InvalidReturnException;
-use Auryn\Injector;
 
 class TierAppTest extends BaseTestCase
 {

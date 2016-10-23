@@ -62,6 +62,7 @@
     <!-- Sometimes this is fine. -->
     <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <exclude-pattern>*phpunit_bootstrap.php</exclude-pattern>
+        <exclude-pattern>*index.php</exclude-pattern>
     </rule>
     
     

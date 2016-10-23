@@ -3,7 +3,7 @@
 namespace TierTest;
 
 use Tier\Executable;
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 
 class ExecutableTest extends BaseTestCase
 {

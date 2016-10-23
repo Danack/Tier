@@ -33,5 +33,5 @@ class ExecutableForTier extends Executable
     public function getTierNumber()
     {
         return $this->tierNumber;
-    }   
+    }
 }

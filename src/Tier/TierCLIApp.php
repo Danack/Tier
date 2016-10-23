@@ -3,6 +3,7 @@
 namespace Tier;
 
 use Auryn\Injector;
+use AurynConfig\InjectionParams;
 
 use Tier\Callback\NullCallback;
 
@@ -12,16 +13,15 @@ use Tier\Callback\NullCallback;
  */
 class TierCLIApp extends TierApp
 {
-
     /** @var OutputBufferCleaner(); */
     private $outputBufferCleaner;
 
     /**
-     * @param InjectionParams $injectionParams
+     * @param \AurynConfig\InjectionParams $injectionParams
      * @param Injector $injector
-     * @param ExceptionResolver $exceptionResolver
      */
-    public function __construct(Injector $injector) {
+    public function __construct(Injector $injector)
+    {
         parent::__construct(
             $injector,
             new NullCallback()
@@ -33,7 +33,6 @@ class TierCLIApp extends TierApp
         try {
             $this->outputBufferCleaner = new OutputBufferCleaner();
             $this->executeInternal();
-            
         }
         finally {
             $this->outputBufferCleaner->checkOutputBufferCleared();

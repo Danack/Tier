@@ -45,22 +45,8 @@ class TierHTTPApp extends TierApp
             $this->executeInternal();
             $this->outputBufferCleaner->checkOutputBufferCleared();
         }
-        
-//        catch (\Exception $e) {
-//            while(ob_get_level() > 0) {
-//                ob_end_flush();
-//            }
-//            echo "Excepion message is : [" . $e->getMessage() . "]";
-//            
-//            echo "omg";
-//            throw $e;
-//            //exit(0);
-//        }
         finally {
             $this->outputBufferCleaner->clearOutputBuffer();
-            //echo "wtf";
-            //exit(0);
         }
     }
-
 }

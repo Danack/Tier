@@ -1,6 +1,6 @@
 <?php
 
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 
 // These classes will only be created  by the injector once
 $shares = [

@@ -26,7 +26,7 @@ class RouteParams
      */
     public function getVariable($variableName, $default = false, $minimum = false, $maximum = false)
     {
-        if (array_key_exists($variableName, $this->params) == true) {
+        if (array_key_exists($variableName, $this->params) === true) {
             $result = $this->params[$variableName];
         }
         else {

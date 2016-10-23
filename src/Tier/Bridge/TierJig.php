@@ -2,11 +2,11 @@
 
 namespace Tier\Bridge;
 
+use AurynConfig\InjectionParams;
 use Jig\Jig;
-use Tier\Bridge\JigExecutable;
-use Tier\InjectionParams;
-use Tier\Executable;
 use Room11\HTTP\Body\HtmlBody;
+use Tier\Bridge\JigExecutable;
+use Tier\Executable;
 
 class TierJig
 {
@@ -20,7 +20,7 @@ class TierJig
     public function createJigExecutable($templateName, InjectionParams $injectionParams = null)
     {
         if ($injectionParams === null) {
-            $injectionParams = InjectionParams::fromParams([]);
+            $injectionParams = new InjectionParams();
         }
         $className = $this->jig->compile($templateName);
         $injectionParams->alias('Jig\JigBase', $className);
