@@ -7,7 +7,7 @@ use Danack\Console\Output\BufferedOutput;
 use Danack\Console\Formatter\OutputFormatterStyle;
 use Danack\Console\Helper\QuestionHelper;
 use Tier\Executable;
-use Tier\InjectionParams;
+use AurynConfig\InjectionParams;
 
 class ConsoleRouter
 {
